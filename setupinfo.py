@@ -7,6 +7,8 @@ try:
     from Cython.Distutils import build_ext as build_pyx
     import Cython.Compiler.Version
     CYTHON_INSTALLED = True
+    if sys.pydebug:
+        CYTHON_INSTALLED = False
 except ImportError:
     CYTHON_INSTALLED = False
 

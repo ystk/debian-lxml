@@ -4,6 +4,8 @@ import sys, os
 # see the end of 'setupinfo.py'
 
 extra_options = {}
+if sys.version_info >= (3, 0):
+    extra_options['use_2to3'] = True
 
 try:
     import Cython
