@@ -3,15 +3,15 @@ The lxml.etree Tutorial
 =======================
  
 .. meta::
-  :description: The lxml tutorial on XML that feels like Python
-  :keywords: lxml, etree, tutorial, ElementTree, Python, XML, HTML
+  :description: The lxml tutorial on XML processing with Python
+  :keywords: XML processing with Python, lxml, lxml.etree, tutorial, ElementTree, Python, XML, HTML
 
 :Author:
   Stefan Behnel
 
-This tutorial briefly overviews the main concepts of the `ElementTree API`_ as
-implemented by ``lxml.etree``, and some simple enhancements that make your
-life as a programmer easier.
+This is a tutorial on XML processing with ``lxml.etree``.  It briefly
+overviews the main concepts of the `ElementTree API`_, and some simple
+enhancements that make your life as a programmer easier.
 
 For a complete reference of the API, see the `generated API
 documentation`_.
@@ -203,7 +203,7 @@ possible, elements behave like normal Python lists:
     >>> print(end[0].tag)
     child3
 
-    >>> root[0] = root[-1] # this moves the element!
+    >>> root[0] = root[-1] # this moves the element in lxml.etree!
     >>> for child in root:
     ...     print(child.tag)
     child3
@@ -915,10 +915,35 @@ need:
     None
     ** cleaning up the subtree
 
-If memory is a real bottleneck, or if building the tree is not desired at all,
-the target parser interface of ``lxml.etree`` can be used.  It creates
-SAX-like events by calling the methods of a target object.  By implementing
-some or all of these methods, you can control which events are generated:
+A very important use cases for ``iterparse()`` is parsing large
+generated XML files, e.g. database dumps.  Most often, these XML
+formats only have one main data item element that hangs directly below
+the root node and that is repeated thousands of times.  In this case,
+it is best practice to let ``lxml.etree`` do the tree building and to
+only intercept exactly on this one Element, using the normal tree API
+for data extraction.
+
+.. sourcecode:: pycon
+
+    >>> xml_file = StringIO('''\
+    ... <root>
+    ...   <a><b>ABC</b><c>abc</c></a>
+    ...   <a><b>MORE DATA</b><c>more data</c></a>
+    ...   <a><b>XYZ</b><c>xyz</c></a>
+    ... </root>''')
+
+    >>> for _, element in etree.iterparse(xml_file, tag='a'):
+    ...     print('%s -- %s' % (element.findtext('b'), element[1].text))
+    ...     element.clear()
+    ABC -- abc
+    MORE DATA -- more data
+    XYZ -- xyz
+
+If, for some reason, building the tree is not desired at all, the
+target parser interface of ``lxml.etree`` can be used.  It creates
+SAX-like events by calling the methods of a target object.  By
+implementing some or all of these methods, you can control which
+events are generated:
 
 .. sourcecode:: pycon
 
@@ -990,12 +1015,22 @@ the real namespaces instead:
 
 .. _`namespace prefixes`: http://www.w3.org/TR/xml-names/#ns-qualnames
 
-As you can see, prefixes only become important when you serialise the result.
-However, the above code becomes somewhat verbose due to the lengthy namespace
-names.  And retyping or copying a string over and over again is error prone.
-It is therefore common practice to store a namespace URI in a global variable.
-To adapt the namespace prefixes for serialisation, you can also pass a mapping
-to the Element factory, e.g. to define the default namespace:
+The notation that ElementTree uses was originally brought up by `James
+Clark`_.  It has the major advantage of providing a universally
+qualified name for a tag, regardless of any prefixes that may or may
+not have been used or defined in a document.  By moving the
+indirection of prefixes out of the way, it makes namespace aware code
+much clearer and safer.
+
+.. _`James Clark`: http://www.jclark.com/xml/xmlns.htm
+
+As you can see from the example, prefixes only become important when
+you serialise the result.  However, the above code looks somewhat
+verbose due to the lengthy namespace names.  And retyping or copying a
+string over and over again is error prone.  It is therefore common
+practice to store a namespace URI in a global variable.  To adapt the
+namespace prefixes for serialisation, you can also pass a mapping to
+the Element factory function, e.g. to define the default namespace:
 
 .. sourcecode:: pycon
 
@@ -1013,7 +1048,41 @@ to the Element factory, e.g. to define the default namespace:
       <body>Hello World</body>
     </html>
 
-Namespaces on attributes work alike:
+lxml.etree allows you to look up the current namespaces defined for a
+node through the ``.nsmap`` property:
+
+.. sourcecode:: pycon
+
+    >>> xhtml.nsmap
+    {None: 'http://www.w3.org/1999/xhtml'}
+
+Note, however, that this includes all prefixes known in the context of
+an Element, not only those that it defines itself.
+
+.. sourcecode:: pycon
+
+    >>> root = etree.Element('root', nsmap={'a': 'http://a.b/c'})
+    >>> child = etree.SubElement(root, 'child',
+    ...                          nsmap={'b': 'http://b.c/d'})
+    >>> len(root.nsmap)
+    1
+    >>> len(child.nsmap)
+    2
+    >>> child.nsmap['a']
+    'http://a.b/c'
+    >>> child.nsmap['b']
+    'http://b.c/d'
+
+Therefore, modifying the returned dict cannot have any meaningful
+impact on the Element.  Any changes to it are ignored.
+
+Namespaces on attributes work alike, but since version 2.3, lxml.etree
+will make sure that the attribute uses a prefixed namespace
+declaration.  This is because unprefixed attribute names are not
+considered being in a namespace by the XML namespace specification
+(`section 6.2`_), so they may end up loosing their namespace on a
+serialise-parse roundtrip, even if they appear in a namespaced
+element.
 
 .. sourcecode:: pycon
 
@@ -1021,7 +1090,7 @@ Namespaces on attributes work alike:
 
     >>> print(etree.tostring(xhtml, pretty_print=True))
     <html xmlns="http://www.w3.org/1999/xhtml">
-      <body bgcolor="#CCFFAA">Hello World</body>
+      <body xmlns:html="http://www.w3.org/1999/xhtml" html:bgcolor="#CCFFAA">Hello World</body>
     </html>
 
     >>> print(body.get("bgcolor"))
@@ -1029,7 +1098,9 @@ Namespaces on attributes work alike:
     >>> body.get(XHTML + "bgcolor")
     '#CCFFAA'
 
-You can also use XPath in this way:
+.. _`section 6.2`: http://www.w3.org/TR/2009/REC-xml-names-20091208/#defaulting
+
+You can also use XPath with fully qualified names:
 
 .. sourcecode:: pycon
 
@@ -1129,6 +1200,13 @@ simple vocabulary for an XML language:
 
 One such example is the module ``lxml.html.builder``, which provides a
 vocabulary for HTML.
+
+When dealing with multiple namespaces, it is good practice to define
+one ElementMaker for each namespace URI.  Again, note how the above
+example predefines the tag builders in named constants.  That makes it
+easy to put all tag declarations of a namespace into one Python module
+and to import/use the tag name constants from there.  This avoids
+pitfalls like typos or accidentally missing namespaces.
 
 
 ElementPath

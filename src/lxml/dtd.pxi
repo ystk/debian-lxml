@@ -28,8 +28,10 @@ cdef class DTD(_Validator):
     catalog.
     """
     cdef tree.xmlDtd* _c_dtd
-    def __init__(self, file=None, *, external_id=None):
+    def __cinit__(self):
         self._c_dtd = NULL
+
+    def __init__(self, file=None, *, external_id=None):
         _Validator.__init__(self)
         if file is not None:
             if _isString(file):
@@ -69,6 +71,7 @@ cdef class DTD(_Validator):
         cdef dtdvalid.xmlValidCtxt* valid_ctxt
         cdef int ret
 
+        assert self._c_dtd is not NULL, "DTD not initialised"
         doc = _documentOrRaise(etree)
         root_node = _rootNodeOrRaise(etree)
 
@@ -102,7 +105,7 @@ cdef tree.xmlDtd* _parseDtdFromFilelike(file) except NULL:
     cdef _ErrorLog error_log
     cdef tree.xmlDtd* c_dtd
     exc_context = _ExceptionContext()
-    dtd_parser = _FileReaderContext(file, exc_context, None, None)
+    dtd_parser = _FileReaderContext(file, exc_context, None)
     error_log = _ErrorLog()
 
     error_log.connect()
@@ -114,16 +117,12 @@ cdef tree.xmlDtd* _parseDtdFromFilelike(file) except NULL:
         raise DTDParseError(u"error parsing DTD", error_log)
     return c_dtd
 
-cdef extern from "etree_defs.h":
-    # macro call to 't->tp_new()' for fast instantiation
-    cdef DTD NEW_DTD "PY_NEW" (object t)
-
 cdef DTD _dtdFactory(tree.xmlDtd* c_dtd):
     # do not run through DTD.__init__()!
     cdef DTD dtd
     if c_dtd is NULL:
         return None
-    dtd = NEW_DTD(DTD)
+    dtd = DTD.__new__(DTD)
     dtd._c_dtd = tree.xmlCopyDtd(c_dtd)
     if dtd._c_dtd is NULL:
         python.PyErr_NoMemory()

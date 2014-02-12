@@ -27,6 +27,9 @@ cdef class RelaxNG(_Validator):
     filename through the ``file`` keyword argument.
     """
     cdef relaxng.xmlRelaxNG* _c_schema
+    def __cinit__(self):
+        self._c_schema = NULL
+
     def __init__(self, etree=None, *, file=None):
         cdef _Document doc
         cdef _Element root_node
@@ -35,7 +38,6 @@ cdef class RelaxNG(_Validator):
         cdef char* c_href
         cdef relaxng.xmlRelaxNGParserCtxt* parser_ctxt
         _Validator.__init__(self)
-        self._c_schema = NULL
         fake_c_doc = NULL
         if etree is not None:
             doc = _documentOrRaise(etree)
@@ -53,6 +55,7 @@ cdef class RelaxNG(_Validator):
             parser_ctxt = relaxng.xmlRelaxNGNewDocParserCtxt(fake_c_doc)
         elif file is not None:
             if _isString(file):
+                doc = None
                 filename = _encodeFilename(file)
                 self._error_log.connect()
                 parser_ctxt = relaxng.xmlRelaxNGNewParserCtxt(_cstr(filename))
@@ -103,6 +106,7 @@ cdef class RelaxNG(_Validator):
         cdef relaxng.xmlRelaxNGValidCtxt* valid_ctxt
         cdef int ret
 
+        assert self._c_schema is not NULL, "RelaxNG instance not initialised"
         doc = _documentOrRaise(etree)
         root_node = _rootNodeOrRaise(etree)
 

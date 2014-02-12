@@ -63,7 +63,7 @@ xml_str = '''\
     <obj:c2>1</obj:c2>
     <obj:c2>2</obj:c2>
     <other:c2>3</other:c2>
-    <c2>3</c2>
+    <c2>4</c2>
   </obj:c1>
 </obj:root>'''
 
@@ -318,6 +318,13 @@ class ObjectifyTestCase(HelperTestCase):
         arg = objectify.DataElement(3.1415)
         self.assertRaises(ValueError, objectify.DataElement, arg,
                           _xsi="xsd:int")
+
+    def test_data_element_element_arg(self):
+        arg = objectify.Element('arg')
+        value = objectify.DataElement(arg)
+        self.assert_(isinstance(value, objectify.ObjectifiedElement))
+        for attr in arg.attrib:
+            self.assertEquals(value.get(attr), arg.get(attr))
         
     def test_root(self):
         root = self.Element("test")
@@ -345,6 +352,11 @@ class ObjectifyTestCase(HelperTestCase):
         root = self.XML(xml_str)
         self.assertRaises(AttributeError, getattr, root.c1, "NOT_THERE")
         self.assertRaises(AttributeError, getattr, root.c1, "{unknownNS}c2")
+
+    def test_child_getattr_empty_ns(self):
+        root = self.XML(xml_str)
+        self.assertEquals("4", getattr(root.c1, "{}c2").text)
+        self.assertEquals("0", getattr(root.c1, "c2").text)
 
     def test_setattr(self):
         for val in [
@@ -744,6 +756,7 @@ class ObjectifyTestCase(HelperTestCase):
         self.assertFalse(isinstance(root.none, objectify.NoneElement))
         self.assertFalse(isinstance(root.none[0], objectify.NoneElement))
         self.assert_(isinstance(root.none[1], objectify.NoneElement))
+        self.assertEquals(hash(root.none[1]), hash(None))
         self.assertEquals(root.none[1], None)
         self.assertFalse(root.none[1])
 
@@ -763,6 +776,7 @@ class ObjectifyTestCase(HelperTestCase):
         self.assertEquals(True + root.bool, True + root.bool)
         self.assertEquals(root.bool * root.bool, True * True)
         self.assertEquals(int(root.bool), int(True))
+        self.assertEquals(hash(root.bool), hash(True))
         self.assertEquals(complex(root.bool), complex(True))
         self.assert_(isinstance(root.bool, objectify.BoolElement))
 
@@ -772,6 +786,7 @@ class ObjectifyTestCase(HelperTestCase):
         self.assertEquals(False + root.bool, False + root.bool)
         self.assertEquals(root.bool * root.bool, False * False)
         self.assertEquals(int(root.bool), int(False))
+        self.assertEquals(hash(root.bool), hash(False))
         self.assertEquals(complex(root.bool), complex(False))
         self.assert_(isinstance(root.bool, objectify.BoolElement))
 
@@ -847,6 +862,11 @@ class ObjectifyTestCase(HelperTestCase):
         el = objectify.DataElement(s)
         val = 5
         self.assertRaises(TypeError, el.__mod__, val)
+
+    def test_type_str_hash(self):
+        v = "1"
+        el = objectify.DataElement(v)
+        self.assertEquals(hash(el), hash("1"))
 
     def test_type_str_as_int(self):
         v = "1"
@@ -957,6 +977,10 @@ class ObjectifyTestCase(HelperTestCase):
         self.assert_(isinstance(value, objectify.IntElement))
         self.assertEquals(value, 5)
 
+    def test_data_element_int_hash(self):
+        value = objectify.DataElement(123)
+        self.assertEquals(hash(value), hash(123))
+
     def test_type_float(self):
         Element = self.Element
         SubElement = self.etree.SubElement
@@ -968,6 +992,10 @@ class ObjectifyTestCase(HelperTestCase):
         value = objectify.DataElement(5.5)
         self.assert_(isinstance(value, objectify.FloatElement))
         self.assertEquals(value, 5.5)
+
+    def test_data_element_float_hash(self):
+        value = objectify.DataElement(5.5)
+        self.assertEquals(hash(value), hash(5.5))
 
     def test_data_element_xsitypes(self):
         for xsi, objclass in xsitype2objclass.items():
@@ -1952,6 +1980,14 @@ class ObjectifyTestCase(HelperTestCase):
         self.assertEquals(r.date.pyval, parse_date(stringify_date(time)))
         self.assertEquals(r.date.text, stringify_date(time))
 
+        date = objectify.DataElement(time)
+
+        self.assert_(isinstance(date, DatetimeElement))
+        self.assert_(isinstance(date.pyval, datetime))
+
+        self.assertEquals(date.pyval, parse_date(stringify_date(time)))
+        self.assertEquals(date.text, stringify_date(time))
+
     def test_object_path(self):
         root = self.XML(xml_str)
         path = objectify.ObjectPath( "root.c1.c2" )
@@ -2327,6 +2363,43 @@ class ObjectifyTestCase(HelperTestCase):
         self.assertEquals(
             etree.tostring(new_tree),
             etree.tostring(tree))
+
+    def test_pickle_intelement(self):
+        self._test_pickle('<x>42</x>')
+        self._test_pickle(objectify.DataElement(42))
+
+    def test_pickle_floattelement(self):
+        self._test_pickle('<x>42.0</x>')
+        self._test_pickle(objectify.DataElement(42.0))
+
+    def test_pickle_strelement(self):
+        self._test_pickle('<x>Pickle me!</x>')
+        self._test_pickle(objectify.DataElement('Pickle me!'))
+
+    def test_pickle_boolelement(self):
+        self._test_pickle('<x>true</x>')
+        self._test_pickle('<x>false</x>')
+        self._test_pickle(objectify.DataElement(True))
+        self._test_pickle(objectify.DataElement(False))
+
+    def test_pickle_noneelement(self):
+        self._test_pickle('''
+<x xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true"/>''')
+        self._test_pickle(objectify.DataElement(None))
+
+    def _test_pickle(self, stringOrElt):
+        import pickle
+        if isinstance(stringOrElt, (etree._Element, etree._ElementTree)):
+            elt = stringOrElt
+        else:
+            elt = self.XML(stringOrElt)
+        out = BytesIO()
+        pickle.dump(elt, out)
+
+        new_elt = pickle.loads(out.getvalue())
+        self.assertEquals(
+            etree.tostring(new_elt),
+            etree.tostring(elt))
 
     # E-Factory tests, need to use sub-elements as root element is always
     # type-looked-up as ObjectifiedElement (no annotations)

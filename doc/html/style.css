@@ -60,13 +60,13 @@ div.sidemenu {
     position: absolute;
     top: 0px;
     left: 0px;
-    width: 24em;
+    width: 26em;
     font-size: 10px;
     text-align: left;
     border-right: groove gray;
     border-bottom: groove gray;
     padding-right: 1ex;
-    background: #FFFAFA url(tagpython.png) no-repeat top right;
+    background: #FFFAFA url(python-xml.png) no-repeat top right;
 }
 
 html > body div.sidemenu {
@@ -81,6 +81,7 @@ div.sidemenu span.section.title {
 
 div.sidemenu ul.menu.current li {
     color: #CC0000;
+    font-size: 105%;
 }
 
 div.sidemenu ul.menu.current > li > a {
@@ -121,8 +122,8 @@ div.sidemenu ul {
 /*** headings ***/
 
 h1.title {
-    background: url(http://codespeak.net/img/codespeak1b.png) no-repeat;
-    padding: 20px 0 0 180px;
+    background: url(python-xml-title.png) no-repeat;
+    padding: 20px 0 0 160px;
     height: 60px;
     font-size: 200%;
 }

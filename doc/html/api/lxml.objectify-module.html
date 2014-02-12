@@ -34,7 +34,7 @@
       <th class="navbar" align="right" width="100%">
         <table border="0" cellpadding="0" cellspacing="0">
           <tr><th class="navbar" align="center"
-            ><a class="navbar" target="_top" href="http://codespeak.net/lxml/">lxml API</a></th>
+            ><a class="navbar" target="_top" href="/">lxml API</a></th>
           </tr></table></th>
   </tr>
 </table>
@@ -66,7 +66,7 @@ XML.  It is based on <a href="lxml.etree-module.html" class="link">lxml.etree</a
 
 <hr />
 <div class="fields">      <p><strong>Version:</strong>
-        2.2.8
+        2.3.2
       </p>
 </div><!-- ==================== CLASSES ==================== -->
 <a name="section-Classes"></a>
@@ -264,6 +264,28 @@ always creates a structural (tree) element.</td>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
+          <td><span class="summary-sig"><a name="SubElement"></a><span class="summary-sig-name">SubElement</span>(<span class="summary-sig-arg">_parent</span>,
+        <span class="summary-sig-arg">_tag</span>,
+        <span class="summary-sig-arg">attrib</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">nsmap</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">**_extra</span>)</span><br />
+      Subelement factory.  This function creates an element instance, and
+appends it to an existing element.</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
           <td><span class="summary-sig"><a href="lxml.objectify-module.html#XML" class="summary-sig-name">XML</a>(<span class="summary-sig-arg">xml</span>,
         <span class="summary-sig-arg">parser</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">base_url</span>=<span class="summary-sig-default">None</span>)</span><br />
@@ -375,7 +397,8 @@ and/or 'py:pytype' attributes.</td>
           <td><span class="summary-sig"><a href="lxml.objectify-module.html#deannotate" class="summary-sig-name">deannotate</a>(<span class="summary-sig-arg">element_or_tree</span>,
         <span class="summary-sig-arg">pytype</span>=<span class="summary-sig-default">True</span>,
         <span class="summary-sig-arg">xsi</span>=<span class="summary-sig-default">True</span>,
-        <span class="summary-sig-arg">xsi_nil</span>=<span class="summary-sig-default">False</span>)</span><br />
+        <span class="summary-sig-arg">xsi_nil</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">cleanup_namespaces</span>=<span class="summary-sig-default">False</span>)</span><br />
       Recursively de-annotate the elements of an XML tree by removing 'py:pytype'
 and/or 'xsi:type' attributes and/or 'xsi:nil' attributes.</td>
           <td align="right" valign="top">
@@ -613,7 +636,7 @@ attributes.</td>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="E"></a><span class="summary-name">E</span> = <code title="&lt;lxml.objectify.ElementMaker object at 0x1bf7c80&gt;">&lt;lxml.objectify.ElementMaker object at 0x1bf7c80&gt;</code>
+        <a name="E"></a><span class="summary-name">E</span> = <code title="&lt;lxml.objectify.ElementMaker object at 0x2b7f820&gt;">&lt;lxml.objectify.ElementMaker object at 0x2b7f820&gt;</code>
     </td>
   </tr>
 <tr>
@@ -628,6 +651,13 @@ attributes.</td>
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
         <a name="__package__"></a><span class="summary-name">__package__</span> = <code title="'lxml'"><code class="variable-quote">'</code><code class="variable-string">lxml</code><code class="variable-quote">'</code></code>
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="__test__"></a><span class="summary-name">__test__</span> = <code title="{}"><code class="variable-group">{</code><code class="variable-group">}</code></code>
     </td>
   </tr>
 </table>
@@ -786,7 +816,8 @@ elements.  Pass 'string', for example, to make string values the default.</p>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">deannotate</span>(<span class="sig-arg">element_or_tree</span>,
         <span class="sig-arg">pytype</span>=<span class="sig-default">True</span>,
         <span class="sig-arg">xsi</span>=<span class="sig-default">True</span>,
-        <span class="sig-arg">xsi_nil</span>=<span class="sig-default">False</span>)</span>
+        <span class="sig-arg">xsi_nil</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">cleanup_namespaces</span>=<span class="sig-default">False</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     >&nbsp;
@@ -800,9 +831,9 @@ attributes will be removed. If the 'xsi' keyword argument is True (the
 default), 'xsi:type' attributes will be removed.
 If the 'xsi_nil' keyword argument is True (default: False), 'xsi:nil'
 attributes will be removed.</p>
-<p>Note that this does not touch the namespace declarations.  If you
-want to remove unused namespace declarations from the tree, use
-<tt class="rst-docutils literal">lxml.etree.cleanup_namespaces()</tt>.</p>
+<p>Note that this does not touch the namespace declarations by
+default.  If you want to remove unused namespace declarations from
+the tree, pass the option <tt class="rst-docutils literal">cleanup_namespaces=True</tt>.</p>
   <dl class="fields">
   </dl>
 </td></tr></table>
@@ -1104,14 +1135,14 @@ elements.  Pass 'string', for example, to make string values the default.</p>
       <th class="navbar" align="right" width="100%">
         <table border="0" cellpadding="0" cellspacing="0">
           <tr><th class="navbar" align="center"
-            ><a class="navbar" target="_top" href="http://codespeak.net/lxml/">lxml API</a></th>
+            ><a class="navbar" target="_top" href="/">lxml API</a></th>
           </tr></table></th>
   </tr>
 </table>
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Thu Sep  2 09:04:33 2010
+    Generated by Epydoc 3.0.1 on Fri Nov 11 18:38:25 2011
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

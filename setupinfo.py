@@ -41,20 +41,33 @@ def ext_modules(static_include_dirs, static_library_dirs,
                 static_cflags, static_binaries): 
     global XML2_CONFIG, XSLT_CONFIG
     if OPTION_BUILD_LIBXML2XSLT:
-        from buildlibxml import build_libxml2xslt
-        XML2_CONFIG, XSLT_CONFIG = build_libxml2xslt(
-            'libs', 'build/tmp',
-            static_include_dirs, static_library_dirs,
-            static_cflags, static_binaries,
-            libxml2_version=OPTION_LIBXML2_VERSION,
-            libxslt_version=OPTION_LIBXSLT_VERSION)
+        from buildlibxml import build_libxml2xslt, get_prebuilt_libxml2xslt
+        if sys.platform.startswith('win'):
+            get_prebuilt_libxml2xslt(
+                OPTION_DOWNLOAD_DIR, static_include_dirs, static_library_dirs)
+        else:
+            XML2_CONFIG, XSLT_CONFIG = build_libxml2xslt(
+                OPTION_DOWNLOAD_DIR, 'build/tmp',
+                static_include_dirs, static_library_dirs,
+                static_cflags, static_binaries,
+                libiconv_version=OPTION_LIBICONV_VERSION,
+                libxml2_version=OPTION_LIBXML2_VERSION,
+                libxslt_version=OPTION_LIBXSLT_VERSION,
+                multicore=OPTION_MULTICORE)
+
     if CYTHON_INSTALLED:
         source_extension = ".pyx"
         print("Building with Cython %s." % Cython.Compiler.Version.version)
+
+        from Cython.Compiler import Options
+        Options.generate_cleanup_code = 3
     else:
-        print ("NOTE: Trying to build without Cython, pre-generated "
-               "'%slxml.etree.c' needs to be available." % PACKAGE_PATH)
         source_extension = ".c"
+        if not os.path.exists(PACKAGE_PATH + 'lxml.etree.c'):
+            print ("WARNING: Trying to build without Cython, but pre-generated "
+                   "'%slxml.etree.c' does not seem to be available." % PACKAGE_PATH)
+        else:
+            print ("Building without Cython.")
 
     if OPTION_WITHOUT_OBJECTIFY:
         modules = [ entry for entry in EXT_MODULES
@@ -91,17 +104,21 @@ def ext_modules(static_include_dirs, static_library_dirs,
     else:
         runtime_library_dirs = []
 
-    if not OPTION_SHOW_WARNINGS:
+    if OPTION_SHOW_WARNINGS:
+        if CYTHON_INSTALLED:
+            from Cython.Compiler import Errors
+            Errors.LEVEL = 0
+    else:
         _cflags = ['-w'] + _cflags
 
     result = []
     for module in modules:
         main_module_source = PACKAGE_PATH + module + source_extension
-        dependencies = find_dependencies(module)
         result.append(
             Extension(
             module,
-            sources = [main_module_source] + dependencies,
+            sources = [main_module_source],
+            depends = find_dependencies(module),
             extra_compile_args = _cflags,
             extra_objects = static_binaries,
             define_macros = _define_macros,
@@ -115,10 +132,6 @@ def ext_modules(static_include_dirs, static_library_dirs,
 def find_dependencies(module):
     if not CYTHON_INSTALLED:
         return []
-    from Cython.Compiler.Version import version
-    if split_version(version) < (0,9,6,13):
-        return []
-
     package_dir = os.path.join(get_base_dir(), PACKAGE_PATH)
     files = os.listdir(package_dir)
     pxd_files = [ os.path.join(PACKAGE_PATH, filename) for filename in files
@@ -229,19 +242,21 @@ def run_command(cmd, *args):
         import subprocess
     except ImportError:
         # Python 2.3
-        _, rf, ef = os.popen3(cmd)
+        sf, rf, ef = os.popen3(cmd)
+        sf.close()
+        errors = ef.read()
+        stdout_data = rf.read()
     else:
         # Python 2.4+
         p = subprocess.Popen(cmd, shell=True,
                              stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        rf, ef = p.stdout, p.stderr
-    errors = ef.read()
+        stdout_data, errors = p.communicate()
     global _ERROR_PRINTED
     if errors and not _ERROR_PRINTED:
         _ERROR_PRINTED = True
         print("ERROR: %s" % errors)
         print("** make sure the development packages of libxml2 and libxslt are installed **\n")
-    return decode_input(rf.read()).strip()
+    return decode_input(stdout_data).strip()
 
 def get_library_versions():
     xml2_version = run_command(find_xml2_config(), "--version")
@@ -320,6 +335,7 @@ def option_value(name):
     env_val = os.getenv(name.upper().replace('-', '_'))
     return env_val
 
+staticbuild = bool(os.environ.get('STATICBUILD', ''))
 # pick up any commandline options and/or env variables
 OPTION_WITHOUT_OBJECTIFY = has_option('without-objectify')
 OPTION_WITHOUT_ASSERT = has_option('without-assert')
@@ -328,12 +344,17 @@ OPTION_WITHOUT_CYTHON = has_option('without-cython')
 OPTION_WITH_REFNANNY = has_option('with-refnanny')
 if OPTION_WITHOUT_CYTHON:
     CYTHON_INSTALLED = False
-OPTION_STATIC = has_option('static')
+OPTION_STATIC = staticbuild or has_option('static')
 OPTION_DEBUG_GCC = has_option('debug-gcc')
 OPTION_SHOW_WARNINGS = has_option('warnings')
 OPTION_AUTO_RPATH = has_option('auto-rpath')
-OPTION_BUILD_LIBXML2XSLT = has_option('static-deps')
+OPTION_BUILD_LIBXML2XSLT = staticbuild or has_option('static-deps')
 if OPTION_BUILD_LIBXML2XSLT:
     OPTION_STATIC = True
 OPTION_LIBXML2_VERSION = option_value('libxml2-version')
 OPTION_LIBXSLT_VERSION = option_value('libxslt-version')
+OPTION_LIBICONV_VERSION = option_value('libiconv-version')
+OPTION_MULTICORE = option_value('multicore')
+OPTION_DOWNLOAD_DIR = option_value('download-dir')
+if OPTION_DOWNLOAD_DIR is None:
+    OPTION_DOWNLOAD_DIR = 'libs'

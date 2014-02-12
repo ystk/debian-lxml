@@ -73,7 +73,7 @@ cdef _textToString(xmlNode* c_node, encoding, bint with_tail):
     return text
 
 
-cdef _tostring(_Element element, encoding, method,
+cdef _tostring(_Element element, encoding, doctype, method,
                bint write_xml_declaration, bint write_complete_document,
                bint pretty_print, bint with_tail, int standalone):
     u"""Serialize an element to an encoded string representation of its XML
@@ -84,10 +84,12 @@ cdef _tostring(_Element element, encoding, method,
     cdef tree.xmlCharEncodingHandler* enchandler
     cdef char* c_enc
     cdef char* c_version
+    cdef char* c_doctype
     cdef int c_method
     cdef int error_result
     if element is None:
         return None
+    _assertValidNode(element)
     c_method = _findOutputMethod(method)
     if c_method == OUTPUT_METHOD_TEXT:
         return _textToString(element._c_node, encoding, with_tail)
@@ -96,6 +98,11 @@ cdef _tostring(_Element element, encoding, method,
     else:
         encoding = _utf8(encoding)
         c_enc = _cstr(encoding)
+    if doctype is None:
+        c_doctype = NULL
+    else:
+        doctype = _utf8(doctype)
+        c_doctype = _cstr(doctype)
     # it is necessary to *and* find the encoding handler *and* use
     # encoding during output
     enchandler = tree.xmlFindCharEncodingHandler(c_enc)
@@ -109,7 +116,7 @@ cdef _tostring(_Element element, encoding, method,
         return python.PyErr_NoMemory()
 
     with nogil:
-        _writeNodeToBuffer(c_buffer, element._c_node, c_enc, c_method,
+        _writeNodeToBuffer(c_buffer, element._c_node, c_enc, c_doctype, c_method,
                            write_xml_declaration, write_complete_document,
                            pretty_print, with_tail, standalone)
         tree.xmlOutputBufferFlush(c_buffer)
@@ -125,18 +132,48 @@ cdef _tostring(_Element element, encoding, method,
 
     try:
         if encoding is _unicode:
-            result = python.PyUnicode_DecodeUTF8(
-                tree.xmlBufferContent(c_result_buffer),
-                tree.xmlBufferLength(c_result_buffer),
-                'strict')
+            result = tree.xmlBufferContent(
+                c_result_buffer)[:tree.xmlBufferLength(c_result_buffer)].decode('UTF-8')
         else:
-            result = python.PyString_FromStringAndSize(
-                tree.xmlBufferContent(c_result_buffer),
-                tree.xmlBufferLength(c_result_buffer))
+            result = <bytes>tree.xmlBufferContent(
+                c_result_buffer)[:tree.xmlBufferLength(c_result_buffer)]
     finally:
         error_result = tree.xmlOutputBufferClose(c_buffer)
     if error_result < 0:
         _raiseSerialisationError(error_result)
+    return result
+
+cdef bytes _tostringC14N(element_or_tree, bint exclusive, bint with_comments):
+    cdef xmlDoc* c_doc
+    cdef char* c_buffer = NULL
+    cdef int byte_count = -1
+    cdef bytes result
+    cdef _Document doc
+    cdef _Element element
+
+    if isinstance(element_or_tree, _Element):
+        _assertValidNode(<_Element>element_or_tree)
+        doc = (<_Element>element_or_tree)._doc
+        c_doc = _plainFakeRootDoc(doc._c_doc, (<_Element>element_or_tree)._c_node, 0)
+    else:
+        doc = _documentOrRaise(element_or_tree)
+        _assertValidDoc(doc)
+        c_doc = doc._c_doc
+
+    with nogil:
+        byte_count = c14n.xmlC14NDocDumpMemory(
+            c_doc, NULL, exclusive, NULL, with_comments, &c_buffer)
+
+    _destroyFakeDoc(doc._c_doc, c_doc)
+
+    if byte_count < 0 or c_buffer is NULL:
+        if c_buffer is not NULL:
+            tree.xmlFree(c_buffer)
+        raise C14NError, u"C14N failed"
+    try:
+        result = c_buffer[:byte_count]
+    finally:
+        tree.xmlFree(c_buffer)
     return result
 
 cdef _raiseSerialisationError(int error_result):
@@ -152,8 +189,8 @@ cdef _raiseSerialisationError(int error_result):
 # low-level serialisation functions
 
 cdef void _writeNodeToBuffer(tree.xmlOutputBuffer* c_buffer,
-                             xmlNode* c_node, char* encoding, int c_method,
-                             bint write_xml_declaration,
+                             xmlNode* c_node, char* encoding, char* c_doctype,
+                             int c_method, bint write_xml_declaration,
                              bint write_complete_document,
                              bint pretty_print, bint with_tail,
                              int standalone) nogil:
@@ -163,9 +200,14 @@ cdef void _writeNodeToBuffer(tree.xmlOutputBuffer* c_buffer,
     if write_xml_declaration and c_method == OUTPUT_METHOD_XML:
         _writeDeclarationToBuffer(c_buffer, c_doc.version, encoding, standalone)
 
+    if c_doctype is not NULL:
+        tree.xmlOutputBufferWrite(c_buffer, cstd.strlen(c_doctype), c_doctype)
+        tree.xmlOutputBufferWriteString(c_buffer, "\n")
+
     # write internal DTD subset, preceding PIs/comments, etc.
     if write_complete_document:
-        _writeDtdToBuffer(c_buffer, c_doc, c_node.name, encoding)
+        if c_doctype is NULL:
+            _writeDtdToBuffer(c_buffer, c_doc, c_node.name, encoding)
         _writePrevSiblings(c_buffer, c_node, encoding, pretty_print)
 
     c_nsdecl_node = c_node
@@ -183,12 +225,12 @@ cdef void _writeNodeToBuffer(tree.xmlOutputBuffer* c_buffer,
         c_nsdecl_node.last = c_node.last
 
     # write node
-    if c_method == OUTPUT_METHOD_XML:
-        tree.xmlNodeDumpOutput(
-            c_buffer, c_doc, c_nsdecl_node, 0, pretty_print, encoding)
-    else:
+    if c_method == OUTPUT_METHOD_HTML:
         tree.htmlNodeDumpFormatOutput(
             c_buffer, c_doc, c_nsdecl_node, encoding, pretty_print)
+    else:
+        tree.xmlNodeDumpOutput(
+            c_buffer, c_doc, c_nsdecl_node, 0, pretty_print, encoding)
 
     if c_nsdecl_node is not c_node:
         # clean up
@@ -306,7 +348,7 @@ cdef class _FilelikeWriter:
     cdef object _close_filelike
     cdef _ExceptionContext _exc_context
     cdef _ErrorLog error_log
-    def __init__(self, filelike, exc_context=None, compression=None):
+    def __cinit__(self, filelike, exc_context=None, compression=None):
         if compression is not None and compression > 0:
             filelike = gzip.GzipFile(
                 fileobj=filelike, mode=u'wb', compresslevel=compression)
@@ -332,7 +374,7 @@ cdef class _FilelikeWriter:
         try:
             if self._filelike is None:
                 raise IOError, u"File is already closed"
-            py_buffer = python.PyString_FromStringAndSize(c_buffer, size)
+            py_buffer = <bytes>c_buffer[:size]
             self._filelike.write(py_buffer)
             return size
         except:
@@ -356,21 +398,27 @@ cdef int _writeFilelikeWriter(void* ctxt, char* c_buffer, int len):
 cdef int _closeFilelikeWriter(void* ctxt):
     return (<_FilelikeWriter>ctxt).close()
 
-cdef _tofilelike(f, _Element element, encoding, method,
+cdef _tofilelike(f, _Element element, encoding, doctype, method,
                  bint write_xml_declaration, bint write_doctype,
                  bint pretty_print, bint with_tail, int standalone,
                  int compression):
     cdef python.PyThreadState* state = NULL
-    cdef _FilelikeWriter writer
+    cdef _FilelikeWriter writer = None
     cdef tree.xmlOutputBuffer* c_buffer
     cdef tree.xmlCharEncodingHandler* enchandler
     cdef char* c_enc
+    cdef char* c_doctype
     cdef int error_result
     if encoding is None:
         c_enc = NULL
     else:
         encoding = _utf8(encoding)
         c_enc = _cstr(encoding)
+    if doctype is None:
+        c_doctype = NULL
+    else:
+        doctype = _utf8(doctype)
+        c_doctype = _cstr(doctype)
     c_method = _findOutputMethod(method)
     if c_method == OUTPUT_METHOD_TEXT:
         data = _textToString(element._c_node, encoding, with_tail)
@@ -414,7 +462,7 @@ cdef _tofilelike(f, _Element element, encoding, method,
         raise TypeError, \
             u"File or filename expected, got '%s'" % funicode(python._fqtypename(f))
 
-    _writeNodeToBuffer(c_buffer, element._c_node, c_enc, c_method,
+    _writeNodeToBuffer(c_buffer, element._c_node, c_enc, c_doctype, c_method,
                        write_xml_declaration, write_doctype,
                        pretty_print, with_tail, standalone)
     error_result = c_buffer.error
@@ -433,7 +481,7 @@ cdef _tofilelike(f, _Element element, encoding, method,
 
 cdef _tofilelikeC14N(f, _Element element, bint exclusive, bint with_comments,
                      int compression):
-    cdef _FilelikeWriter writer
+    cdef _FilelikeWriter writer = None
     cdef tree.xmlOutputBuffer* c_buffer
     cdef char* c_filename
     cdef xmlDoc* c_base_doc

@@ -17,7 +17,7 @@ cdef class _NamespaceRegistry:
     cdef object _ns_uri_utf
     cdef dict _entries
     cdef char* _c_ns_uri_utf
-    def __init__(self, ns_uri):
+    def __cinit__(self, ns_uri):
         self._ns_uri = ns_uri
         if ns_uri is None:
             self._ns_uri_utf = None
@@ -98,9 +98,11 @@ cdef class ElementNamespaceClassLookup(FallbackElementClassLookup):
     Element class lookup scheme that searches the Element class in the
     Namespace registry.
     """
-    cdef object _namespace_registries
-    def __init__(self, ElementClassLookup fallback=None):
+    cdef dict _namespace_registries
+    def __cinit__(self):
         self._namespace_registries = {}
+
+    def __init__(self, ElementClassLookup fallback=None):
         FallbackElementClassLookup.__init__(self, fallback)
         self._lookup_function = _find_nselement_class
 
@@ -108,8 +110,9 @@ cdef class ElementNamespaceClassLookup(FallbackElementClassLookup):
         u"""get_namespace(self, ns_uri)
 
         Retrieve the namespace object associated with the given URI.
+        Pass None for the empty namespace.
 
-        Creates a new one if it does not yet exist."""
+        Creates a new namespace object if it does not yet exist."""
         if ns_uri:
             ns_utf = _utf8(ns_uri)
         else:

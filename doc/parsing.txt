@@ -141,7 +141,8 @@ Available boolean keyword arguments:
 
 * recover - try hard to parse through broken XML
 
-* remove_blank_text - discard blank text nodes between tags
+* remove_blank_text - discard blank text nodes between tags (best used
+  together with a DTD)
 
 * remove_comments - discard comments
 
@@ -158,12 +159,21 @@ Available boolean keyword arguments:
 
 * compact - use compact storage for short text content (on by default)
 
+Other keyword arguments:
+
+* encoding - override the document encoding
+
+* target - a parser target object that will receive the parse events
+  (see `The target parser interface`_)
+
+* schema   - an XMLSchema to validate against (see `validation <validation.html#xmlschema>`_)
+
 
 Error log
 ---------
 
-Parsers have an ``error_log`` property that lists the errors of the
-last parser run:
+Parsers have an ``error_log`` property that lists the errors and
+warnings of the last parser run:
 
 .. sourcecode:: pycon
 
@@ -186,6 +196,27 @@ last parser run:
   1
   >>> print(error.column)
   11
+
+Each entry in the log has the following properties:
+
+* ``message``: the message text
+* ``domain``: the domain ID (see the lxml.etree.ErrorDomains class)
+* ``type``: the message type ID (see the lxml.etree.ErrorTypes class)
+* ``level``: the log level ID (see the lxml.etree.ErrorLevels class)
+* ``line``: the line at which the message originated (if applicable)
+* ``column``: the character column at which the message originated (if applicable)
+* ``filename``: the name of the file in which the message originated (if applicable)
+
+For convenience, there are also three properties that provide readable
+names for the ID values:
+
+* ``domain_name``
+* ``type_name``
+* ``level_name``
+
+To filter for a specific kind of message, use the different
+``filter_*()`` methods on the error log (see the
+lxml.etree._ListErrorLog class).
 
 
 Parsing HTML
@@ -248,6 +279,9 @@ comments, which the HTML parser will happily accept in recovery mode.
 Therefore, if your goal is to serialise an HTML document as an
 XML/XHTML document after parsing, you may have to apply some manual
 preprocessing first.
+
+Also note that the HTML parser is meant to parse HTML documents.  For
+XHTML documents, use the XML parser, which is namespace aware.
 
 
 Doctype information
@@ -336,12 +370,50 @@ like:
   >>> print(result)
   closed!
 
+Starting with lxml 2.3, the ``.close()`` method will also be called in
+the error case.  This diverges from the behaviour of ElementTree, but
+allows target objects to clean up their state in all situations, so
+that the parser can reuse them afterwards.
+
+.. sourcecode:: pycon
+
+  >>> class CollectorTarget:
+  ...     def __init__(self):
+  ...         self.events = []
+  ...     def start(self, tag, attrib):
+  ...         self.events.append("start %s %s" % (tag, attrib))
+  ...     def end(self, tag):
+  ...         self.events.append("end %s" % tag)
+  ...     def data(self, data):
+  ...         self.events.append("data %r" % data)
+  ...     def comment(self, text):
+  ...         self.events.append("comment %s" % text)
+  ...     def close(self):
+  ...         self.events.append("close")
+  ...         return "closed!"
+
+  >>> parser = etree.XMLParser(target = CollectorTarget())
+
+  >>> result = etree.XML("<element>some</error>",
+  ...                    parser)        # doctest: +ELLIPSIS
+  Traceback (most recent call last):
+    ...
+  lxml.etree.XMLSyntaxError: Opening and ending tag mismatch...
+
+  >>> for event in parser.target.events:
+  ...     print(event)
+  start element {}
+  data u'some'
+  close
+
 Note that the parser does *not* build a tree when using a parser
 target.  The result of the parser run is whatever the target object
 returns from its ``.close()`` method.  If you want to return an XML
 tree here, you have to create it programmatically in the target
 object.  An example for a parser target that builds a tree is the
-``TreeBuilder``.
+``TreeBuilder``:
+
+.. sourcecode:: pycon
 
   >>> parser = etree.XMLParser(target = etree.TreeBuilder())
 
@@ -613,13 +685,16 @@ needed:
   >>> context.root.getchildren()
   []
 
-**WARNING**: During the 'start' event, the descendants and following siblings
-are not yet available and should not be accessed.  During the 'end' event, the
-element and its descendants can be freely modified, but its following siblings
-should not be accessed.  During either of the two events, you **must not**
-modify or move the ancestors (parents) of the current element.  You should
-also avoid moving or discarding the element itself.  The golden rule is: do
-not touch anything that will have to be touched again by the parser later on.
+**WARNING**: During the 'start' event, any content of the element,
+such as the descendants, following siblings or text, is not yet
+available and should not be accessed.  Only attributes are guaranteed
+to be set.  During the 'end' event, the element and its descendants
+can be freely modified, but its following siblings should not be
+accessed.  During either of the two events, you **must not** modify or
+move the ancestors (parents) of the current element.  You should also
+avoid moving or discarding the element itself.  The golden rule is: do
+not touch anything that will have to be touched again by the parser
+later on.
 
 If you have elements with a long list of children in your XML file and want to
 save more memory during parsing, you can clean up the preceding siblings of

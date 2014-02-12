@@ -15,8 +15,8 @@ __all__ = [u'BoolElement', u'DataElement', u'E', u'Element', u'ElementMaker',
            u'FloatElement', u'IntElement', u'LongElement', u'NoneElement',
            u'NumberElement', u'ObjectPath', u'ObjectifiedDataElement',
            u'ObjectifiedElement', u'ObjectifyElementClassLookup',
-           u'PYTYPE_ATTRIBUTE', u'PyType', u'StringElement', u'XML',
-           u'annotate', u'deannotate', u'dump', u'enable_recursive_str',
+           u'PYTYPE_ATTRIBUTE', u'PyType', u'StringElement', u'SubElement',
+           u'XML', u'annotate', u'deannotate', u'dump', u'enable_recursive_str',
            u'fromstring', u'getRegisteredTypes', u'makeparser', u'parse',
            u'pyannotate', u'pytypename', u'set_default_parser',
            u'set_pytype_attribute_tag', u'xsiannotate']
@@ -33,9 +33,6 @@ import re
 
 cdef tuple IGNORABLE_ERRORS = (ValueError, TypeError)
 cdef object is_special_method = re.compile(u'__.*__$').match
-
-cdef object islice
-from itertools import islice
 
 cdef object _typename(object t):
     cdef char* c_name
@@ -60,7 +57,7 @@ PYTYPE_ATTRIBUTE = None
 cdef object TREE_PYTYPE_NAME
 TREE_PYTYPE_NAME = u"TREE"
 
-cdef _unicodeAndUtf8(s):
+cdef tuple _unicodeAndUtf8(s):
     return (s, python.PyUnicode_AsUTF8String(s))
 
 def set_pytype_attribute_tag(attribute_tag=None):
@@ -150,6 +147,10 @@ cdef class ObjectifiedElement(ElementBase):
             return _dump(self, 0)
         else:
             return textOf(self._c_node) or u''
+
+    # pickle support for objectified Element
+    def __reduce__(self):
+        return (fromstring, (etree.tostring(self),))
 
     property text:
         def __get__(self):
@@ -464,11 +465,11 @@ cdef object _lookupChild(_Element parent, tag):
     cdef char* c_href
     cdef char* c_tag
     c_node = parent._c_node
-    ns, tag = cetree.getNsTag(tag)
+    ns, tag = cetree.getNsTagWithEmptyNs(tag)
     c_tag = tree.xmlDictExists(
-        c_node.doc.dict, _cstr(tag), python.PyString_GET_SIZE(tag))
+        c_node.doc.dict, _cstr(tag), python.PyBytes_GET_SIZE(tag))
     if c_tag is NULL:
-        return None
+        return None # not in the hash map => not in the tree
     if ns is None:
         c_href = tree._getNs(c_node)
     else:
@@ -556,19 +557,19 @@ cdef _setElementValue(_Element element, value):
                 element._c_node, _PYTYPE_NAMESPACE, _PYTYPE_ATTRIBUTE_NAME)
     cetree.setNodeText(element._c_node, value)
 
-cdef _setSlice(slice, _Element target, items):
+cdef _setSlice(sliceobject, _Element target, items):
     cdef _Element parent
     cdef tree.xmlNode* c_node
     cdef Py_ssize_t c_step, c_start, pos
     cdef list new_items
     # collect existing slice
-    if (<python.slice>slice).step is None:
+    if (<slice>sliceobject).step is None:
         c_step = 1
     else:
-        c_step = (<python.slice>slice).step
+        c_step = (<slice>sliceobject).step
     if c_step == 0:
         raise ValueError, u"Invalid slice"
-    del_items = target[slice]
+    del_items = target[sliceobject]
 
     # collect new values
     new_items = []
@@ -613,13 +614,13 @@ cdef _setSlice(slice, _Element target, items):
         if pos > 0:
             item = new_items[pos-1]
         else:
-            if (<python.slice>slice).start > 0:
+            if (<slice>sliceobject).start > 0:
                 c_node = parent._c_node.children
             else:
                 c_node = parent._c_node.last
             c_node = _findFollowingSibling(
                 c_node, tree._getNs(target._c_node), target._c_node.name,
-                (<python.slice>slice).start - 1)
+                (<slice>sliceobject).start - 1)
             if c_node is NULL:
                 while pos < python.PyList_GET_SIZE(new_items):
                     cetree.appendChild(parent, new_items[pos])
@@ -694,6 +695,9 @@ cdef class NumberElement(ObjectifiedDataElement):
 
     def __richcmp__(self, other, int op):
         return _richcmpPyvals(self, other, op)
+
+    def __hash__(self):
+        return hash(_parseNumber(self))
 
     def __add__(self, other):
         return _numericValueOf(self) + _numericValueOf(other)
@@ -791,6 +795,9 @@ cdef class StringElement(ObjectifiedDataElement):
     def __richcmp__(self, other, int op):
         return _richcmpPyvals(self, other, op)
 
+    def __hash__(self):
+        return hash(textOf(self._c_node) or u'')
+
     def __add__(self, other):
         text  = _strValueOf(self)
         other = _strValueOf(other)
@@ -841,6 +848,9 @@ cdef class NoneElement(ObjectifiedDataElement):
         else:
             return python.PyObject_RichCompare(self, None, op)
 
+    def __hash__(self):
+        return hash(None)
+
     property pyval:
         def __get__(self):
             return None
@@ -859,6 +869,9 @@ cdef class BoolElement(IntElement):
 
     def __richcmp__(self, other, int op):
         return _richcmpPyvals(self, other, op)
+
+    def __hash__(self):
+        return hash(__parseBool(textOf(self._c_node)))
 
     def __str__(self):
         return unicode(__parseBool(textOf(self._c_node)))
@@ -918,8 +931,8 @@ cdef inline object _numericValueOf(obj):
     return obj
 
 cdef inline _richcmpPyvals(left, right, int op):
-    left  = getattr3(left,  u'pyval', left)
-    right = getattr3(right, u'pyval', right)
+    left  = getattr(left,  u'pyval', left)
+    right = getattr(right, u'pyval', right)
     return python.PyObject_RichCompare(left, right, op)
 
 
@@ -949,7 +962,7 @@ cdef class PyType:
     cdef object _type
     cdef list _schema_types
     def __init__(self, name, type_check, type_class, stringify=None):
-        if python.PyString_Check(name):
+        if python.PyBytes_Check(name):
             name = python.PyUnicode_FromEncodedObject(name, 'ASCII', NULL)
         elif not python.PyUnicode_Check(name):
             raise TypeError, u"Type name must be a string"
@@ -1246,10 +1259,6 @@ cdef _add_text(_Element elem, text):
             text = old + text
         cetree.setNodeText(elem._c_node, text)
 
-cdef extern from "etree_defs.h":
-    # macro call to 't->tp_new()' for fast instantiation
-    cdef _ObjectifyElementMakerCaller NEW_ELEMENT_MAKER "PY_NEW" (object t)
-
 cdef class ElementMaker:
     u"""ElementMaker(self, namespace=None, nsmap=None, annotate=True, makeelement=None)
 
@@ -1295,7 +1304,7 @@ cdef class ElementMaker:
             return object.__getattr__(self, tag)
         if self._namespace is not None and tag[0] != u"{":
             tag = self._namespace + tag
-        element_maker = NEW_ELEMENT_MAKER(_ObjectifyElementMakerCaller)
+        element_maker = _ObjectifyElementMakerCaller.__new__(_ObjectifyElementMakerCaller)
         element_maker._tag = tag
         element_maker._nsmap = self._nsmap
         element_maker._annotate = self._annotate
@@ -1347,11 +1356,11 @@ cdef object _dump(_Element element, int indent):
                 else:
                     name = name.replace(pytype_ns, u'py:')
             name = name.replace(xsi_ns, u'xsi:')
-        result = result + u"%s  * %s = %r\n" % (indentstr, name, value)
+        result += u"%s  * %s = %r\n" % (indentstr, name, value)
 
-    indent = indent + 1
+    indent += 1
     for child in element.iterchildren():
-        result = result + _dump(child, indent)
+        result += _dump(child, indent)
     if indent == 1:
         return result[:-1] # strip last '\n'
     else:
@@ -1359,31 +1368,24 @@ cdef object _dump(_Element element, int indent):
 
 
 ################################################################################
-# Pickle support
+# Pickle support for objectified ElementTree
 
 def __unpickleElementTree(data):
     return etree.ElementTree(fromstring(data))
 
-cdef _setupPickle(elementReduceFunction, elementTreeReduceFunction):
+cdef _setupPickle(elementTreeReduceFunction):
     if python.IS_PYTHON3:
         import copyreg
     else:
         import copy_reg as copyreg
-    copyreg.constructor(fromstring)
-    copyreg.constructor(__unpickleElementTree)
-    copyreg.pickle(ObjectifiedElement,
-                   elementReduceFunction, fromstring)
     copyreg.pickle(etree._ElementTree,
                    elementTreeReduceFunction, __unpickleElementTree)
-
-def pickleReduceElement(obj):
-    return (fromstring, (etree.tostring(obj),))
 
 def pickleReduceElementTree(obj):
     return (__unpickleElementTree, (etree.tostring(obj),))
 
-_setupPickle(pickleReduceElement, pickleReduceElementTree)
-del pickleReduceElement, pickleReduceElementTree
+_setupPickle(pickleReduceElementTree)
+del pickleReduceElementTree
 
 ################################################################################
 # Element class lookup
@@ -1579,12 +1581,12 @@ cdef _annotate(_Element element, bint annotate_xsi, bint annotate_pytype,
     doc = element._doc
 
     if empty_type_name is not None:
-        if python.PyString_Check(empty_type_name):
+        if python.PyBytes_Check(empty_type_name):
             empty_type_name = python.PyUnicode_FromEncodedObject(
                 empty_type_name, "ASCII", NULL)
         dict_result = python.PyDict_GetItem(_SCHEMA_TYPE_DICT, empty_type_name)
     elif empty_pytype_name is not None:
-        if python.PyString_Check(empty_pytype_name):
+        if python.PyBytes_Check(empty_pytype_name):
             empty_pytype_name = python.PyUnicode_FromEncodedObject(
                 empty_pytype_name, "ASCII", NULL)
         dict_result = python.PyDict_GetItem(_PYTYPE_DICT, empty_pytype_name)
@@ -1691,16 +1693,16 @@ cdef _annotate(_Element element, bint annotate_xsi, bint annotate_pytype,
                 c_ns = cetree.findOrBuildNodeNsPrefix(
                     doc, c_node, _XML_SCHEMA_NS, 'xsd')
                 if c_ns is not NULL:
-                    if ':' in typename_utf8:
-                        prefix, name = typename_utf8.split(':', 1)
+                    if b':' in typename_utf8:
+                        prefix, name = typename_utf8.split(b':', 1)
                         if c_ns.prefix is NULL or c_ns.prefix[0] == c'\0':
                             typename_utf8 = name
                         elif cstd.strcmp(_cstr(prefix), c_ns.prefix) != 0:
                             prefix = c_ns.prefix
-                            typename_utf8 = prefix + ':' + name
+                            typename_utf8 = prefix + b':' + name
                     elif c_ns.prefix is not NULL or c_ns.prefix[0] != c'\0':
                         prefix = c_ns.prefix
-                        typename_utf8 = prefix + ':' + typename_utf8
+                        typename_utf8 = prefix + b':' + typename_utf8
                 c_ns = cetree.findOrBuildNodeNsPrefix(
                     doc, c_node, _XML_SCHEMA_INSTANCE_NS, 'xsi')
                 tree.xmlSetNsProp(c_node, c_ns, "type", _cstr(typename_utf8))
@@ -1724,9 +1726,11 @@ cdef _annotate(_Element element, bint annotate_xsi, bint annotate_pytype,
     tree.END_FOR_EACH_ELEMENT_FROM(c_node)
 
 cdef object _strip_attributes = etree.strip_attributes
+cdef object _cleanup_namespaces = etree.cleanup_namespaces
 
-def deannotate(element_or_tree, *, pytype=True, xsi=True, xsi_nil=False):
-    u"""deannotate(element_or_tree, pytype=True, xsi=True, xsi_nil=False)
+def deannotate(element_or_tree, *, bint pytype=True, bint xsi=True,
+               bint xsi_nil=False, bint cleanup_namespaces=False):
+    u"""deannotate(element_or_tree, pytype=True, xsi=True, xsi_nil=False, cleanup_namespaces=False)
 
     Recursively de-annotate the elements of an XML tree by removing 'py:pytype'
     and/or 'xsi:type' attributes and/or 'xsi:nil' attributes.
@@ -1737,9 +1741,9 @@ def deannotate(element_or_tree, *, pytype=True, xsi=True, xsi_nil=False):
     If the 'xsi_nil' keyword argument is True (default: False), 'xsi:nil'
     attributes will be removed.
 
-    Note that this does not touch the namespace declarations.  If you
-    want to remove unused namespace declarations from the tree, use
-    ``lxml.etree.cleanup_namespaces()``.
+    Note that this does not touch the namespace declarations by
+    default.  If you want to remove unused namespace declarations from
+    the tree, pass the option ``cleanup_namespaces=True``.
     """
     cdef list attribute_names = []
 
@@ -1751,6 +1755,8 @@ def deannotate(element_or_tree, *, pytype=True, xsi=True, xsi_nil=False):
         attribute_names.append(XML_SCHEMA_INSTANCE_NIL_ATTR)
 
     _strip_attributes(element_or_tree, *attribute_names)
+    if cleanup_namespaces:
+        _cleanup_namespaces(element_or_tree)
 
 ################################################################################
 # Module level parser setup
@@ -1790,12 +1796,8 @@ def makeparser(**kw):
     blank text.  You can disable this by passing the
     ``remove_blank_text`` boolean keyword option yourself.
     """
-    if python.IS_PYTHON3:
-        remove_blank_text = u'remove_blank_text'
-    else:
-        remove_blank_text = 'remove_blank_text'
-    if remove_blank_text not in kw:
-        kw[remove_blank_text] = True
+    if 'remove_blank_text' not in kw:
+        kw['remove_blank_text'] = True
     parser = etree.XMLParser(**kw)
     parser.set_element_class_lookup( ObjectifyElementClassLookup() )
     return parser
@@ -1808,6 +1810,8 @@ cdef _Element _makeElement(tag, text, attrib, nsmap):
 
 cdef object _fromstring
 _fromstring = etree.fromstring
+
+SubElement = etree.SubElement
 
 def fromstring(xml, parser=None, *, base_url=None):
     u"""fromstring(xml, parser=None, base_url=None)
@@ -1964,6 +1968,9 @@ def DataElement(_value, attrib=None, nsmap=None, *, _pytype=None, _xsi=None,
             if dict_result is not NULL:
                 _pytype = (<PyType>dict_result).name
 
+    if _pytype is None:
+        _pytype = _pytypename(_value)
+
     if _value is None and _pytype != u"str":
         _pytype = _pytype or u"NoneType"
         strval = None
@@ -1975,11 +1982,12 @@ def DataElement(_value, attrib=None, nsmap=None, *, _pytype=None, _xsi=None,
         else:
             strval = u"false"
     else:
-        strval = unicode(_value)
+        stringify = unicode
+        dict_result = python.PyDict_GetItem(_PYTYPE_DICT, _pytype)
+        if dict_result is not NULL:
+            stringify = (<PyType>dict_result).stringify
+        strval = stringify(_value)
 
-    if _pytype is None:
-        _pytype = _pytypename(_value)
-    
     if _pytype is not None: 
         if _pytype == u"NoneType" or _pytype == u"none":
             strval = None

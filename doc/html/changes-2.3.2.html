@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Docutils 0.6: http://docutils.sourceforge.net/" />
+<meta name="generator" content="Docutils 0.7: http://docutils.sourceforge.net/" />
 <title>lxml changelog</title>
 
 </head>
@@ -12,8 +12,268 @@
 <h1 class="title">lxml changelog</h1>
 
 <div class="section" id="id1">
-<h1>2.2.8 (2010-09-02)</h1>
+<h1>2.3.2 (2011-11-11)</h1>
+<div class="section" id="features-added">
+<h2>Features added</h2>
+<ul class="simple">
+<li><tt class="docutils literal">lxml.objectify.deannotate()</tt> has a new boolean option
+<tt class="docutils literal">cleanup_namespaces</tt> to remove the objectify namespace
+declarations (and generally clean up the namespace declarations)
+after removing the type annotations.</li>
+<li><tt class="docutils literal">lxml.objectify</tt> gained its own <tt class="docutils literal">SubElement()</tt> function as a
+copy of <tt class="docutils literal">etree.SubElement</tt> to avoid an otherwise redundant import
+of <tt class="docutils literal">lxml.etree</tt> on the user side.</li>
+</ul>
+</div>
 <div class="section" id="bugs-fixed">
+<h2>Bugs fixed</h2>
+<ul class="simple">
+<li>Fixed the &quot;descendant&quot; bug in cssselect a second time (after a first
+fix in lxml 2.3.1).  The previous change resulted in a serious
+performance regression for the XPath based evaluation of the
+translated expression.  Note that this breaks the usage of some of
+the generated XPath expressions as XSLT location paths that
+previously worked in 2.3.1.</li>
+<li>Fixed parsing of some selectors in cssselect. Whitespace after combinators
+&quot;&gt;&quot;, &quot;+&quot; and &quot;~&quot; is now correctly ignored. Previously is was parsed as
+a descendant combinator. For example, &quot;div&gt; .foo&quot; was parsed the same as
+&quot;div&gt;* .foo&quot; instead of &quot;div&gt;.foo&quot;.</li>
+</ul>
+</div>
+<div class="section" id="other-changes">
+<h2>Other changes</h2>
+</div>
+</div>
+<div class="section" id="id2">
+<h1>2.3.1 (2011-09-25)</h1>
+<div class="section" id="id3">
+<h2>Features added</h2>
+<ul class="simple">
+<li>New option <tt class="docutils literal">kill_tags</tt> in <tt class="docutils literal">lxml.html.clean</tt> to remove specific
+tags and their content (i.e. their whole subtree).</li>
+<li><tt class="docutils literal">pi.get()</tt> and <tt class="docutils literal">pi.attrib</tt> on processing instructions to parse
+pseudo-attributes from the text content of processing instructions.</li>
+<li><tt class="docutils literal">lxml.get_include()</tt> returns a list of include paths that can be
+used to compile external C code against lxml.etree.  This is
+specifically required for statically linked lxml builds when code
+needs to compile against the exact same header file versions as lxml
+itself.</li>
+<li><tt class="docutils literal">Resolver.resolve_file()</tt> takes an additional option
+<tt class="docutils literal">close_file</tt> that configures if the file(-like) object will be
+closed after reading or not.  By default, the file will be closed,
+as the user is not expected to keep a reference to it.</li>
+</ul>
+</div>
+<div class="section" id="id4">
+<h2>Bugs fixed</h2>
+<ul class="simple">
+<li>HTML cleaning didn't remove 'data:' links.</li>
+<li>The html5lib parser integration now uses the 'official'
+implementation in html5lib itself, which makes it work with newer
+releases of the library.</li>
+<li>In <tt class="docutils literal">lxml.sax</tt>, <tt class="docutils literal">endElementNS()</tt> could incorrectly reject a plain
+tag name when the corresponding start event inferred the same plain
+tag name to be in the default namespace.</li>
+<li>When an open file-like object is passed into <tt class="docutils literal">parse()</tt> or
+<tt class="docutils literal">iterparse()</tt>, the parser will no longer close it after use.  This
+reverts a change in lxml 2.3 where all files would be closed.  It is
+the users responsibility to properly close the file(-like) object,
+also in error cases.</li>
+<li>Assertion error in lxml.html.cleaner when discarding top-level elements.</li>
+<li>In lxml.cssselect, use the xpath 'A//B' (short for
+'A/descendant-or-self::node()/B') instead of 'A/descendant::B' for
+the css descendant selector ('A B').  This makes a few edge cases
+like <tt class="docutils literal">&quot;div <span class="pre">*:last-child&quot;</span></tt> consistent with the selector behavior in
+WebKit and Firefox, and makes more css expressions valid location
+paths (for use in xsl:template match).</li>
+<li>In lxml.html, non-selected <tt class="docutils literal">&lt;option&gt;</tt> tags no longer show up in the
+collected form values.</li>
+<li>Adding/removing <tt class="docutils literal">&lt;option&gt;</tt> values to/from a multiple select form
+field properly selects them and unselects them.</li>
+</ul>
+</div>
+<div class="section" id="id5">
+<h2>Other changes</h2>
+<ul class="simple">
+<li>Static builds can specify the download directory with the
+<tt class="docutils literal"><span class="pre">--download-dir</span></tt> option.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="id6">
+<h1>2.3 (2011-02-06)</h1>
+<div class="section" id="id7">
+<h2>Features added</h2>
+<ul class="simple">
+<li>When looking for children, <tt class="docutils literal">lxml.objectify</tt> takes '{}tag' as
+meaning an empty namespace, as opposed to the parent namespace.</li>
+</ul>
+</div>
+<div class="section" id="id8">
+<h2>Bugs fixed</h2>
+<ul class="simple">
+<li>When finished reading from a file-like object, the parser
+immediately calls its <tt class="docutils literal">.close()</tt> method.</li>
+<li>When finished parsing, <tt class="docutils literal">iterparse()</tt> immediately closes the input
+file.</li>
+<li>Work-around for libxml2 bug that can leave the HTML parser in a
+non-functional state after parsing a severly broken document (fixed
+in libxml2 2.7.8).</li>
+<li><tt class="docutils literal">marque</tt> tag in HTML cleanup code is correctly named <tt class="docutils literal">marquee</tt>.</li>
+</ul>
+</div>
+<div class="section" id="id9">
+<h2>Other changes</h2>
+<ul class="simple">
+<li>Some public functions in the Cython-level C-API have more explicit
+return types.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="beta1-2010-09-06">
+<h1>2.3beta1 (2010-09-06)</h1>
+<div class="section" id="id10">
+<h2>Features added</h2>
+</div>
+<div class="section" id="id11">
+<h2>Bugs fixed</h2>
+<ul class="simple">
+<li>Crash in newer libxml2 versions when moving elements between
+documents that had attributes on replaced XInclude nodes.</li>
+<li><tt class="docutils literal">XMLID()</tt> function was missing the optional <tt class="docutils literal">parser</tt> and
+<tt class="docutils literal">base_url</tt> parameters.</li>
+<li>Searching for wildcard tags in <tt class="docutils literal">iterparse()</tt> was broken in Py3.</li>
+<li><tt class="docutils literal">lxml.html.open_in_browser()</tt> didn't work in Python 3 due to the
+use of os.tempnam.  It now takes an optional 'encoding' parameter.</li>
+</ul>
+</div>
+<div class="section" id="id12">
+<h2>Other changes</h2>
+</div>
+</div>
+<div class="section" id="alpha2-2010-07-24">
+<h1>2.3alpha2 (2010-07-24)</h1>
+<div class="section" id="id13">
+<h2>Features added</h2>
+</div>
+<div class="section" id="id14">
+<h2>Bugs fixed</h2>
+<ul class="simple">
+<li>Crash in XSLT when generating text-only result documents with a
+stylesheet created in a different thread.</li>
+</ul>
+</div>
+<div class="section" id="id15">
+<h2>Other changes</h2>
+<ul class="simple">
+<li><tt class="docutils literal">repr()</tt> of Element objects shows the hex ID with leading 0x
+(following ElementTree 1.3).</li>
+</ul>
+</div>
+</div>
+<div class="section" id="alpha1-2010-06-19">
+<h1>2.3alpha1 (2010-06-19)</h1>
+<div class="section" id="id16">
+<h2>Features added</h2>
+<ul class="simple">
+<li>Keyword argument <tt class="docutils literal">namespaces</tt> in <tt class="docutils literal">lxml.cssselect.CSSSelector()</tt>
+to pass a prefix-to-namespace mapping for the selector.</li>
+<li>New function <tt class="docutils literal">lxml.etree.register_namespace(prefix, uri)</tt> that
+globally registers a namespace prefix for a namespace that newly
+created Elements in that namespace will use automatically.  Follows
+ElementTree 1.3.</li>
+<li>Support 'unicode' string name as encoding parameter in
+<tt class="docutils literal">tostring()</tt>, following ElementTree 1.3.</li>
+<li>Support 'c14n' serialisation method in <tt class="docutils literal">ElementTree.write()</tt> and
+<tt class="docutils literal">tostring()</tt>, following ElementTree 1.3.</li>
+<li>The ElementPath expression syntax (<tt class="docutils literal"><span class="pre">el.find*()</span></tt>) was extended to
+match the upcoming ElementTree 1.3 that will ship in the standard
+library of Python 3.2/2.7.  This includes extended support for
+predicates as well as namespace prefixes (as known from XPath).</li>
+<li>During regular XPath evaluation, various ESXLT functions are
+available within their namespace when using libxslt 1.1.26 or later.</li>
+<li>Support passing a readily configured logger instance into
+<tt class="docutils literal">PyErrorLog</tt>, instead of a logger name.</li>
+<li>On serialisation, the new <tt class="docutils literal">doctype</tt> parameter can be used to
+override the DOCTYPE (internal subset) of the document.</li>
+<li>New parameter <tt class="docutils literal">output_parent</tt> to <tt class="docutils literal">XSLTExtension.apply_templates()</tt>
+to append the resulting content directly to an output element.</li>
+<li><tt class="docutils literal">XSLTExtension.process_children()</tt> to process the content of the
+XSLT extension element itself.</li>
+<li>ISO-Schematron support based on the de-facto Schematron reference
+'skeleton implementation'.</li>
+<li>XSLT objects now take XPath object as <tt class="docutils literal">__call__</tt> stylesheet
+parameters.</li>
+<li>Enable path caching in ElementPath (<tt class="docutils literal"><span class="pre">el.find*()</span></tt>) to avoid parsing
+overhead.</li>
+<li>Setting the value of a namespaced attribute always uses a prefixed
+namespace instead of the default namespace even if both declare the
+same namespace URI.  This avoids serialisation problems when an
+attribute from a default namespace is set on an element from a
+different namespace.</li>
+<li>XSLT extension elements: support for XSLT context nodes other than
+elements: document root, comments, processing instructions.</li>
+<li>Support for strings (in addition to Elements) in node-sets returned
+by extension functions.</li>
+<li>Forms that lack an <tt class="docutils literal">action</tt> attribute default to the base URL of
+the document on submit.</li>
+<li>XPath attribute result strings have an <tt class="docutils literal">attrname</tt> property.</li>
+<li>Namespace URIs get validated against RFC 3986 at the API level
+(required by the XML namespace specification).</li>
+<li>Target parsers show their target object in the <tt class="docutils literal">.target</tt> property
+(compatible with ElementTree).</li>
+</ul>
+</div>
+<div class="section" id="id17">
+<h2>Bugs fixed</h2>
+<ul class="simple">
+<li>API is hardened against invalid proxy instances to prevent crashes
+due to incorrectly instantiated Element instances.</li>
+<li>Prevent crash when instantiating <tt class="docutils literal">CommentBase</tt> and friends.</li>
+<li>Export ElementTree compatible XML parser class as
+<tt class="docutils literal">XMLTreeBuilder</tt>, as it is called in ET 1.2.</li>
+<li>ObjectifiedDataElements in lxml.objectify were not hashable.  They
+now use the hash value of the underlying Python value (string,
+number, etc.) to which they compare equal.</li>
+<li>Parsing broken fragments in lxml.html could fail if the fragment
+contained an orphaned closing '&lt;/div&gt;' tag.</li>
+<li>Using XSLT extension elements around the root of the output document
+crashed.</li>
+<li><tt class="docutils literal">lxml.cssselect</tt> did not distinguish between <tt class="docutils literal"><span class="pre">x[attr=&quot;val&quot;]</span></tt> and
+<tt class="docutils literal">x <span class="pre">[attr=&quot;val&quot;]</span></tt> (with a space).  The latter now matches the
+attribute independent of the element.</li>
+<li>Rewriting multiple links inside of HTML text content could end up
+replacing unrelated content as replacements could impact the
+reported position of subsequent matches.  Modifications are now
+simplified by letting the <tt class="docutils literal">iterlinks()</tt> generator in <tt class="docutils literal">lxml.html</tt>
+return links in reversed order if they appear inside the same text
+node.  Thus, replacements and link-internal modifications no longer
+change the position of links reported afterwards.</li>
+<li>The <tt class="docutils literal">.value</tt> attribute of <tt class="docutils literal">textarea</tt> elements in lxml.html did
+not represent the complete raw value (including child tags etc.). It
+now serialises the complete content on read and replaces the
+complete content by a string on write.</li>
+<li>Target parser didn't call <tt class="docutils literal">.close()</tt> on the target object if
+parsing failed.  Now it is guaranteed that <tt class="docutils literal">.close()</tt> will be
+called after parsing, regardless of the outcome.</li>
+</ul>
+</div>
+<div class="section" id="id18">
+<h2>Other changes</h2>
+<ul class="simple">
+<li>Official support for Python 3.1.2 and later.</li>
+<li>Static MS Windows builds can now download their dependencies
+themselves.</li>
+<li><tt class="docutils literal">Element.attrib</tt> no longer uses a cyclic reference back to its
+Element object.  It therefore no longer requires the garbage
+collector to clean up.</li>
+<li>Static builds include libiconv, in addition to libxml2 and libxslt.</li>
+</ul>
+</div>
+</div>
+<div class="section" id="id19">
+<h1>2.2.8 (2010-09-02)</h1>
+<div class="section" id="id20">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Crash in newer libxml2 versions when moving elements between
@@ -22,9 +282,9 @@ documents that had attributes on replaced XInclude nodes.</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id2">
+<div class="section" id="id21">
 <h1>2.2.7 (2010-07-24)</h1>
-<div class="section" id="id3">
+<div class="section" id="id22">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Crash in XSLT when generating text-only result documents with a
@@ -32,25 +292,25 @@ stylesheet created in a different thread.</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id4">
+<div class="section" id="id23">
 <h1>2.2.6 (2010-03-02)</h1>
-<div class="section" id="id5">
+<div class="section" id="id24">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Fixed several Python 3 regressions by building with Cython 0.11.3.</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id6">
+<div class="section" id="id25">
 <h1>2.2.5 (2010-02-28)</h1>
-<div class="section" id="features-added">
+<div class="section" id="id26">
 <h2>Features added</h2>
 <ul class="simple">
 <li>Support for running XSLT extension elements on the input root node
 (e.g. in a template matching on &quot;/&quot;).</li>
 </ul>
 </div>
-<div class="section" id="id7">
+<div class="section" id="id27">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Crash in XPath evaluation when reading smart strings from a document
@@ -69,21 +329,21 @@ an element.</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id8">
+<div class="section" id="id28">
 <h1>2.2.4 (2009-11-11)</h1>
-<div class="section" id="id9">
+<div class="section" id="id29">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Static build of libxml2/libxslt was broken.</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id10">
+<div class="section" id="id30">
 <h1>2.2.3 (2009-10-30)</h1>
-<div class="section" id="id11">
+<div class="section" id="id31">
 <h2>Features added</h2>
 </div>
-<div class="section" id="id12">
+<div class="section" id="id32">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>The <tt class="docutils literal">resolve_entities</tt> option did not work in the incremental feed
@@ -94,9 +354,8 @@ namespaced attribute of the same name instead.</li>
 ones) could leave a partially initialised element in the tree.</li>
 <li>Modifying trees that contain parsed entity references could result
 in an infinite loop.</li>
-<li><tt class="docutils literal">ObjectifiedElement.__setattr__</tt> created an empty-string child
-element when the attribute value was rejected as a
-non-unicode/non-ascii string</li>
+<li>ObjectifiedElement.__setattr__ created an empty-string child element when the
+attribute value was rejected as a non-unicode/non-ascii string</li>
 <li>Syntax errors in <tt class="docutils literal">lxml.cssselect</tt> could result in misleading error
 messages.</li>
 <li>Invalid syntax in CSS expressions could lead to an infinite loop in
@@ -113,17 +372,17 @@ fully supported.</li>
 <li>Calling <tt class="docutils literal">help(lxml.objectify)</tt> didn't work at the prompt.</li>
 <li>The <tt class="docutils literal">ElementMaker</tt> in lxml.objectify no longer defines the default
 namespaces when annotation is disabled.</li>
-<li>Feed parser failed to honour the 'recover' option on parse errors.</li>
+<li>Feed parser failed to honout the 'recover' option on parse errors.</li>
 <li>Diverting the error logging to Python's logging system was broken.</li>
 </ul>
 </div>
-<div class="section" id="other-changes">
+<div class="section" id="id33">
 <h2>Other changes</h2>
 </div>
 </div>
-<div class="section" id="id13">
+<div class="section" id="id34">
 <h1>2.2.2 (2009-06-21)</h1>
-<div class="section" id="id14">
+<div class="section" id="id35">
 <h2>Features added</h2>
 <ul class="simple">
 <li>New helper functions <tt class="docutils literal">strip_attributes()</tt>, <tt class="docutils literal">strip_elements()</tt>,
@@ -131,7 +390,7 @@ namespaces when annotation is disabled.</li>
 from a subtree.</li>
 </ul>
 </div>
-<div class="section" id="id15">
+<div class="section" id="id36">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Namespace cleanup on subtree insertions could result in missing
@@ -145,13 +404,13 @@ BoolElement ({True, False, T, F, t, f} not any more), restoring lxml &lt;= 2.0
 behaviour.</li>
 </ul>
 </div>
-<div class="section" id="id16">
+<div class="section" id="id37">
 <h2>Other changes</h2>
 </div>
 </div>
-<div class="section" id="id17">
+<div class="section" id="id38">
 <h1>2.2.1 (2009-06-02)</h1>
-<div class="section" id="id18">
+<div class="section" id="id39">
 <h2>Features added</h2>
 <ul class="simple">
 <li>Injecting default attributes into a document during XML Schema
@@ -160,7 +419,7 @@ validation (also at parse time).</li>
 restrictions imposed by libxml2 2.7.</li>
 </ul>
 </div>
-<div class="section" id="id19">
+<div class="section" id="id40">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>The script for statically building libxml2 and libxslt didn't work
@@ -169,13 +428,13 @@ in Py3.</li>
 for parsing (which could lead to a crash before release 2.6.24).</li>
 </ul>
 </div>
-<div class="section" id="id20">
+<div class="section" id="id41">
 <h2>Other changes</h2>
 </div>
 </div>
-<div class="section" id="id21">
+<div class="section" id="id42">
 <h1>2.2 (2009-03-21)</h1>
-<div class="section" id="id22">
+<div class="section" id="id43">
 <h2>Features added</h2>
 <ul class="simple">
 <li>Support for <tt class="docutils literal">standalone</tt> flag in XML declaration through
@@ -183,7 +442,7 @@ for parsing (which could lead to a crash before release 2.6.24).</li>
 on serialisation.</li>
 </ul>
 </div>
-<div class="section" id="id23">
+<div class="section" id="id44">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Crash when parsing an XML Schema with external imports from a
@@ -193,7 +452,7 @@ filename.</li>
 </div>
 <div class="section" id="beta4-2009-02-27">
 <h1>2.2beta4 (2009-02-27)</h1>
-<div class="section" id="id24">
+<div class="section" id="id45">
 <h2>Features added</h2>
 <ul class="simple">
 <li>Support strings and instantiable Element classes as child arguments
@@ -202,7 +461,7 @@ to the constructor of custom Element classes.</li>
 objects.</li>
 </ul>
 </div>
-<div class="section" id="id25">
+<div class="section" id="id46">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Deep-copying an ElementTree copied neither its sibling PIs and
@@ -217,7 +476,7 @@ to a problem in Cython, not lxml itself.</li>
 was evaluated incorrectly.</li>
 </ul>
 </div>
-<div class="section" id="id26">
+<div class="section" id="id47">
 <h2>Other changes</h2>
 <ul class="simple">
 <li>Official support for Python 3.0.1.</li>
@@ -228,14 +487,14 @@ for Elements without text content.</li>
 </div>
 <div class="section" id="beta3-2009-02-17">
 <h1>2.2beta3 (2009-02-17)</h1>
-<div class="section" id="id27">
+<div class="section" id="id48">
 <h2>Features added</h2>
 <ul class="simple">
 <li><tt class="docutils literal">XSLT.strparam()</tt> class method to wrap quoted string parameters
 that require escaping.</li>
 </ul>
 </div>
-<div class="section" id="id28">
+<div class="section" id="id49">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Memory leak in XPath evaluators.</li>
@@ -247,7 +506,7 @@ string failed.</li>
 <li>Minor fixes for Python 3.</li>
 </ul>
 </div>
-<div class="section" id="id29">
+<div class="section" id="id50">
 <h2>Other changes</h2>
 <ul class="simple">
 <li>The global error log (which is copied into the exception log) is now
@@ -258,7 +517,7 @@ local to a thread, which fixes some race conditions.</li>
 </div>
 <div class="section" id="beta2-2009-01-25">
 <h1>2.2beta2 (2009-01-25)</h1>
-<div class="section" id="id30">
+<div class="section" id="id51">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Potential memory leak on exception handling.  This was due to a
@@ -270,9 +529,9 @@ problem in Cython, not lxml itself.</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id31">
+<div class="section" id="id52">
 <h1>2.1.5 (2009-01-06)</h1>
-<div class="section" id="id32">
+<div class="section" id="id53">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Potential memory leak on exception handling.  This was due to a
@@ -283,39 +542,39 @@ problem in Cython, not lxml itself.</li>
 </div>
 <div class="section" id="beta1-2008-12-12">
 <h1>2.2beta1 (2008-12-12)</h1>
-<div class="section" id="id33">
+<div class="section" id="id54">
 <h2>Features added</h2>
 <ul class="simple">
 <li>Allow <tt class="docutils literal">lxml.html.diff.htmldiff</tt> to accept Element objects, not
 just HTML strings.</li>
 </ul>
 </div>
-<div class="section" id="id34">
+<div class="section" id="id55">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Crash when using an XPath evaluator in multiple threads.</li>
 <li>Fixed missing whitespace before <tt class="docutils literal"><span class="pre">Link:...</span></tt> in <tt class="docutils literal">lxml.html.diff</tt>.</li>
 </ul>
 </div>
-<div class="section" id="id35">
+<div class="section" id="id56">
 <h2>Other changes</h2>
 <ul class="simple">
 <li>Export <tt class="docutils literal">lxml.html.parse</tt>.</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id36">
+<div class="section" id="id57">
 <h1>2.1.4 (2008-12-12)</h1>
-<div class="section" id="id37">
+<div class="section" id="id58">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Crash when using an XPath evaluator in multiple threads.</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id38">
+<div class="section" id="id59">
 <h1>2.0.11 (2008-12-12)</h1>
-<div class="section" id="id39">
+<div class="section" id="id60">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Crash when using an XPath evaluator in multiple threads.</li>
@@ -324,7 +583,7 @@ just HTML strings.</li>
 </div>
 <div class="section" id="alpha1-2008-11-23">
 <h1>2.2alpha1 (2008-11-23)</h1>
-<div class="section" id="id40">
+<div class="section" id="id61">
 <h2>Features added</h2>
 <ul class="simple">
 <li>Support for XSLT result tree fragments in XPath/XSLT extension
@@ -334,7 +593,7 @@ functions.</li>
 <li>Instantiating a custom Element classes creates a new Element.</li>
 </ul>
 </div>
-<div class="section" id="id41">
+<div class="section" id="id62">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>XSLT didn't inherit the parse options of the input document.</li>
@@ -345,16 +604,16 @@ that end in a parenthesis, will be linked in their entirety (typical
 with Wikipedia links).</li>
 </ul>
 </div>
-<div class="section" id="id42">
+<div class="section" id="id63">
 <h2>Other changes</h2>
 </div>
 </div>
-<div class="section" id="id43">
+<div class="section" id="id64">
 <h1>2.1.3 (2008-11-17)</h1>
-<div class="section" id="id44">
+<div class="section" id="id65">
 <h2>Features added</h2>
 </div>
-<div class="section" id="id45">
+<div class="section" id="id66">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Ref-count leaks when lxml enters a try-except statement while an
@@ -373,13 +632,13 @@ ElementTrees.</li>
 <li>Overriding the parser encoding didn't work for many encodings.</li>
 </ul>
 </div>
-<div class="section" id="id46">
+<div class="section" id="id67">
 <h2>Other changes</h2>
 </div>
 </div>
-<div class="section" id="id47">
+<div class="section" id="id68">
 <h1>2.0.10 (2008-11-17)</h1>
-<div class="section" id="id48">
+<div class="section" id="id69">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Ref-count leaks when lxml enters a try-except statement while an
@@ -388,9 +647,9 @@ Cython, not lxml itself.</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id49">
+<div class="section" id="id70">
 <h1>2.1.2 (2008-09-05)</h1>
-<div class="section" id="id50">
+<div class="section" id="id71">
 <h2>Features added</h2>
 <ul class="simple">
 <li>lxml.etree now tries to find the absolute path name of files when
@@ -399,7 +658,7 @@ resolving relative URLs, as lixbml2 can prepend them with the path
 of the source document.</li>
 </ul>
 </div>
-<div class="section" id="id51">
+<div class="section" id="id72">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Memory problem when passing documents between threads.</li>
@@ -407,13 +666,13 @@ of the source document.</li>
 exception instead of calling <tt class="docutils literal">.close()</tt> on the target.</li>
 </ul>
 </div>
-<div class="section" id="id52">
+<div class="section" id="id73">
 <h2>Other changes</h2>
 </div>
 </div>
-<div class="section" id="id53">
+<div class="section" id="id74">
 <h1>2.0.9 (2008-09-05)</h1>
-<div class="section" id="id54">
+<div class="section" id="id75">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Memory problem when passing documents between threads.</li>
@@ -422,12 +681,12 @@ exception instead of calling <tt class="docutils literal">.close()</tt> on the t
 </ul>
 </div>
 </div>
-<div class="section" id="id55">
+<div class="section" id="id76">
 <h1>2.1.1 (2008-07-24)</h1>
-<div class="section" id="id56">
+<div class="section" id="id77">
 <h2>Features added</h2>
 </div>
-<div class="section" id="id57">
+<div class="section" id="id78">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Crash when parsing XSLT stylesheets in a thread and using them in
@@ -436,20 +695,20 @@ another.</li>
 Python 3.</li>
 </ul>
 </div>
-<div class="section" id="id58">
+<div class="section" id="id79">
 <h2>Other changes</h2>
 </div>
 </div>
-<div class="section" id="id59">
+<div class="section" id="id80">
 <h1>2.0.8 (2008-07-24)</h1>
-<div class="section" id="id60">
+<div class="section" id="id81">
 <h2>Features added</h2>
 <ul class="simple">
 <li><tt class="docutils literal">lxml.html.rewrite_links()</tt> strips links to work around documents
 with whitespace in URL attributes.</li>
 </ul>
 </div>
-<div class="section" id="id61">
+<div class="section" id="id82">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Crash when parsing XSLT stylesheets in a thread and using them in
@@ -458,13 +717,13 @@ another.</li>
 with parameters.</li>
 </ul>
 </div>
-<div class="section" id="id62">
+<div class="section" id="id83">
 <h2>Other changes</h2>
 </div>
 </div>
-<div class="section" id="id63">
+<div class="section" id="id84">
 <h1>2.1 (2008-07-09)</h1>
-<div class="section" id="id64">
+<div class="section" id="id85">
 <h2>Features added</h2>
 <ul class="simple">
 <li>Smart strings can be switched off in XPath (<tt class="docutils literal">smart_strings</tt>
@@ -473,7 +732,7 @@ keyword option).</li>
 with whitespace in URL attributes.</li>
 </ul>
 </div>
-<div class="section" id="id65">
+<div class="section" id="id86">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Custom resolvers were not used for XMLSchema includes/imports and
@@ -482,7 +741,7 @@ XInclude processing.</li>
 with parameters.</li>
 </ul>
 </div>
-<div class="section" id="id66">
+<div class="section" id="id87">
 <h2>Other changes</h2>
 <ul class="simple">
 <li><tt class="docutils literal">objectify.enableRecursiveStr()</tt> was removed, use
@@ -491,15 +750,15 @@ with parameters.</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id67">
+<div class="section" id="id88">
 <h1>2.0.7 (2008-06-20)</h1>
-<div class="section" id="id68">
+<div class="section" id="id89">
 <h2>Features added</h2>
 <ul class="simple">
 <li>Pickling <tt class="docutils literal">ElementTree</tt> objects in lxml.objectify.</li>
 </ul>
 </div>
-<div class="section" id="id69">
+<div class="section" id="id90">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Descending dot-separated classes in CSS selectors were not resolved
@@ -510,7 +769,7 @@ correctly.</li>
 the super class is not called from Python subclasses.</li>
 </ul>
 </div>
-<div class="section" id="id70">
+<div class="section" id="id91">
 <h2>Other changes</h2>
 <ul class="simple">
 <li>Non-ASCII characters in attribute values are no longer escaped on
@@ -520,7 +779,7 @@ serialisation.</li>
 </div>
 <div class="section" id="beta3-2008-06-19">
 <h1>2.1beta3 (2008-06-19)</h1>
-<div class="section" id="id71">
+<div class="section" id="id92">
 <h2>Features added</h2>
 <ul class="simple">
 <li>Major overhaul of <tt class="docutils literal">tools/xpathgrep.py</tt> script.</li>
@@ -546,7 +805,7 @@ lxml.html (experimental).</li>
 (experimental).</li>
 </ul>
 </div>
-<div class="section" id="id72">
+<div class="section" id="id93">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li><tt class="docutils literal">ElementTree.parse()</tt> didn't handle target parser result.</li>
@@ -561,7 +820,7 @@ platform.</li>
 <li>Rare crash when serialising to a file object with certain encodings.</li>
 </ul>
 </div>
-<div class="section" id="id73">
+<div class="section" id="id94">
 <h2>Other changes</h2>
 <ul class="simple">
 <li>Non-ASCII characters in attribute values are no longer escaped on
@@ -574,12 +833,12 @@ lxml.objectify.</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id74">
+<div class="section" id="id95">
 <h1>2.0.6 (2008-05-31)</h1>
-<div class="section" id="id75">
+<div class="section" id="id96">
 <h2>Features added</h2>
 </div>
-<div class="section" id="id76">
+<div class="section" id="id97">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Incorrect evaluation of <tt class="docutils literal"><span class="pre">el.find(&quot;tag[child]&quot;)</span></tt>.</li>
@@ -590,7 +849,7 @@ document is deleted while the subtree is still in use.</li>
 <li>Rare crash when serialising to a file object with certain encodings.</li>
 </ul>
 </div>
-<div class="section" id="id77">
+<div class="section" id="id98">
 <h2>Other changes</h2>
 <ul class="simple">
 <li>lxml should now build without problems on MacOS-X.</li>
@@ -599,7 +858,7 @@ document is deleted while the subtree is still in use.</li>
 </div>
 <div class="section" id="beta2-2008-05-02">
 <h1>2.1beta2 (2008-05-02)</h1>
-<div class="section" id="id78">
+<div class="section" id="id99">
 <h2>Features added</h2>
 <ul class="simple">
 <li>All parse functions in lxml.html take a <tt class="docutils literal">parser</tt> keyword argument.</li>
@@ -608,7 +867,7 @@ attribute <tt class="docutils literal">xhtml_parser</tt> that provide XML parser
 pre-configured for the lxml.html package.</li>
 </ul>
 </div>
-<div class="section" id="id79">
+<div class="section" id="id100">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Moving a subtree from a document created in one thread into a
@@ -619,7 +878,7 @@ redundantly defined namespace URIs.  This prevented the definition
 of more than one prefix for a namespace on the same Element.</li>
 </ul>
 </div>
-<div class="section" id="id80">
+<div class="section" id="id101">
 <h2>Other changes</h2>
 <ul class="simple">
 <li>If the default namespace is redundantly defined with a prefix on the
@@ -631,12 +890,12 @@ namespace (i.e. they would end up in the wrong namespace).</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id81">
+<div class="section" id="id102">
 <h1>2.0.5 (2008-05-01)</h1>
-<div class="section" id="id82">
+<div class="section" id="id103">
 <h2>Features added</h2>
 </div>
-<div class="section" id="id83">
+<div class="section" id="id104">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Resolving to a filename in custom resolvers didn't work.</li>
@@ -645,13 +904,13 @@ let some XSLT errors pass silently.</li>
 <li>Memory leak in Schematron with libxml2 &gt;= 2.6.31.</li>
 </ul>
 </div>
-<div class="section" id="id84">
+<div class="section" id="id105">
 <h2>Other changes</h2>
 </div>
 </div>
 <div class="section" id="beta1-2008-04-15">
 <h1>2.1beta1 (2008-04-15)</h1>
-<div class="section" id="id85">
+<div class="section" id="id106">
 <h2>Features added</h2>
 <ul class="simple">
 <li>Error logging in Schematron (requires libxml2 2.6.32 or later).</li>
@@ -661,7 +920,7 @@ sections by their text content.</li>
 <li><tt class="docutils literal">CDATA()</tt> factory to wrap string content as CDATA section.</li>
 </ul>
 </div>
-<div class="section" id="id86">
+<div class="section" id="id107">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Resolving to a filename in custom resolvers didn't work.</li>
@@ -671,7 +930,7 @@ let some XSLT errors pass silently.</li>
 <li>lxml.etree accepted non well-formed namespace prefix names.</li>
 </ul>
 </div>
-<div class="section" id="id87">
+<div class="section" id="id108">
 <h2>Other changes</h2>
 <ul class="simple">
 <li>Major cleanup in internal <tt class="docutils literal">moveNodeToDocument()</tt> function, which
@@ -685,12 +944,12 @@ context.</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id88">
+<div class="section" id="id109">
 <h1>2.0.4 (2008-04-13)</h1>
-<div class="section" id="id89">
+<div class="section" id="id110">
 <h2>Features added</h2>
 </div>
-<div class="section" id="id90">
+<div class="section" id="id111">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Hanging thread in conjunction with GTK threading.</li>
@@ -699,13 +958,13 @@ context.</li>
 <li><tt class="docutils literal"><span class="pre">ElementTree.find*()</span></tt> didn't accept QName objects.</li>
 </ul>
 </div>
-<div class="section" id="id91">
+<div class="section" id="id112">
 <h2>Other changes</h2>
 </div>
 </div>
 <div class="section" id="alpha1-2008-03-27">
 <h1>2.1alpha1 (2008-03-27)</h1>
-<div class="section" id="id92">
+<div class="section" id="id113">
 <h2>Features added</h2>
 <ul class="simple">
 <li>New event types 'comment' and 'pi' in <tt class="docutils literal">iterparse()</tt>.</li>
@@ -719,14 +978,14 @@ an Element.</li>
 <li><tt class="docutils literal">docinfo.URL</tt> property is writable.</li>
 </ul>
 </div>
-<div class="section" id="id93">
+<div class="section" id="id114">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Default encoding for plain text serialisation was different from
 that of XML serialisation (UTF-8 instead of ASCII).</li>
 </ul>
 </div>
-<div class="section" id="id94">
+<div class="section" id="id115">
 <h2>Other changes</h2>
 <ul class="simple">
 <li>Minor API speed-ups.</li>
@@ -770,9 +1029,9 @@ instead.</p>
 </ul>
 </div>
 </div>
-<div class="section" id="id95">
+<div class="section" id="id116">
 <h1>2.0.3 (2008-03-26)</h1>
-<div class="section" id="id96">
+<div class="section" id="id117">
 <h2>Features added</h2>
 <ul class="simple">
 <li>soupparser.parse() allows passing keyword arguments on to
@@ -780,7 +1039,7 @@ BeautifulSoup.</li>
 <li><tt class="docutils literal">fromstring()</tt> method in <tt class="docutils literal">lxml.html.soupparser</tt>.</li>
 </ul>
 </div>
-<div class="section" id="id97">
+<div class="section" id="id118">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li><tt class="docutils literal">lxml.html.diff</tt> didn't treat empty tags properly (e.g.,
@@ -793,7 +1052,7 @@ which made them turn up in text content.</li>
 correctly serialise the value to a string.</li>
 </ul>
 </div>
-<div class="section" id="id98">
+<div class="section" id="id119">
 <h2>Other changes</h2>
 <ul class="simple">
 <li><tt class="docutils literal">lxml.html.ElementSoup</tt> was replaced by a new module
@@ -809,16 +1068,16 @@ option.</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id99">
+<div class="section" id="id120">
 <h1>2.0.2 (2008-02-22)</h1>
-<div class="section" id="id100">
+<div class="section" id="id121">
 <h2>Features added</h2>
 <ul class="simple">
 <li>Support passing <tt class="docutils literal">base_url</tt> to file parser functions to override
 the filename of the file(-like) object.</li>
 </ul>
 </div>
-<div class="section" id="id101">
+<div class="section" id="id122">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>The prefix for objectify's pytype namespace was missing from the set
@@ -828,7 +1087,7 @@ of default prefixes.</li>
 <li>Slice deletion bug fixed in objectify.</li>
 </ul>
 </div>
-<div class="section" id="id102">
+<div class="section" id="id123">
 <h2>Other changes</h2>
 <ul class="simple">
 <li>Enabled doctests for some Python modules (especially <tt class="docutils literal">lxml.html</tt>).</li>
@@ -839,9 +1098,9 @@ of default prefixes.</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id103">
+<div class="section" id="id124">
 <h1>2.0.1 (2008-02-13)</h1>
-<div class="section" id="id104">
+<div class="section" id="id125">
 <h2>Features added</h2>
 <ul class="simple">
 <li>Child iteration in <tt class="docutils literal">lxml.pyclasslookup</tt>.</li>
@@ -849,7 +1108,7 @@ of default prefixes.</li>
 methods to make them visible in API docs and <tt class="docutils literal">help()</tt></li>
 </ul>
 </div>
-<div class="section" id="id105">
+<div class="section" id="id126">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>The module <tt class="docutils literal">lxml.html.builder</tt> was duplicated as
@@ -861,7 +1120,7 @@ ignored.</li>
 elements at the wrong position.</li>
 </ul>
 </div>
-<div class="section" id="id106">
+<div class="section" id="id127">
 <h2>Other changes</h2>
 <ul class="simple">
 <li>The generated API documentation was cleaned up and disburdened from
@@ -876,9 +1135,9 @@ compiler options.</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id107">
+<div class="section" id="id128">
 <h1>2.0 (2008-02-01)</h1>
-<div class="section" id="id108">
+<div class="section" id="id129">
 <h2>Features added</h2>
 <ul class="simple">
 <li>Passing the <tt class="docutils literal">unicode</tt> type as <tt class="docutils literal">encoding</tt> to <tt class="docutils literal">tostring()</tt> will
@@ -983,7 +1242,7 @@ instead of a string</li>
 <li>EXSLT RegExp support in standard XPath (not only XSLT)</li>
 </ul>
 </div>
-<div class="section" id="id109">
+<div class="section" id="id130">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Missing import in <tt class="docutils literal">lxml.html.clean</tt>.</li>
@@ -1020,7 +1279,7 @@ evaluators now reports the first error that occurred instead of the last</li>
 <li>Thread safety in XPath evaluators</li>
 </ul>
 </div>
-<div class="section" id="id110">
+<div class="section" id="id131">
 <h2>Other changes</h2>
 <ul class="simple">
 <li>Exceptions carry only the part of the error log that is related to
@@ -1078,16 +1337,16 @@ generic <tt class="docutils literal">findOrBuildNodeNsPrefix</tt></li>
 </ul>
 </div>
 </div>
-<div class="section" id="id111">
+<div class="section" id="id132">
 <h1>1.3.6 (2007-10-29)</h1>
-<div class="section" id="id112">
+<div class="section" id="id133">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Backported decref crash fix from 2.0</li>
 <li>Well hidden free-while-in-use crash bug in ObjectPath</li>
 </ul>
 </div>
-<div class="section" id="id113">
+<div class="section" id="id134">
 <h2>Other changes</h2>
 <ul class="simple">
 <li>The test suites now run <tt class="docutils literal">gc.collect()</tt> in the <tt class="docutils literal">tearDown()</tt>
@@ -1097,12 +1356,12 @@ problems that would otherwise appear in later tests.</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id114">
+<div class="section" id="id135">
 <h1>1.3.5 (2007-10-22)</h1>
-<div class="section" id="id115">
+<div class="section" id="id136">
 <h2>Features added</h2>
 </div>
-<div class="section" id="id116">
+<div class="section" id="id137">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>lxml.etree could crash when adding more than 10000 namespaces to a
@@ -1112,9 +1371,9 @@ than the root node of a tree</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id117">
+<div class="section" id="id138">
 <h1>1.3.4 (2007-08-30)</h1>
-<div class="section" id="id118">
+<div class="section" id="id139">
 <h2>Features added</h2>
 <ul class="simple">
 <li>The <tt class="docutils literal">ElementMaker</tt> in <tt class="docutils literal">lxml.builder</tt> now accepts the keyword arguments
@@ -1128,13 +1387,13 @@ part of the document, as well as comments and PIs that are siblings of the
 root node.</li>
 </ul>
 </div>
-<div class="section" id="id119">
+<div class="section" id="id140">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Parsing with the <tt class="docutils literal">no_network</tt> option could fail</li>
 </ul>
 </div>
-<div class="section" id="id120">
+<div class="section" id="id141">
 <h2>Other changes</h2>
 <ul class="simple">
 <li>lxml now raises a TagNameWarning about tag names containing ':' instead of
@@ -1150,9 +1409,9 @@ ElementTree serialisation includes them).</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id121">
+<div class="section" id="id142">
 <h1>1.3.3 (2007-07-26)</h1>
-<div class="section" id="id122">
+<div class="section" id="id143">
 <h2>Features added</h2>
 <ul class="simple">
 <li>ElementTree compatible parser <tt class="docutils literal">ETCompatXMLParser</tt> strips processing
@@ -1163,7 +1422,7 @@ the parser you pass.</li>
 <li>Support <tt class="docutils literal">base_url</tt> keyword argument in <tt class="docutils literal">HTML()</tt> and <tt class="docutils literal">XML()</tt></li>
 </ul>
 </div>
-<div class="section" id="id123">
+<div class="section" id="id144">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Parsing from Python Unicode strings failed on some platforms</li>
@@ -1173,21 +1432,21 @@ the parser you pass.</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id124">
+<div class="section" id="id145">
 <h1>1.3.2 (2007-07-03)</h1>
-<div class="section" id="id125">
+<div class="section" id="id146">
 <h2>Features added</h2>
 </div>
-<div class="section" id="id126">
+<div class="section" id="id147">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>&quot;deallocating None&quot; crash bug</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id127">
+<div class="section" id="id148">
 <h1>1.3.1 (2007-07-02)</h1>
-<div class="section" id="id128">
+<div class="section" id="id149">
 <h2>Features added</h2>
 <ul class="simple">
 <li>objectify.DataElement now supports setting values from existing data
@@ -1195,7 +1454,7 @@ elements (not just plain Python types) and reuses defined namespaces etc.</li>
 <li>E-factory support for lxml.objectify (<tt class="docutils literal">objectify.E</tt>)</li>
 </ul>
 </div>
-<div class="section" id="id129">
+<div class="section" id="id150">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Better way to prevent crashes in Element proxy cleanup code</li>
@@ -1205,9 +1464,9 @@ elements (not just plain Python types) and reuses defined namespaces etc.</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id130">
+<div class="section" id="id151">
 <h1>1.3 (2007-06-24)</h1>
-<div class="section" id="id131">
+<div class="section" id="id152">
 <h2>Features added</h2>
 <ul class="simple">
 <li>Module <tt class="docutils literal">lxml.pyclasslookup</tt> module implements an Element class lookup
@@ -1236,7 +1495,7 @@ keys/values/items for a libxml2 node</li>
 a better handling of namespaces when moving elements between documents.</li>
 </ul>
 </div>
-<div class="section" id="id132">
+<div class="section" id="id153">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Removing Elements from a tree could make them loose their namespace
@@ -1260,16 +1519,16 @@ PIs are copied.</li>
 documents</li>
 </ul>
 </div>
-<div class="section" id="id133">
+<div class="section" id="id154">
 <h2>Other changes</h2>
 <ul class="simple">
 <li>major restructuring in the documentation</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id134">
+<div class="section" id="id155">
 <h1>1.2.1 (2007-02-27)</h1>
-<div class="section" id="id135">
+<div class="section" id="id156">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Build fixes for MS compiler</li>
@@ -1280,9 +1539,9 @@ to access</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id136">
+<div class="section" id="id157">
 <h1>1.2 (2007-02-20)</h1>
-<div class="section" id="id137">
+<div class="section" id="id158">
 <h2>Features added</h2>
 <ul class="simple">
 <li>Rich comparison of QName objects</li>
@@ -1298,7 +1557,7 @@ possible to pass an --rpath directly to distutils; previously this was being
 shadowed.</li>
 </ul>
 </div>
-<div class="section" id="id138">
+<div class="section" id="id159">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Element instantiation now uses locks to prevent race conditions with threads</li>
@@ -1308,7 +1567,7 @@ support in these environments</li>
 <li>Element.find*() did not accept QName objects as path</li>
 </ul>
 </div>
-<div class="section" id="id139">
+<div class="section" id="id160">
 <h2>Other changes</h2>
 <ul class="simple">
 <li>code cleanup: redundant _NodeBase super class merged into _Element class
@@ -1317,9 +1576,9 @@ the compatibiliy of the public C-API</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id140">
+<div class="section" id="id161">
 <h1>1.1.2 (2006-10-30)</h1>
-<div class="section" id="id141">
+<div class="section" id="id162">
 <h2>Features added</h2>
 <ul class="simple">
 <li>Data elements in objectify support repr(), which is now used by dump()</li>
@@ -1330,7 +1589,7 @@ tail, attributes and namespaces</li>
 <li>Simplified support for handling XSLT processing instructions</li>
 </ul>
 </div>
-<div class="section" id="id142">
+<div class="section" id="id163">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Parser resources were not freed before the next parser run</li>
@@ -1346,9 +1605,9 @@ closed/freed</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id143">
+<div class="section" id="id164">
 <h1>1.1.1 (2006-09-21)</h1>
-<div class="section" id="id144">
+<div class="section" id="id165">
 <h2>Features added</h2>
 <ul class="simple">
 <li>XSLT profiling support (<tt class="docutils literal">profile_run</tt> keyword)</li>
@@ -1356,7 +1615,7 @@ closed/freed</li>
 <li>Support custom elements for tree nodes in lxml.objectify</li>
 </ul>
 </div>
-<div class="section" id="id145">
+<div class="section" id="id166">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>lxml.objectify failed to support long data values (e.g., &quot;123L&quot;)</li>
@@ -1371,9 +1630,9 @@ elements)</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id146">
+<div class="section" id="id167">
 <h1>1.1 (2006-09-13)</h1>
-<div class="section" id="id147">
+<div class="section" id="id168">
 <h2>Features added</h2>
 <ul class="simple">
 <li>Comments and processing instructions return '&lt;!-- coment --&gt;' and
@@ -1426,7 +1685,7 @@ generated elements</li>
 element</li>
 </ul>
 </div>
-<div class="section" id="id148">
+<div class="section" id="id169">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>filenames with local 8-bit encoding were not supported</li>
@@ -1450,30 +1709,30 @@ change from 1.0.</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id149">
+<div class="section" id="id170">
 <h1>1.0.4 (2006-09-09)</h1>
-<div class="section" id="id150">
+<div class="section" id="id171">
 <h2>Features added</h2>
 <ul class="simple">
 <li>List-like <tt class="docutils literal">Element.extend()</tt> method</li>
 </ul>
 </div>
-<div class="section" id="id151">
+<div class="section" id="id172">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Crash in tail handling in <tt class="docutils literal">Element.replace()</tt></li>
 </ul>
 </div>
 </div>
-<div class="section" id="id152">
+<div class="section" id="id173">
 <h1>1.0.3 (2006-08-08)</h1>
-<div class="section" id="id153">
+<div class="section" id="id174">
 <h2>Features added</h2>
 <ul class="simple">
 <li>Element.replace(old, new) method to replace a subelement by another one</li>
 </ul>
 </div>
-<div class="section" id="id154">
+<div class="section" id="id175">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Crash when mixing elements from XSLT results into other trees</li>
@@ -1483,16 +1742,16 @@ change from 1.0.</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id155">
+<div class="section" id="id176">
 <h1>1.0.2 (2006-06-27)</h1>
-<div class="section" id="id156">
+<div class="section" id="id177">
 <h2>Features added</h2>
 <ul class="simple">
 <li>Support for setting a custom default Element class as opposed to namespace
 specific classes (which still override the default class)</li>
 </ul>
 </div>
-<div class="section" id="id157">
+<div class="section" id="id178">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Rare exceptions in Python list functions were not handled</li>
@@ -1504,15 +1763,15 @@ cases</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id158">
+<div class="section" id="id179">
 <h1>1.0.1 (2006-06-09)</h1>
-<div class="section" id="id159">
+<div class="section" id="id180">
 <h2>Features added</h2>
 <ul class="simple">
 <li>Repeated calls to Element.attrib now efficiently return the same instance</li>
 </ul>
 </div>
-<div class="section" id="id160">
+<div class="section" id="id181">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Document deallocation could crash in certain garbage collection scenarios</li>
@@ -1528,9 +1787,9 @@ stylesheet and crash on repeated calls</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id161">
+<div class="section" id="id182">
 <h1>1.0 (2006-06-01)</h1>
-<div class="section" id="id162">
+<div class="section" id="id183">
 <h2>Features added</h2>
 <ul class="simple">
 <li>Element.getiterator() and the findall() methods support finding arbitrary
@@ -1577,7 +1836,7 @@ enabled by default, can be switched off with 'regexp=False' keyword argument</li
 implementation of libxml2 (as opposed to ET compatible XMLID)</li>
 </ul>
 </div>
-<div class="section" id="id163">
+<div class="section" id="id184">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Memory leak in Element.__setitem__</li>
@@ -1619,9 +1878,9 @@ ElementTree root node as reference point</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id164">
+<div class="section" id="id185">
 <h1>0.9.2 (2006-05-10)</h1>
-<div class="section" id="id165">
+<div class="section" id="id186">
 <h2>Features added</h2>
 <ul class="simple">
 <li>Speedup for Element.makeelement(): the new element reuses the original
@@ -1631,7 +1890,7 @@ libxml2 document instead of creating a new empty one</li>
 <li>RelaxNG and XMLSchema accept any Element, not only ElementTrees</li>
 </ul>
 </div>
-<div class="section" id="id166">
+<div class="section" id="id187">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>str(xslt_result) was broken for XSLT output other than UTF-8</li>
@@ -1641,9 +1900,9 @@ libxml2 document instead of creating a new empty one</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id167">
+<div class="section" id="id188">
 <h1>0.9.1 (2006-03-30)</h1>
-<div class="section" id="id168">
+<div class="section" id="id189">
 <h2>Features added</h2>
 <ul class="simple">
 <li>lxml.sax.ElementTreeContentHandler checks closing elements and raises
@@ -1655,7 +1914,7 @@ argument)</li>
 <li>Minor API performance improvements</li>
 </ul>
 </div>
-<div class="section" id="id169">
+<div class="section" id="id190">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Memory deallocation bug when using XSLT output method &quot;html&quot;</li>
@@ -1664,9 +1923,9 @@ argument)</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id170">
+<div class="section" id="id191">
 <h1>0.9 (2006-03-20)</h1>
-<div class="section" id="id171">
+<div class="section" id="id192">
 <h2>Features added</h2>
 <ul class="simple">
 <li>Error logging API for libxml2 error messages</li>
@@ -1691,7 +1950,7 @@ parent element.</li>
 doc/sax.txt for more information.</li>
 </ul>
 </div>
-<div class="section" id="id172">
+<div class="section" id="id193">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Segfaults and memory leaks in various API functions of Element</li>
@@ -1703,9 +1962,9 @@ cannot support this due to libxslt deficiencies)</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id173">
+<div class="section" id="id194">
 <h1>0.8 (2005-11-03)</h1>
-<div class="section" id="id174">
+<div class="section" id="id195">
 <h2>Features added</h2>
 <ul class="simple">
 <li>Support for copy.deepcopy() on elements. copy.copy() works also, but
@@ -1719,7 +1978,7 @@ supported and parsing of gzipped XML files works.</li>
 SubElement.</li>
 </ul>
 </div>
-<div class="section" id="id175">
+<div class="section" id="id196">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Use xslt-config instead of xml2-config to find out libxml2
@@ -1742,9 +2001,9 @@ fixed.</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id176">
+<div class="section" id="id197">
 <h1>0.7 (2005-06-15)</h1>
-<div class="section" id="id177">
+<div class="section" id="id198">
 <h2>Features added</h2>
 <ul class="simple">
 <li>parameters (XPath expressions) can be passed to XSLT using keyword
@@ -1774,7 +2033,7 @@ prefix declarations on these elements and these prefixes will show up
 in XML serialization.</li>
 </ul>
 </div>
-<div class="section" id="id178">
+<div class="section" id="id199">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Killed yet another memory management related bug: trees created
@@ -1795,9 +2054,9 @@ test both serializing to StringIO as well as serializing to a real file.</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id179">
+<div class="section" id="id200">
 <h1>0.6 (2005-05-14)</h1>
-<div class="section" id="id180">
+<div class="section" id="id201">
 <h2>Features added</h2>
 <ul class="simple">
 <li>Changed setup.py so that library_dirs is also guessed. This should
@@ -1806,7 +2065,7 @@ wrong library (shipping with the OS) could be picked up.</li>
 <li>Tweaked setup.py so that it picks up the version from version.txt.</li>
 </ul>
 </div>
-<div class="section" id="id181">
+<div class="section" id="id202">
 <h2>Bugs fixed</h2>
 <ul class="simple">
 <li>Do the right thing when handling namespaced attributes.</li>
@@ -1815,7 +2074,7 @@ had very nasty side-effects before this fix, sorry!</li>
 </ul>
 </div>
 </div>
-<div class="section" id="id182">
+<div class="section" id="id203">
 <h1>0.5.1 (2005-04-09)</h1>
 <ul class="simple">
 <li>Python 2.2 compatibility fixes.</li>
@@ -1823,14 +2082,14 @@ had very nasty side-effects before this fix, sorry!</li>
 input wasn't properly being UTF-8 encoded.</li>
 </ul>
 </div>
-<div class="section" id="id183">
+<div class="section" id="id204">
 <h1>0.5 (2005-04-08)</h1>
 <p>Initial public release.</p>
 </div>
 </div>
 <div class="footer">
 <hr class="footer" />
-Generated on: 2010-09-02.
+Generated on: 2011-11-11.
 
 </div>
 </body>

@@ -14,7 +14,7 @@ except ImportError:
 from lxml import etree
 from lxml.html import defs
 from lxml.html import fromstring, tostring, XHTML_NAMESPACE
-from lxml.html import _nons, _transform_result
+from lxml.html import xhtml_to_html, _transform_result
 
 try:
     set
@@ -80,7 +80,7 @@ _css_import_re = re.compile(
 # All kinds of schemes besides just javascript: that can cause
 # execution:
 _javascript_scheme_re = re.compile(
-    r'\s*(?:javascript|jscript|livescript|vbscript|about|mocha):', re.I)
+    r'\s*(?:javascript|jscript|livescript|vbscript|data|about|mocha):', re.I)
 _substitute_whitespace = re.compile(r'\s+').sub
 # FIXME: should data: be blocked?
 
@@ -136,10 +136,15 @@ class Cleaner(object):
         Removes any form tags
 
     ``annoying_tags``:
-        Tags that aren't *wrong*, but are annoying.  ``<blink>`` and ``<marque>``
+        Tags that aren't *wrong*, but are annoying.  ``<blink>`` and ``<marquee>``
 
     ``remove_tags``:
-        A list of tags to remove.
+        A list of tags to remove.  Only the tags will be removed,
+        their content will get pulled up into the parent tag.
+
+    ``kill_tags``:
+        A list of tags to kill.  Killing also removes the tag's content,
+        i.e. the whole subtree, not just the tag itself.
 
     ``allow_tags``:
         A list of tags to include (default include all).
@@ -191,6 +196,7 @@ class Cleaner(object):
     annoying_tags = True
     remove_tags = None
     allow_tags = None
+    kill_tags = None
     remove_unknown_tags = True
     safe_attrs_only = True
     add_nofollow = False
@@ -234,10 +240,7 @@ class Cleaner(object):
             # ElementTree instance, instead of an element
             doc = doc.getroot()
         # convert XHTML to HTML
-        for el in doc.iter():
-            tag = el.tag
-            if isinstance(tag, basestring):
-                el.tag = _nons(tag)
+        xhtml_to_html(doc)
         # Normalize a case that IE treats <image> like <img>, and that
         # can confuse either this step or later steps.
         for el in doc.iter('image'):
@@ -246,12 +249,11 @@ class Cleaner(object):
             # Of course, if we were going to kill comments anyway, we don't
             # need to worry about this
             self.kill_conditional_comments(doc)
-        kill_tags = set()
+
+        kill_tags = set(self.kill_tags or ())
         remove_tags = set(self.remove_tags or ())
-        if self.allow_tags:
-            allow_tags = set(self.allow_tags)
-        else:
-            allow_tags = set()
+        allow_tags = set(self.allow_tags or ())
+
         if self.scripts:
             kill_tags.add('script')
         if self.safe_attrs_only:
@@ -342,7 +344,7 @@ class Cleaner(object):
             remove_tags.add('form')
             kill_tags.update(('button', 'input', 'select', 'textarea'))
         if self.annoying_tags:
-            remove_tags.update(('blink', 'marque'))
+            remove_tags.update(('blink', 'marquee'))
 
         _remove = []
         _kill = []
@@ -370,6 +372,7 @@ class Cleaner(object):
                 el.tag = 'div'
             el.clear()
 
+        _kill.reverse() # start with innermost tags
         for el in _kill:
             el.drop_tree()
         for el in _remove:
@@ -386,8 +389,13 @@ class Cleaner(object):
             for el in doc.iter():
                 if el.tag not in allow_tags:
                     bad.append(el)
-            for el in bad:
-                el.drop_tag()
+            if bad:
+                if bad[0] is doc:
+                    el = bad.pop(0)
+                    el.tag = 'div'
+                    el.attrib.clear()
+                for el in bad:
+                    el.drop_tag()
         if self.add_nofollow:
             for el in _find_external_links(doc):
                 if not self.allow_follow(el):

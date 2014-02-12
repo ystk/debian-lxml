@@ -285,10 +285,8 @@ cdef void _handleSaxDoctype(void* ctxt, char* c_name, char* c_public,
     if context._origSaxDoctype is not NULL:
         context._origSaxDoctype(c_ctxt, c_name, c_public, c_system)
     try:
-        if c_public is not NULL:
-            public_id = funicode(c_public)
-        if c_system is not NULL:
-            system_id = funicode(c_system)
+        public_id = funicode(c_public) if c_public is not NULL else None
+        system_id = funicode(c_system) if c_system is not NULL else None
         context._target._handleSaxDoctype(
             funicode(c_name), public_id, system_id)
     except:
@@ -304,8 +302,7 @@ cdef void _handleSaxPI(void* ctxt, char* c_target, char* c_data) with gil:
     if context._origSaxPi is not NULL:
         context._origSaxPi(c_ctxt, c_target, c_data)
     try:
-        if c_data is not NULL:
-            data = funicode(c_data)
+        data = funicode(c_data) if c_data is not NULL else None
         context._target._handleSaxPi(funicode(c_target), data)
     except:
         context._handleSaxException(c_ctxt)
@@ -340,7 +337,7 @@ cdef class TreeBuilder(_SaxParserTarget):
     cdef list _data
     cdef list _element_stack
     cdef object _element_stack_pop
-    cdef _Element _last
+    cdef _Element _last # may be None
     cdef bint _in_tail
 
     def __init__(self, *, element_factory=None, parser=None):

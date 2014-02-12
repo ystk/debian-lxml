@@ -105,7 +105,7 @@ def strip_elements(tree_or_element, *tag_names, bint with_tail=True):
     cdef list ns_tags
     cdef char** c_ns_tags
     cdef Py_ssize_t c_tag_count
-    cdef bint strip_comments, strip_pis, strip_entities
+    cdef bint strip_comments = 0, strip_pis = 0, strip_entities = 0
 
     doc = _documentOrRaise(tree_or_element)
     element = _rootNodeOrRaise(tree_or_element)
@@ -121,7 +121,7 @@ def strip_elements(tree_or_element, *tag_names, bint with_tail=True):
         if strip_pis:
             _removeSiblings(element._c_node, tree.XML_PI_NODE, with_tail)
 
-    # tag names are passes as C pointers as this allows us to take
+    # tag names are passed as C pointers as this allows us to take
     # them from the doc dict and do pointer comparisons
     c_ns_tags = <char**> cstd.malloc(sizeof(char*) * len(ns_tags) * 2 + 2)
     if c_ns_tags is NULL:
@@ -152,8 +152,8 @@ cdef _strip_elements(_Document doc, xmlNode* c_node,
         while c_child is not NULL:
             c_next = _nextElement(c_child)
             if c_child.type == tree.XML_ELEMENT_NODE:
-                for i in range(c_tag_count):
-                    if _tagMatchesExactly(c_child, c_ns_tags[2*i], c_ns_tags[2*i+1]):
+                for i in range(0, c_tag_count*2, 2):
+                    if _tagMatchesExactly(c_child, c_ns_tags[i], c_ns_tags[i+1]):
                         if not with_tail:
                             tree.xmlUnlinkNode(c_child)
                         _removeNode(doc, c_child)
@@ -194,7 +194,7 @@ def strip_tags(tree_or_element, *tag_names):
     cdef _Element element
     cdef _Document doc
     cdef list ns_tags
-    cdef bint strip_comments, strip_pis, strip_entities
+    cdef bint strip_comments = 0, strip_pis = 0, strip_entities = 0
     cdef char** c_ns_tags
     cdef Py_ssize_t c_tag_count
 
@@ -243,9 +243,7 @@ cdef _strip_tags(_Document doc, xmlNode* c_node,
             if c_child.type == tree.XML_ELEMENT_NODE:
                 for i in range(c_tag_count):
                     if _tagMatchesExactly(c_child, c_ns_tags[2*i], c_ns_tags[2*i+1]):
-                        c_next = _findChildForwards(c_child, 0)
-                        if c_next is NULL:
-                            c_next = _nextElement(c_child)
+                        c_next = _findChildForwards(c_child, 0) or _nextElement(c_child)
                         _replaceNodeByChildren(doc, c_child)
                         if not attemptDeallocation(c_child):
                             if c_child.nsDef is not NULL:
@@ -297,7 +295,7 @@ cdef list _filterSpecialTagNames(tag_names, bint* comments, bint* pis, bint* ent
         else:
             ns_tags.append(_getNsTag(tag))
 
-    return [ (ns, tag if tag != '*' else None)
+    return [ (ns, tag if tag != b'*' else None)
              for ns, tag in _sortedTagList(ns_tags) ]
 
 cdef Py_ssize_t _mapTagsToCharArray(xmlDoc* c_doc, list ns_tags,

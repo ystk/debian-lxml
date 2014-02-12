@@ -34,7 +34,7 @@
       <th class="navbar" align="right" width="100%">
         <table border="0" cellpadding="0" cellspacing="0">
           <tr><th class="navbar" align="center"
-            ><a class="navbar" target="_top" href="http://codespeak.net/lxml/">lxml API</a></th>
+            ><a class="navbar" target="_top" href="/">lxml API</a></th>
           </tr></table></th>
   </tr>
 </table>
@@ -202,7 +202,7 @@ method behaves like both a dict and a sequence.</td>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="lxml.objectify.ObjectifiedElement-class.html#__iter__" class="summary-sig-name">__iter__</a>(<span class="summary-sig-arg">self</span>)</span><br />
+          <td><span class="summary-sig"><a href="lxml.objectify.ObjectifiedElement-class.html#__iter__" class="summary-sig-name">__iter__</a>(<span class="summary-sig-arg">...</span>)</span><br />
       Iterate over self and all siblings with the same tag.</td>
           <td align="right" valign="top">
             
@@ -219,8 +219,8 @@ method behaves like both a dict and a sequence.</td>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="lxml.objectify.ObjectifiedElement-class.html#__len__" class="summary-sig-name">__len__</a>(<span class="summary-sig-arg">x</span>)</span><br />
-      len(x)</td>
+          <td><span class="summary-sig"><a href="lxml.objectify.ObjectifiedElement-class.html#__len__" class="summary-sig-name">__len__</a>(<span class="summary-sig-arg">...</span>)</span><br />
+      Count self and siblings with the same tag.</td>
           <td align="right" valign="top">
             
             
@@ -254,8 +254,27 @@ method behaves like both a dict and a sequence.</td>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
+          <td><span class="summary-sig"><a href="lxml.objectify.ObjectifiedElement-class.html#__reduce__" class="summary-sig-name">__reduce__</a>(<span class="summary-sig-arg">...</span>)</span><br />
+      helper for pickle</td>
+          <td align="right" valign="top">
+            
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
           <td><span class="summary-sig"><a href="lxml.objectify.ObjectifiedElement-class.html#__setattr__" class="summary-sig-name">__setattr__</a>(<span class="summary-sig-arg">...</span>)</span><br />
-      x.__setattr__('name', value) &lt;==&gt; x.name = value</td>
+      Set the value of the (first) child with the given tag name.  If no
+namespace is provided, the child will be looked up in the same one as
+self.</td>
           <td align="right" valign="top">
             
             
@@ -271,10 +290,10 @@ method behaves like both a dict and a sequence.</td>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="lxml.objectify.ObjectifiedElement-class.html#__setitem__" class="summary-sig-name">__setitem__</a>(<span class="summary-sig-arg">x</span>,
-        <span class="summary-sig-arg">i</span>,
-        <span class="summary-sig-arg">y</span>)</span><br />
-      x[i]=y</td>
+          <td><span class="summary-sig"><a href="lxml.objectify.ObjectifiedElement-class.html#__setitem__" class="summary-sig-name">__setitem__</a>(<span class="summary-sig-arg">...</span>)</span><br />
+      Set the value of a sibling, counting from the first child of the
+parent.  Implements key assignment, item assignment and slice
+assignment.</td>
           <td align="right" valign="top">
             
             
@@ -290,7 +309,7 @@ method behaves like both a dict and a sequence.</td>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="lxml.objectify.ObjectifiedElement-class.html#__str__" class="summary-sig-name">__str__</a>(<span class="summary-sig-arg">...</span>)</span><br />
+          <td><span class="summary-sig"><a href="lxml.objectify.ObjectifiedElement-class.html#__str__" class="summary-sig-name">__str__</a>(<span class="summary-sig-arg">x</span>)</span><br />
       str(x)</td>
           <td align="right" valign="top">
             
@@ -493,7 +512,6 @@ returned in document order.</td>
     <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
       <code>__format__</code>,
       <code>__hash__</code>,
-      <code>__reduce__</code>,
       <code>__reduce_ex__</code>,
       <code>__sizeof__</code>,
       <code>__subclasshook__</code>
@@ -668,7 +686,7 @@ children with special names (<tt class="rst-docutils literal">text</tt> etc.).</
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">__iter__</span>(<span class="sig-arg">self</span>)</span>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__iter__</span>(<span class="sig-arg">...</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     >&nbsp;
@@ -690,7 +708,7 @@ children with special names (<tt class="rst-docutils literal">text</tt> etc.).</
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">__len__</span>(<span class="sig-arg">x</span>)</span>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__len__</span>(<span class="sig-arg">...</span>)</span>
     <br /><em class="fname">(Length operator)</em>
   </h3>
   </td><td align="right" valign="top"
@@ -698,7 +716,7 @@ children with special names (<tt class="rst-docutils literal">text</tt> etc.).</
     </td>
   </tr></table>
   
-  len(x)
+  Count self and siblings with the same tag.
   <dl class="fields">
     <dt>Overrides:
         <a href="lxml.etree._Element-class.html#__len__">etree._Element.__len__</a>
@@ -731,6 +749,29 @@ children with special names (<tt class="rst-docutils literal">text</tt> etc.).</
   </dl>
 </td></tr></table>
 </div>
+<a name="__reduce__"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__reduce__</span>(<span class="sig-arg">...</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  helper for pickle
+  <dl class="fields">
+    <dt>Overrides:
+        object.__reduce__
+        <dd><em class="note">(inherited documentation)</em></dd>
+    </dt>
+  </dl>
+</td></tr></table>
+</div>
 <a name="__setattr__"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
@@ -745,7 +786,9 @@ children with special names (<tt class="rst-docutils literal">text</tt> etc.).</
     </td>
   </tr></table>
   
-  x.__setattr__('name', value) &lt;==&gt; x.name = value
+  Set the value of the (first) child with the given tag name.  If no
+namespace is provided, the child will be looked up in the same one as
+self.
   <dl class="fields">
     <dt>Overrides:
         object.__setattr__
@@ -760,9 +803,7 @@ children with special names (<tt class="rst-docutils literal">text</tt> etc.).</
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">__setitem__</span>(<span class="sig-arg">x</span>,
-        <span class="sig-arg">i</span>,
-        <span class="sig-arg">y</span>)</span>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__setitem__</span>(<span class="sig-arg">...</span>)</span>
     <br /><em class="fname">(Index assignment operator)</em>
   </h3>
   </td><td align="right" valign="top"
@@ -770,7 +811,16 @@ children with special names (<tt class="rst-docutils literal">text</tt> etc.).</
     </td>
   </tr></table>
   
-  x[i]=y
+  <p>Set the value of a sibling, counting from the first child of the
+parent.  Implements key assignment, item assignment and slice
+assignment.</p>
+<ul class="rst-simple">
+<li>If argument is an integer, sets the sibling at that position.</li>
+<li>If argument is a string, does the same as setattr().  This is used
+to provide namespaces for element lookup.</li>
+<li>If argument is a sequence (list, tuple, etc.), assign the contained
+items to the siblings.</li>
+</ul>
   <dl class="fields">
     <dt>Overrides:
         <a href="lxml.etree._Element-class.html#__setitem__">etree._Element.__setitem__</a>
@@ -785,7 +835,7 @@ children with special names (<tt class="rst-docutils literal">text</tt> etc.).</
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">__str__</span>(<span class="sig-arg">...</span>)</span>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">__str__</span>(<span class="sig-arg">x</span>)</span>
     <br /><em class="fname">(Informal representation operator)</em>
   </h3>
   </td><td align="right" valign="top"
@@ -797,7 +847,6 @@ children with special names (<tt class="rst-docutils literal">text</tt> etc.).</
   <dl class="fields">
     <dt>Overrides:
         object.__str__
-        <dd><em class="note">(inherited documentation)</em></dd>
     </dt>
   </dl>
 </td></tr></table>
@@ -839,7 +888,10 @@ children with special names (<tt class="rst-docutils literal">text</tt> etc.).</
     </td>
   </tr></table>
   
-  Finds the first matching subelement, by tag name or path.
+  <p>Finds the first matching subelement, by tag name or path.</p>
+<p>The optional <tt class="rst-rst-docutils literal rst-docutils literal">namespaces</tt> argument accepts a
+prefix-to-namespace mapping that allows the usage of XPath
+prefixes in the path expression.</p>
   <dl class="fields">
     <dt>Overrides:
         <a href="lxml.etree._Element-class.html#find">etree._Element.find</a>
@@ -862,7 +914,10 @@ children with special names (<tt class="rst-docutils literal">text</tt> etc.).</
     </td>
   </tr></table>
   
-  Finds all matching subelements, by tag name or path.
+  <p>Finds all matching subelements, by tag name or path.</p>
+<p>The optional <tt class="rst-rst-docutils literal rst-docutils literal">namespaces</tt> argument accepts a
+prefix-to-namespace mapping that allows the usage of XPath
+prefixes in the path expression.</p>
   <dl class="fields">
     <dt>Overrides:
         <a href="lxml.etree._Element-class.html#findall">etree._Element.findall</a>
@@ -886,7 +941,10 @@ children with special names (<tt class="rst-docutils literal">text</tt> etc.).</
     </td>
   </tr></table>
   
-  Finds text for the first matching subelement, by tag name or path.
+  <p>Finds text for the first matching subelement, by tag name or path.</p>
+<p>The optional <tt class="rst-rst-docutils literal rst-docutils literal">namespaces</tt> argument accepts a
+prefix-to-namespace mapping that allows the usage of XPath
+prefixes in the path expression.</p>
   <dl class="fields">
     <dt>Overrides:
         <a href="lxml.etree._Element-class.html#findtext">etree._Element.findtext</a>
@@ -932,7 +990,10 @@ returned in document order.
     </td>
   </tr></table>
   
-  Iterates over all matching subelements, by tag name or path.
+  <p>Iterates over all matching subelements, by tag name or path.</p>
+<p>The optional <tt class="rst-rst-docutils literal rst-docutils literal">namespaces</tt> argument accepts a
+prefix-to-namespace mapping that allows the usage of XPath
+prefixes in the path expression.</p>
   <dl class="fields">
     <dt>Overrides:
         <a href="lxml.etree._Element-class.html#iterfind">etree._Element.iterfind</a>
@@ -965,14 +1026,14 @@ returned in document order.
       <th class="navbar" align="right" width="100%">
         <table border="0" cellpadding="0" cellspacing="0">
           <tr><th class="navbar" align="center"
-            ><a class="navbar" target="_top" href="http://codespeak.net/lxml/">lxml API</a></th>
+            ><a class="navbar" target="_top" href="/">lxml API</a></th>
           </tr></table></th>
   </tr>
 </table>
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Thu Sep  2 09:04:35 2010
+    Generated by Epydoc 3.0.1 on Fri Nov 11 18:38:27 2011
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"
