@@ -32,10 +32,24 @@ class CSSSelector(etree.XPath):
         >>> root = etree.XML("<a><b><c/><tag><child>TEXT</child></tag></b></a>")
         >>> [ el.tag for el in select(root) ]
         ['child']
+    
+    To use CSS namespaces, you need to pass a prefix-to-namespace
+    mapping as ``namespaces`` keyword argument::
+    
+        >>> rdfns = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
+        >>> select_ns = cssselect.CSSSelector('root > rdf|Description',
+        ...                                   namespaces={'rdf': rdfns})
+
+        >>> rdf = etree.XML((
+        ...     '<root xmlns:rdf="%s">'
+        ...       '<rdf:Description>blah</rdf:Description>'
+        ...     '</root>') % rdfns)
+        >>> [(el.tag, el.text) for el in select_ns(rdf)]
+        [('{http://www.w3.org/1999/02/22-rdf-syntax-ns#}Description', 'blah')]
     """
-    def __init__(self, css):
+    def __init__(self, css, namespaces=None):
         path = css_to_xpath(css)
-        etree.XPath.__init__(self, path)
+        etree.XPath.__init__(self, path, namespaces=namespaces)
         self.css = css
 
     def __repr__(self):
@@ -128,11 +142,11 @@ class Function(object):
         sel_path = self.selector.xpath()
         if self.name in self.unsupported:
             raise ExpressionError(
-                "The psuedo-class %r is not supported" % self.name)
+                "The pseudo-class %r is not supported" % self.name)
         method = '_xpath_' + self.name.replace('-', '_')
         if not hasattr(self, method):
             raise ExpressionError(
-                "The psuedo-class %r is unknown" % self.name)
+                "The pseudo-class %r is unknown" % self.name)
         method = getattr(self, method)
         return method(sel_path, self.expr)
 
@@ -240,11 +254,11 @@ class Pseudo(object):
         el_xpath = self.element.xpath()
         if self.ident in self.unsupported:
             raise ExpressionError(
-                "The psuedo-class %r is unsupported" % self.ident)
+                "The pseudo-class %r is unsupported" % self.ident)
         method = '_xpath_' + self.ident.replace('-', '_')
         if not hasattr(self, method):
             raise ExpressionError(
-                "The psuedo-class %r is unknown" % self.ident)
+                "The pseudo-class %r is unknown" % self.ident)
         method = getattr(self, method)
         el_xpath = method(el_xpath)
         return el_xpath
@@ -480,7 +494,7 @@ class CombinedSelector(object):
 
     def _xpath_descendant(self, xpath, sub):
         # when sub is a descendant in any way of xpath
-        xpath.join('/descendant::', sub.xpath())
+        xpath.join('/descendant-or-self::*/', sub.xpath())
         return xpath
     
     def _xpath_child(self, xpath, sub):
@@ -679,6 +693,9 @@ def parse_selector(stream):
         elif peek in ('+', '>', '~'):
             # A combinator
             combinator = stream.next()
+            # Ignore optional whitespace after a combinator
+            while stream.peek() == ' ':
+                stream.next()
         else:
             combinator = ' '
         consumed = len(stream.used)
@@ -834,17 +851,17 @@ def parse_series(s):
 ## Tokenizing
 ############################################################
 
-_whitespace_re = re.compile(r'\s+', re.UNICODE)
+_match_whitespace = re.compile(r'\s+', re.UNICODE).match
 
-_comment_re = re.compile(r'/\*.*?\*/', re.DOTALL)
+_replace_comments = re.compile(r'/\*.*?\*/', re.DOTALL).sub
 
-_count_re = re.compile(r'[+-]?\d*n(?:[+-]\d+)?')
+_match_count_number = re.compile(r'[+-]?\d*n(?:[+-]\d+)?').match
 
 def tokenize(s):
     pos = 0
-    s = _comment_re.sub('', s)
+    s = _replace_comments('', s)
     while 1:
-        match = _whitespace_re.match(s, pos=pos)
+        match = _match_whitespace(s, pos=pos)
         if match:
             preceding_whitespace_pos = pos
             pos = match.end()
@@ -852,7 +869,7 @@ def tokenize(s):
             preceding_whitespace_pos = 0
         if pos >= len(s):
             return
-        match = _count_re.match(s, pos=pos)
+        match = _match_count_number(s, pos=pos)
         if match and match.group() != 'n':
             sym = s[pos:match.end()]
             yield Symbol(sym, pos)
@@ -865,7 +882,7 @@ def tokenize(s):
             pos += 2
             continue
         if c in '>+~,.*=[]()|:#':
-            if c in '.#' and preceding_whitespace_pos > 0:
+            if c in '.#[' and preceding_whitespace_pos > 0:
                 yield Token(' ', preceding_whitespace_pos)
             yield Token(c, pos)
             pos += 1

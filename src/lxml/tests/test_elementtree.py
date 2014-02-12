@@ -15,14 +15,19 @@ this_dir = os.path.dirname(__file__)
 if this_dir not in sys.path:
     sys.path.insert(0, this_dir) # needed for Py3
 
-from common_imports import StringIO, BytesIO, etree, ElementTree, cElementTree
-from common_imports import fileInTestDir, canonicalize, HelperTestCase
-from common_imports import _str, _bytes
+from common_imports import StringIO, BytesIO, etree
+from common_imports import ElementTree, cElementTree, ET_VERSION, CET_VERSION
+from common_imports import filter_by_version, fileInTestDir, canonicalize, HelperTestCase
+from common_imports import _str, _bytes, unicode
+
+if cElementTree is not None and CET_VERSION <= (1,0,7):
+    cElementTree = None
+
+if ElementTree is not None:
+    print("Comparing with ElementTree %s" % getattr(ElementTree, "VERSION", "?"))
 
 if cElementTree is not None:
-    if tuple([int(n) for n in
-              getattr(cElementTree, "VERSION", "0.0").split(".")]) <= (1,0,7):
-        cElementTree = None
+    print("Comparing with cElementTree %s" % getattr(cElementTree, "VERSION", "?"))
 
 try:
     reversed
@@ -34,6 +39,8 @@ except NameError:
 
 class ETreeTestCaseBase(HelperTestCase):
     etree = None
+    required_versions_ET = {}
+    required_versions_cET = {}
 
     def test_element(self):
         for i in range(10):
@@ -436,7 +443,7 @@ class ETreeTestCaseBase(HelperTestCase):
         XML = self.etree.XML
         
         root = XML(_bytes('<doc alpha="Alpha" beta="Beta" gamma="Gamma"/>'))
-        keys = root.attrib.keys()
+        keys = list(root.attrib.keys())
         keys.sort()
         self.assertEquals(['alpha', 'beta', 'gamma'], keys)
 
@@ -444,7 +451,7 @@ class ETreeTestCaseBase(HelperTestCase):
         XML = self.etree.XML
         
         root = XML(_bytes('<doc alpha="Alpha" beta="Beta" gamma="Gamma"/>'))
-        keys = root.keys()
+        keys = list(root.keys())
         keys.sort()
         self.assertEquals(['alpha', 'beta', 'gamma'], keys)
 
@@ -462,7 +469,7 @@ class ETreeTestCaseBase(HelperTestCase):
         XML = self.etree.XML
 
         root = XML(_bytes('<foo bar="Bar" xmlns:ns="http://ns.codespeak.net/test" ns:baz="Baz" />'))
-        keys = root.keys()
+        keys = list(root.keys())
         keys.sort()
         self.assertEquals(['bar', '{http://ns.codespeak.net/test}baz'],
                           keys)
@@ -471,7 +478,7 @@ class ETreeTestCaseBase(HelperTestCase):
         XML = self.etree.XML
         
         root = XML(_bytes('<doc alpha="Alpha" beta="Beta" gamma="Gamma"/>'))
-        values = root.attrib.values()
+        values = list(root.attrib.values())
         values.sort()
         self.assertEquals(['Alpha', 'Beta', 'Gamma'], values)
 
@@ -479,7 +486,7 @@ class ETreeTestCaseBase(HelperTestCase):
         XML = self.etree.XML
         
         root = XML(_bytes('<foo bar="Bar" xmlns:ns="http://ns.codespeak.net/test" ns:baz="Baz" />'))
-        values = root.attrib.values()
+        values = list(root.attrib.values())
         values.sort()
         self.assertEquals(
             ['Bar', 'Baz'], values)
@@ -519,20 +526,6 @@ class ETreeTestCaseBase(HelperTestCase):
         except AssertionError:
             self.assertEquals(alternative, str(root.attrib))
 
-    def test_attribute_has_key(self):
-        XML = self.etree.XML
-
-        root = XML(_bytes('<foo bar="Bar" xmlns:ns="http://ns.codespeak.net/test" ns:baz="Baz" />'))
-        self.assertEquals(
-            True, root.attrib.has_key('bar'))
-        self.assertEquals(
-            False, root.attrib.has_key('baz'))
-        self.assertEquals(
-            False, root.attrib.has_key('hah'))
-        self.assertEquals(
-            True,
-            root.attrib.has_key('{http://ns.codespeak.net/test}baz'))
-
     def test_attribute_contains(self):
         XML = self.etree.XML
 
@@ -553,6 +546,26 @@ class ETreeTestCaseBase(HelperTestCase):
         root = Element("root")
         root.set("attr", "TEST")
         self.assertEquals("TEST", root.get("attr"))
+
+    def test_attribute_iterator(self):
+        XML = self.etree.XML
+        
+        root = XML(_bytes('<doc alpha="Alpha" beta="Beta" gamma="Gamma" />'))
+        result = []
+        for key in root.attrib:
+            result.append(key)
+        result.sort()
+        self.assertEquals(['alpha', 'beta', 'gamma'], result)
+
+    def test_attribute_manipulation(self):
+        Element = self.etree.Element
+
+        a = Element('a')
+        a.attrib['foo'] = 'Foo'
+        a.attrib['bar'] = 'Bar'
+        self.assertEquals('Foo', a.attrib['foo'])
+        del a.attrib['foo']
+        self.assertRaises(KeyError, operator.getitem, a.attrib, 'foo')
 
     def test_del_attribute_ns(self):
         Element = self.etree.Element
@@ -638,6 +651,7 @@ class ETreeTestCaseBase(HelperTestCase):
         self.assertEquals(0, len(root))
         self.assertEquals('This is a text.', root.text)
 
+    required_versions_ET['test_fromstringlist'] = (1,3)
     def test_fromstringlist(self):
         fromstringlist = self.etree.fromstringlist
 
@@ -646,6 +660,7 @@ class ETreeTestCaseBase(HelperTestCase):
         self.assertEquals(0, len(root))
         self.assertEquals('This is a text.', root.text)
 
+    required_versions_ET['test_fromstringlist_characters'] = (1,3)
     def test_fromstringlist_characters(self):
         fromstringlist = self.etree.fromstringlist
 
@@ -653,6 +668,7 @@ class ETreeTestCaseBase(HelperTestCase):
         self.assertEquals(0, len(root))
         self.assertEquals('This is a text.', root.text)
 
+    required_versions_ET['test_fromstringlist_single'] = (1,3)
     def test_fromstringlist_single(self):
         fromstringlist = self.etree.fromstringlist
 
@@ -760,16 +776,7 @@ class ETreeTestCaseBase(HelperTestCase):
                 result.append(el1.tag)
         self.assertEquals(['one','one', 'two', 'two', 'one', 'two'], result)
 
-    def test_attribute_iterator(self):
-        XML = self.etree.XML
-        
-        root = XML(_bytes('<doc alpha="Alpha" beta="Beta" gamma="Gamma" />'))
-        result = []
-        for key in root.attrib:
-            result.append(key)
-        result.sort()
-        self.assertEquals(['alpha', 'beta', 'gamma'], result)
-
+    required_versions_ET['test_itertext'] = (1,3)
     def test_itertext(self):
         # ET 1.3+
         XML = self.etree.XML
@@ -779,6 +786,7 @@ class ETreeTestCaseBase(HelperTestCase):
         self.assertEquals(["RTEXT", "ATAIL", "CTEXT", "CTAIL"],
                           text)
 
+    required_versions_ET['test_itertext_child'] = (1,3)
     def test_itertext_child(self):
         # ET 1.3+
         XML = self.etree.XML
@@ -858,6 +866,7 @@ class ETreeTestCaseBase(HelperTestCase):
                 _bytes('<doc%s>This is a test.</doc%s>' % (i, i)),
                 canonicalize(data))
 
+    required_versions_ET['test_write_method_html'] = (1,3)
     def test_write_method_html(self):
         ElementTree = self.etree.ElementTree
         Element = self.etree.Element
@@ -877,6 +886,7 @@ class ETreeTestCaseBase(HelperTestCase):
         self.assertEquals(_bytes('<html><body><p>html<br>test</p></body></html>'),
                           data)
 
+    required_versions_ET['test_write_method_text'] = (1,3)
     def test_write_method_text(self):
         ElementTree = self.etree.ElementTree
         Element = self.etree.Element
@@ -1052,6 +1062,7 @@ class ETreeTestCaseBase(HelperTestCase):
             a.tail)
         self.assertXML(_bytes('<a></a>'), a)
 
+    required_versions_ET['test_extend'] = (1,3)
     def test_extend(self):
         root = self.etree.Element('foo')
         for i in range(3):
@@ -1089,6 +1100,7 @@ class ETreeTestCaseBase(HelperTestCase):
         self.assertEquals(a[0].text, 'foo')
 
     # ElementTree < 1.3 adds whitespace around comments
+    required_versions_ET['test_comment_text'] = (1,3)
     def test_comment_text(self):
         Element = self.etree.Element
         SubElement = self.etree.SubElement
@@ -1109,8 +1121,9 @@ class ETreeTestCaseBase(HelperTestCase):
         self.assertEquals(
             _bytes('<a><!--TEST--></a>'),
             tostring(a))
-        
+
     # ElementTree < 1.3 adds whitespace around comments
+    required_versions_ET['test_comment_whitespace'] = (1,3)
     def test_comment_whitespace(self):
         Element = self.etree.Element
         SubElement = self.etree.SubElement
@@ -1644,6 +1657,7 @@ class ETreeTestCaseBase(HelperTestCase):
             _bytes('<c hoi="dag"></c>'),
             b)
 
+    required_versions_ET['test_iter'] = (1,3)
     def test_iter(self):
         Element = self.etree.Element
         SubElement = self.etree.SubElement
@@ -1838,16 +1852,6 @@ class ETreeTestCaseBase(HelperTestCase):
         self.assertEquals(
             [a2],
             list(e.getiterator('a')))
-
-    def test_attribute_manipulation(self):
-        Element = self.etree.Element
-
-        a = Element('a')
-        a.attrib['foo'] = 'Foo'
-        a.attrib['bar'] = 'Bar'
-        self.assertEquals('Foo', a.attrib['foo'])
-        del a.attrib['foo']
-        self.assertRaises(KeyError, operator.getitem, a.attrib, 'foo')
 
     def test_getslice(self):
         Element = self.etree.Element
@@ -2191,7 +2195,7 @@ class ETreeTestCaseBase(HelperTestCase):
 
         self.assertEquals(
             [['{ns3}a3'], ['{ns2}a2'], ['{ns1}a1']],
-            [ child.attrib.keys() for child in a ])
+            [ list(child.attrib.keys()) for child in a ])
 
     def test_setslice_all_replace_reversed_ns2(self):
         Element = self.etree.Element
@@ -2213,7 +2217,7 @@ class ETreeTestCaseBase(HelperTestCase):
 
         self.assertEquals(
             [['{ns}a3'], ['{ns}a2'], ['{ns}a1']],
-            [ child.attrib.keys() for child in a ])
+            [ list(child.attrib.keys()) for child in a ])
 
     def test_setslice_end(self):
         Element = self.etree.Element
@@ -2567,6 +2571,60 @@ class ETreeTestCaseBase(HelperTestCase):
         parsed = parse(BytesIO( tostring(baz) )).getroot()
         self.assertEquals('{%s}baz' % ns_href, parsed.tag)
 
+    def test_attribute_namespace_roundtrip(self):
+        fromstring = self.etree.fromstring
+        tostring = self.etree.tostring
+
+        ns_href = "http://a.b.c"
+        xml = _bytes('<root xmlns="%s" xmlns:x="%s"><el x:a="test" /></root>' % (
+                ns_href,ns_href))
+        root = fromstring(xml)
+        self.assertEquals('test', root[0].get('{%s}a' % ns_href))
+
+        xml2 = tostring(root)
+        self.assertTrue(_bytes(':a=') in xml2, xml2)
+
+        root2 = fromstring(xml2)
+        self.assertEquals('test', root[0].get('{%s}a' % ns_href))
+
+    def test_attribute_namespace_roundtrip_replaced(self):
+        fromstring = self.etree.fromstring
+        tostring = self.etree.tostring
+
+        ns_href = "http://a.b.c"
+        xml = _bytes('<root xmlns="%s" xmlns:x="%s"><el x:a="test" /></root>' % (
+                ns_href,ns_href))
+        root = fromstring(xml)
+        self.assertEquals('test', root[0].get('{%s}a' % ns_href))
+
+        root[0].set('{%s}a' % ns_href, 'TEST')
+
+        xml2 = tostring(root)
+        self.assertTrue(_bytes(':a=') in xml2, xml2)
+
+        root2 = fromstring(xml2)
+        self.assertEquals('TEST', root[0].get('{%s}a' % ns_href))
+
+    required_versions_ET['test_register_namespace'] = (1,3)
+    def test_register_namespace(self):
+        # ET 1.3+
+        Element = self.etree.Element
+        tostring = self.etree.tostring
+        prefix = 'TESTPREFIX'
+        namespace = 'http://seriously.unknown/namespace/URI'
+
+        el = Element('{%s}test' % namespace)
+        self.assertEquals(_bytes('<ns0:test xmlns:ns0="%s"></ns0:test>' % namespace),
+            self._writeElement(el))
+
+        self.etree.register_namespace(prefix, namespace)
+        el = Element('{%s}test' % namespace)
+        self.assertEquals(_bytes('<%s:test xmlns:%s="%s"></%s:test>' % (
+            prefix, prefix, namespace, prefix)),
+            self._writeElement(el))
+
+        self.assertRaises(ValueError, self.etree.register_namespace, 'ns25', namespace)
+
     def test_tostring(self):
         tostring = self.etree.tostring
         Element = self.etree.Element
@@ -2607,6 +2665,7 @@ class ETreeTestCaseBase(HelperTestCase):
         self.assert_(tostring(b) == _bytes('<b/>Foo') or
                      tostring(b) == _bytes('<b />Foo'))
 
+    required_versions_ET['test_tostring_method_html'] = (1,3)
     def test_tostring_method_html(self):
         tostring = self.etree.tostring
         Element = self.etree.Element
@@ -2621,6 +2680,7 @@ class ETreeTestCaseBase(HelperTestCase):
         self.assertEquals(_bytes('<html><body><p>html<br>test</p></body></html>'),
                           tostring(html, method="html"))
 
+    required_versions_ET['test_tostring_method_text'] = (1,3)
     def test_tostring_method_text(self):
         tostring = self.etree.tostring
         Element = self.etree.Element
@@ -2784,6 +2844,7 @@ class ETreeTestCaseBase(HelperTestCase):
         parse = self.etree.parse
         self.assertRaises(TypeError, parse, None)
 
+    required_versions_ET['test_parse_error'] = (1,3)
     def test_parse_error(self):
         # ET < 1.3 raises ExpatError
         parse = self.etree.parse
@@ -2791,6 +2852,7 @@ class ETreeTestCaseBase(HelperTestCase):
         self.assertRaises(SyntaxError, parse, f)
         f.close()
 
+    required_versions_ET['test_parse_error_from_file'] = (1,3)
     def test_parse_error_from_file(self):
         parse = self.etree.parse
         # from file
@@ -2890,6 +2952,7 @@ class ETreeTestCaseBase(HelperTestCase):
         self.assertEquals(_str('<a>Søk på nettet</a>').encode('iso-8859-1'),
                           result)
 
+    required_versions_ET['test_parse_encoding_8bit_explicit'] = (1,3)
     def test_parse_encoding_8bit_explicit(self):
         XMLParser = self.etree.XMLParser
 
@@ -2905,6 +2968,7 @@ class ETreeTestCaseBase(HelperTestCase):
         a = tree.getroot()
         self.assertEquals(a.text, text)
 
+    required_versions_ET['test_parse_encoding_8bit_override'] = (1,3)
     def test_parse_encoding_8bit_override(self):
         XMLParser = self.etree.XMLParser
 
@@ -3286,15 +3350,15 @@ class ETreeTestCaseBase(HelperTestCase):
 
     # feed parser interface
 
-    def test_feed_parser(self):
+    def test_feed_parser_bytes(self):
         parser = self.etree.XMLParser()
 
-        parser.feed('<?xml version=')
-        parser.feed('"1.0"?><ro')
-        parser.feed('ot><')
-        parser.feed('a test="works"/')
-        parser.feed('></root')
-        parser.feed('>')
+        parser.feed(_bytes('<?xml version='))
+        parser.feed(_bytes('"1.0"?><ro'))
+        parser.feed(_bytes('ot><'))
+        parser.feed(_bytes('a test="works"/'))
+        parser.feed(_bytes('></root'))
+        parser.feed(_bytes('>'))
 
         root = parser.close()
 
@@ -3302,11 +3366,28 @@ class ETreeTestCaseBase(HelperTestCase):
         self.assertEquals(root[0].tag, "a")
         self.assertEquals(root[0].get("test"), "works")
 
+    def test_feed_parser_unicode(self):
+        parser = self.etree.XMLParser()
+
+        parser.feed(_str('<ro'))
+        parser.feed(_str('ot><'))
+        parser.feed(_str('a test="works"/'))
+        parser.feed(_str('></root'))
+        parser.feed(_str('>'))
+
+        root = parser.close()
+
+        self.assertEquals(root.tag, "root")
+        self.assertEquals(root[0].tag, "a")
+        self.assertEquals(root[0].get("test"), "works")
+
+    required_versions_ET['test_feed_parser_error_close_empty'] = (1,3)
     def test_feed_parser_error_close_empty(self):
         ParseError = self.etree.ParseError
         parser = self.etree.XMLParser()
         self.assertRaises(ParseError, parser.close)
 
+    required_versions_ET['test_feed_parser_error_close_incomplete'] = (1,3)
     def test_feed_parser_error_close_incomplete(self):
         ParseError = self.etree.ParseError
         parser = self.etree.XMLParser()
@@ -3316,6 +3397,7 @@ class ETreeTestCaseBase(HelperTestCase):
 
         self.assertRaises(ParseError, parser.close)
 
+    required_versions_ET['test_feed_parser_error_broken'] = (1,3)
     def test_feed_parser_error_broken(self):
         ParseError = self.etree.ParseError
         parser = self.etree.XMLParser()
@@ -3330,6 +3412,7 @@ class ETreeTestCaseBase(HelperTestCase):
 
         self.assertRaises(ParseError, parser.close)
 
+    required_versions_ET['test_feed_parser_error_position'] = (1,3)
     def test_feed_parser_error_position(self):
         ParseError = self.etree.ParseError
         parser = self.etree.XMLParser()
@@ -3343,6 +3426,16 @@ class ETreeTestCaseBase(HelperTestCase):
             self.assert_(e.position >= (0, 0))
 
     # parser target interface
+
+    required_versions_ET['test_parser_target_property'] = (1,3)
+    def test_parser_target_property(self):
+        class Target(object):
+            pass
+
+        target = Target()
+        parser = self.etree.XMLParser(target=target)
+
+        self.assertEquals(target, parser.target)
 
     def test_parser_target_tag(self):
         assertEquals = self.assertEquals
@@ -3476,6 +3569,7 @@ class ETreeTestCaseBase(HelperTestCase):
                            "end-sub", "start-sub", "end-sub", "end-root"],
                           events)
 
+    required_versions_ET['test_parser_target_entity_unknown'] = (1,3)
     def test_parser_target_entity_unknown(self):
         events = []
         class Target(object):
@@ -3504,62 +3598,6 @@ class ETreeTestCaseBase(HelperTestCase):
             parser.close()
 
         self.assertRaises(self.etree.ParseError, feed)
-
-    def test_parser_target_feed_exception(self):
-        events = []
-        class Target(object):
-            def start(self, tag, attrib):
-                events.append("start-" + tag)
-            def end(self, tag):
-                events.append("end-" + tag)
-                if tag == 'a':
-                    raise ValueError("dead and gone")
-            def data(self, data):
-                events.append("data-" + data)
-            def close(self):
-                events.append("close")
-                return "DONE"
-
-        parser = self.etree.XMLParser(target=Target())
-
-        try:
-            parser.feed(_bytes('<root>A<a>ca</a>B</root>'))
-            done = parser.close()
-            self.fail("error expected, but parsing succeeded")
-        except ValueError:
-            done = 'value error received as expected'
-
-        self.assertEquals(["start-root", "data-A", "start-a",
-                           "data-ca", "end-a"],
-                          events)
-
-    def test_parser_target_fromstring_exception(self):
-        events = []
-        class Target(object):
-            def start(self, tag, attrib):
-                events.append("start-" + tag)
-            def end(self, tag):
-                events.append("end-" + tag)
-                if tag == 'a':
-                    raise ValueError("dead and gone")
-            def data(self, data):
-                events.append("data-" + data)
-            def close(self):
-                events.append("close")
-                return "DONE"
-
-        parser = self.etree.XMLParser(target=Target())
-
-        try:
-            done = self.etree.fromstring(_bytes('<root>A<a>ca</a>B</root>'),
-                                         parser=parser)
-            self.fail("error expected, but parsing succeeded")
-        except ValueError:
-            done = 'value error received as expected'
-
-        self.assertEquals(["start-root", "data-A", "start-a",
-                           "data-ca", "end-a"],
-                          events)
 
     def test_treebuilder(self):
         builder = self.etree.TreeBuilder()
@@ -3600,8 +3638,6 @@ class ETreeTestCaseBase(HelperTestCase):
         """Write out element for comparison.
         """
         data = self.etree.tostring(element, encoding=encoding)
-        if encoding != 'us-ascii':
-            data = data.decode(encoding)
         return canonicalize(data)
 
     def _writeElementFile(self, element, encoding='us-ascii'):
@@ -3620,8 +3656,6 @@ class ETreeTestCaseBase(HelperTestCase):
         finally:
             os.close(handle)
             os.remove(filename)
-        if encoding != 'us-ascii':
-            data = data.decode(encoding)
         return canonicalize(data)
 
     def assertXML(self, expected, element, encoding='us-ascii'):
@@ -3629,6 +3663,8 @@ class ETreeTestCaseBase(HelperTestCase):
 
         Does this two ways; once using BytesIO, once using a real file.
         """
+        if isinstance(expected, unicode):
+            expected = expected.encode(encoding)
         self.assertEquals(expected, self._writeElement(element, encoding))
         self.assertEquals(expected, self._writeElementFile(element, encoding))
 
@@ -3689,9 +3725,17 @@ if ElementTree:
     class ElementTreeTestCase(ETreeTestCaseBase):
         etree = ElementTree
 
+    filter_by_version(
+        ElementTreeTestCase,
+        ElementTreeTestCase.required_versions_ET, ET_VERSION)
+
 if cElementTree:
     class CElementTreeTestCase(ETreeTestCaseBase):
         etree = cElementTree
+
+    filter_by_version(
+        CElementTreeTestCase,
+        CElementTreeTestCase.required_versions_cET, CET_VERSION)
 
 def test_suite():
     suite = unittest.TestSuite()

@@ -34,7 +34,7 @@
       <th class="navbar" align="right" width="100%">
         <table border="0" cellpadding="0" cellspacing="0">
           <tr><th class="navbar" align="center"
-            ><a class="navbar" target="_top" href="http://codespeak.net/lxml/">lxml API</a></th>
+            ><a class="navbar" target="_top" href="/">lxml API</a></th>
           </tr></table></th>
   </tr>
 </table>
@@ -63,7 +63,9 @@
 <!-- ==================== CLASS DESCRIPTION ==================== -->
 <h1 class="epydoc">Class _AppendOnlyElementProxy</h1><p class="nomargin-top"></p>
 <pre class="base-tree">
-           object --+    
+       object --+        
+                |        
+   <a href="lxml.etree._ReadOnlyProxy-class.html" onclick="show_private();">_ReadOnlyProxy</a> --+    
                     |    
 <a href="lxml.etree._ReadOnlyElementProxy-class.html" onclick="show_private();">_ReadOnlyElementProxy</a> --+
                         |
@@ -147,22 +149,24 @@ children.</td>
   <tr>
     <td colspan="2" class="summary">
     <p class="indent-wrapped-lines"><b>Inherited from <code><a href="lxml.etree._ReadOnlyElementProxy-class.html" onclick="show_private();">_ReadOnlyElementProxy</a></code></b>:
-      <code><a href="lxml.etree._ReadOnlyElementProxy-class.html#__copy__">__copy__</a></code>,
-      <code><a href="lxml.etree._ReadOnlyElementProxy-class.html#__deepcopy__">__deepcopy__</a></code>,
-      <code><a href="lxml.etree._ReadOnlyElementProxy-class.html#__getitem__">__getitem__</a></code>,
-      <code><a href="lxml.etree._ReadOnlyElementProxy-class.html#__iter__">__iter__</a></code>,
-      <code><a href="lxml.etree._ReadOnlyElementProxy-class.html#__len__">__len__</a></code>,
-      <code><a href="lxml.etree._ReadOnlyElementProxy-class.html#__nonzero__">__nonzero__</a></code>,
-      <code><a href="lxml.etree._ReadOnlyElementProxy-class.html#__repr__">__repr__</a></code>,
       <code><a href="lxml.etree._ReadOnlyElementProxy-class.html#get">get</a></code>,
-      <code><a href="lxml.etree._ReadOnlyElementProxy-class.html#getchildren">getchildren</a></code>,
-      <code><a href="lxml.etree._ReadOnlyElementProxy-class.html#getnext">getnext</a></code>,
-      <code><a href="lxml.etree._ReadOnlyElementProxy-class.html#getparent">getparent</a></code>,
-      <code><a href="lxml.etree._ReadOnlyElementProxy-class.html#getprevious">getprevious</a></code>,
       <code><a href="lxml.etree._ReadOnlyElementProxy-class.html#items">items</a></code>,
-      <code><a href="lxml.etree._ReadOnlyElementProxy-class.html#iterchildren">iterchildren</a></code>,
       <code><a href="lxml.etree._ReadOnlyElementProxy-class.html#keys">keys</a></code>,
       <code><a href="lxml.etree._ReadOnlyElementProxy-class.html#values">values</a></code>
+      </p>
+    <p class="indent-wrapped-lines"><b>Inherited from <code><a href="lxml.etree._ReadOnlyProxy-class.html" onclick="show_private();">_ReadOnlyProxy</a></code></b>:
+      <code><a href="lxml.etree._ReadOnlyProxy-class.html#__copy__">__copy__</a></code>,
+      <code><a href="lxml.etree._ReadOnlyProxy-class.html#__deepcopy__">__deepcopy__</a></code>,
+      <code><a href="lxml.etree._ReadOnlyProxy-class.html#__getitem__">__getitem__</a></code>,
+      <code><a href="lxml.etree._ReadOnlyProxy-class.html#__iter__">__iter__</a></code>,
+      <code><a href="lxml.etree._ReadOnlyProxy-class.html#__len__">__len__</a></code>,
+      <code><a href="lxml.etree._ReadOnlyProxy-class.html#__nonzero__">__nonzero__</a></code>,
+      <code><a href="lxml.etree._ReadOnlyProxy-class.html#__repr__">__repr__</a></code>,
+      <code><a href="lxml.etree._ReadOnlyProxy-class.html#getchildren">getchildren</a></code>,
+      <code><a href="lxml.etree._ReadOnlyProxy-class.html#getnext">getnext</a></code>,
+      <code><a href="lxml.etree._ReadOnlyProxy-class.html#getparent">getparent</a></code>,
+      <code><a href="lxml.etree._ReadOnlyProxy-class.html#getprevious">getprevious</a></code>,
+      <code><a href="lxml.etree._ReadOnlyProxy-class.html#iterchildren">iterchildren</a></code>
       </p>
     <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
       <code>__delattr__</code>,
@@ -210,10 +214,12 @@ value None, if there was no text.
     <td colspan="2" class="summary">
     <p class="indent-wrapped-lines"><b>Inherited from <code><a href="lxml.etree._ReadOnlyElementProxy-class.html" onclick="show_private();">_ReadOnlyElementProxy</a></code></b>:
       <code><a href="lxml.etree._ReadOnlyElementProxy-class.html#attrib">attrib</a></code>,
-      <code><a href="lxml.etree._ReadOnlyElementProxy-class.html#prefix">prefix</a></code>,
-      <code><a href="lxml.etree._ReadOnlyElementProxy-class.html#sourceline">sourceline</a></code>,
-      <code><a href="lxml.etree._ReadOnlyElementProxy-class.html#tag">tag</a></code>,
-      <code><a href="lxml.etree._ReadOnlyElementProxy-class.html#tail">tail</a></code>
+      <code><a href="lxml.etree._ReadOnlyElementProxy-class.html#prefix">prefix</a></code>
+      </p>
+    <p class="indent-wrapped-lines"><b>Inherited from <code><a href="lxml.etree._ReadOnlyProxy-class.html" onclick="show_private();">_ReadOnlyProxy</a></code></b>:
+      <code><a href="lxml.etree._ReadOnlyProxy-class.html#sourceline">sourceline</a></code>,
+      <code><a href="lxml.etree._ReadOnlyProxy-class.html#tag">tag</a></code>,
+      <code><a href="lxml.etree._ReadOnlyProxy-class.html#tail">tail</a></code>
       </p>
     <p class="indent-wrapped-lines"><b>Inherited from <code>object</code></b>:
       <code>__class__</code>
@@ -289,14 +295,14 @@ value None, if there was no text.
       <th class="navbar" align="right" width="100%">
         <table border="0" cellpadding="0" cellspacing="0">
           <tr><th class="navbar" align="center"
-            ><a class="navbar" target="_top" href="http://codespeak.net/lxml/">lxml API</a></th>
+            ><a class="navbar" target="_top" href="/">lxml API</a></th>
           </tr></table></th>
   </tr>
 </table>
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Thu Sep  2 09:04:34 2010
+    Generated by Epydoc 3.0.1 on Fri Nov 11 18:38:26 2011
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

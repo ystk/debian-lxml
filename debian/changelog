@@ -1,3 +1,28 @@
+lxml (2.3.2-1) unstable; urgency=low
+
+  * New upstream version.
+
+ -- Matthias Klose <doko@debian.org>  Wed, 04 Jan 2012 13:29:53 +0100
+
+lxml (2.3-0.1) unstable; urgency=low
+
+  * Upload 2.3 final to unstable as NMU at maintainer request
+
+ -- Scott Kitterman <scott@kitterman.com>  Mon, 07 Mar 2011 13:17:25 -0500
+
+lxml (2.3~beta1-1) experimental; urgency=low
+
+  * lxml-2.3 beta1 release.
+
+ -- Matthias Klose <doko@debian.org>  Sun, 05 Dec 2010 13:07:46 +0100
+
+lxml (2.3~alpha2-1) experimental; urgency=low
+
+  * lxml-2.3 alpha2 release.
+    - Fix build failure with python3.2.
+
+ -- Matthias Klose <doko@debian.org>  Mon, 18 Oct 2010 18:05:26 +0200
+
 lxml (2.2.8-2) unstable; urgency=low
 
   * Add copyright and license information for test.py. Closes: #597547.

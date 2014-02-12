@@ -87,12 +87,18 @@ class ETreeXPathTestCase(HelperTestCase):
         self.assertEquals([root[0], root[1]],
                           [r.getparent() for r in
                            tree.xpath('/a/b/text()', smart_strings=True)])
+        self.assertEquals([None, None],
+                          [r.attrname for r in
+                           tree.xpath('/a/b/text()', smart_strings=True)])
 
         self.assertEquals(['FooBar', 'BarFoo'],
                           tree.xpath('/a/b/text()', smart_strings=False))
         self.assertEquals([False, False],
                           [hasattr(r, 'getparent') for r in
                            tree.xpath('/a/b/text()', smart_strings=False)])
+        self.assertEquals([None, None],
+                          [r.attrname for r in
+                           tree.xpath('/a/b/text()', smart_strings=True)])
 
     def test_xpath_list_unicode_text_parent(self):
         xml = _bytes('<a><b>FooBar\\u0680\\u3120</b><b>BarFoo\\u0680\\u3120</b></a>').decode("unicode_escape")
@@ -122,12 +128,14 @@ class ETreeXPathTestCase(HelperTestCase):
         results = tree.xpath('/a/@c', smart_strings=True)
         self.assertEquals(1, len(results))
         self.assertEquals('CqWeRtZuI', results[0])
+        self.assertEquals('c', results[0].attrname)
         self.assertEquals(tree.getroot().tag, results[0].getparent().tag)
 
         results = tree.xpath('/a/@c', smart_strings=False)
         self.assertEquals(1, len(results))
         self.assertEquals('CqWeRtZuI', results[0])
         self.assertEquals(False, hasattr(results[0], 'getparent'))
+        self.assertEquals(False, hasattr(results[0], 'attrname'))
 
     def test_xpath_text_from_other_document(self):
         xml_data = '''
@@ -558,6 +566,35 @@ class ETreeXPathClassTestCase(HelperTestCase):
     def test_xpath_elementtree_error(self):
         self.assertRaises(ValueError, etree.XPath('*'), etree.ElementTree())
 
+
+class ETreeXPathExsltTestCase(HelperTestCase):
+    "Tests for the EXSLT support in XPath (requires libxslt 1.1.25+)"
+
+    NSMAP = dict(
+        date = "http://exslt.org/dates-and-times",
+        math = "http://exslt.org/math",
+        set  = "http://exslt.org/sets",
+        str  = "http://exslt.org/strings",
+        )
+
+    def test_xpath_exslt_functions_date(self):
+        tree = self.parse('<a><b>2009-11-12</b><b>2008-12-11</b></a>')
+
+        match_dates = tree.xpath('//b[date:year(string()) = 2009]',
+                                 namespaces=self.NSMAP)
+        self.assertTrue(match_dates, str(match_dates))
+        self.assertEquals(len(match_dates), 1, str(match_dates))
+        self.assertEquals(match_dates[0].text, '2009-11-12')
+
+    def test_xpath_exslt_functions_strings(self):
+        tree = self.parse('<a><b>2009-11-12</b><b>2008-12-11</b></a>')
+
+        match_date = tree.xpath('str:replace(//b[1], "-", "*")',
+                                namespaces=self.NSMAP)
+        self.assertTrue(match_date, str(match_date))
+        self.assertEquals(match_date, '2009*11*12')
+
+
 class ETreeETXPathClassTestCase(HelperTestCase):
     "Tests for the ETXPath class"
     def test_xpath_compile_ns(self):
@@ -603,8 +640,14 @@ SAMPLE_XML = etree.parse(BytesIO("""
 def tag(elem):
     return elem.tag
 
+def tag_or_value(elem):
+    return getattr(elem, 'tag', elem)
+
 def stringTest(ctxt, s1):
     return "Hello "+s1
+
+def stringListTest(ctxt, s1):
+    return ["Hello "] + list(s1) +  ["!"]
     
 def floatTest(ctxt, f1):
     return f1+4
@@ -626,7 +669,7 @@ def argsTest2(ctxt, st1, st2):
     return st1
 
 def resultTypesTest(ctxt):
-    return ["x","y"]
+    return [None,None]
 
 def resultTypesTest2(ctxt):
     return resultTypesTest
@@ -634,6 +677,7 @@ def resultTypesTest2(ctxt):
 uri = "http://www.example.com/"
 
 extension = {(None, 'stringTest'): stringTest,
+             (None, 'stringListTest'): stringListTest,
              (None, 'floatTest'): floatTest,
              (None, 'booleanTest'): booleanTest,
              (None, 'setTest'): setTest,
@@ -653,10 +697,10 @@ def xpath():
     'Hello you'
     >>> e(_bytes("stringTest('\\\\xe9lan')").decode("unicode_escape"))
     u'Hello \\xe9lan'
-    >>> e("stringTest('you','there')")
+    >>> e("stringTest('you','there')")   #doctest: +ELLIPSIS
     Traceback (most recent call last):
     ...
-    TypeError: stringTest() takes exactly 2 arguments (3 given)
+    TypeError: stringTest() takes... 2 ...arguments ...
     >>> e("floatTest(2)")
     6.0
     >>> e("booleanTest(true())")
@@ -665,6 +709,8 @@ def xpath():
     ['tag']
     >>> list(map(tag, e("setTest2(/body/*)")))
     ['tag', 'section']
+    >>> list(map(tag_or_value, e("stringListTest(/body/tag)")))
+    ['Hello ', 'tag', 'tag', 'tag', '!']
     >>> e("argsTest1('a',1.5,true(),/body/tag)")
     "a, 1.5, True, ['tag', 'tag', 'tag']"
     >>> list(map(tag, e("argsTest2(/body/tag, /body/section)")))
@@ -672,7 +718,7 @@ def xpath():
     >>> e("resultTypesTest()")
     Traceback (most recent call last):
     ...
-    XPathResultError: This is not a node: 'x'
+    XPathResultError: This is not a supported node-set result: None
     >>> try:
     ...     e("resultTypesTest2()")
     ... except etree.XPathResultError:
@@ -686,11 +732,13 @@ if sys.version_info[0] >= 3:
                                           " lxml.etree.XPathResultError")
     xpath.__doc__ = xpath.__doc__.replace(" exactly 2 arguments",
                                           " exactly 2 positional arguments")
-   
+
 def test_suite():
     suite = unittest.TestSuite()
     suite.addTests([unittest.makeSuite(ETreeXPathTestCase)])
     suite.addTests([unittest.makeSuite(ETreeXPathClassTestCase)])
+    if etree.LIBXSLT_COMPILED_VERSION >= (1,1,25):
+        suite.addTests([unittest.makeSuite(ETreeXPathExsltTestCase)])
     suite.addTests([unittest.makeSuite(ETreeETXPathClassTestCase)])
     suite.addTests([doctest.DocTestSuite()])
     suite.addTests(

@@ -8,9 +8,75 @@ except ImportError:
     from urllib.parse import urlsplit, urljoin
     from urllib.request import urlretrieve
 
-## Routines to download and build libxml2/xslt:
+multi_make_options = []
+try:
+    import multiprocessing
+    cpus = multiprocessing.cpu_count()
+    if cpus > 1:
+        if cpus > 5:
+            cpus = 5
+        multi_make_options = ['-j%d' % (cpus+1)]
+except:
+    pass
+
+
+# use pre-built libraries on Windows
+
+def download_and_extract_zlatkovic_binaries(destdir):
+    url = 'ftp://ftp.zlatkovic.com/pub/libxml/'
+    libs = dict(
+        libxml2  = None,
+        libxslt  = None,
+        zlib     = None,
+        iconv    = None,
+    )
+    for fn in ftp_listdir(url):
+        for libname in libs:
+            if fn.startswith(libname):
+                assert libs[libname] is None, 'duplicate listings?'
+                assert fn.endswith('.win32.zip')
+                libs[libname] = fn
+
+    if not os.path.exists(destdir): os.makedirs(destdir)
+    for libname, libfn in libs.items():
+        srcfile = urljoin(url, libfn)
+        destfile = os.path.join(destdir, libfn)
+        print('Retrieving "%s" to "%s"' % (srcfile, destfile))
+        urlretrieve(srcfile, destfile)
+        d = unpack_zipfile(destfile, destdir)
+        libs[libname] = d
+
+    return libs
+
+def unpack_zipfile(zipfn, destdir):
+    assert zipfn.endswith('.zip')
+    import zipfile
+    print('Unpacking %s into %s' % (os.path.basename(zipfn), destdir))
+    f = zipfile.ZipFile(zipfn)
+    try:
+        f.extractall(path=destdir)
+    finally:
+        f.close()
+    edir = os.path.join(destdir, os.path.basename(zipfn)[:-len('.zip')])
+    assert os.path.exists(edir), 'missing: %s' % edir
+    return edir
+
+def get_prebuilt_libxml2xslt(download_dir, static_include_dirs, static_library_dirs):
+    assert sys.platform.startswith('win')
+    libs = download_and_extract_zlatkovic_binaries(download_dir)
+    for libname, path in libs.items():
+        i = os.path.join(path, 'include')
+        l = os.path.join(path, 'lib')
+        assert os.path.exists(i), 'does not exist: %s' % i
+        assert os.path.exists(l), 'does not exist: %s' % l
+        static_include_dirs.append(i)
+        static_library_dirs.append(l)
+
+
+## Routines to download and build libxml2/xslt from sources:
 
 LIBXML2_LOCATION = 'ftp://xmlsoft.org/libxml2/'
+LIBICONV_LOCATION = 'ftp://ftp.gnu.org/pub/gnu/libiconv/'
 match_libfile_version = re.compile('^[^-]*-([.0-9-]+)[.].*').match
 
 def ftp_listdir(url):
@@ -42,17 +108,29 @@ def download_libxslt(dest_dir, version=None):
     return download_library(dest_dir, LIBXML2_LOCATION, 'libxslt',
                             version_re, filename, version=version)
 
-def download_library(dest_dir, location, name, version_re, filename, 
+def download_libiconv(dest_dir, version=None):
+    """Downloads libiconv, returning the filename where the library was downloaded"""
+    version_re = re.compile(r'^libiconv-([0-9.]+[0-9]).tar.gz$')
+    filename = 'libiconv-%s.tar.gz'
+    return download_library(dest_dir, LIBICONV_LOCATION, 'libiconv',
+                            version_re, filename, version=version)
+
+def download_library(dest_dir, location, name, version_re, filename,
                      version=None):
     if version is None:
         try:
             fns = ftp_listdir(location)
+            versions = []
             for fn in fns:
                 match = version_re.search(fn)
                 if match:
-                    version = match.group(1)
-                    print('Latest version of %s is %s' % (name, version))
-                    break
+                    version_string = match.group(1)
+                    versions.append((tuple(map(tryint, version_string.split('.'))),
+                                     version_string))
+            if versions:
+                versions.sort()
+                version = versions[-1][-1]
+                print('Latest version of %s is %s' % (name, version))
             else:
                 raise Exception(
                     "Could not find the most current version of the %s from the files: %s"
@@ -65,14 +143,15 @@ def download_library(dest_dir, location, name, version_re, filename,
                 if fn.startswith(name+'-'):
                     match = match_libfile_version(fn)
                     if match:
-                        version = tuple(map(tryint, match.group(1).split('.')))
-                        if version > latest:
-                            latest = version
+                        version_tuple = tuple(map(tryint, match.group(1).split('.')))
+                        if version_tuple > latest:
+                            latest = version_tuple
                             filename = fn
-                            break
-            else:
+                            version = None
+            if latest == (0,0,0):
                 raise
-    filename = filename % version
+    if version:
+        filename = filename % version
     full_url = urljoin(location, filename)
     dest_filename = os.path.join(dest_dir, filename)
     if os.path.exists(dest_filename):
@@ -149,11 +228,23 @@ def unpack_tarball(tar_filename, dest):
     return os.path.join(dest, base_dir)
 
 def call_subprocess(cmd, **kw):
-    import subprocess
+    try:
+        from subprocess import proc_call
+    except ImportError:
+        # no subprocess for Python 2.3
+        def proc_call(cmd, **kwargs):
+            cwd = kwargs.get('cwd', '.')
+            old_cwd = os.getcwd()
+            try:
+                os.chdir(cwd)
+                return os.system(' '.join(cmd))
+            finally:
+                os.chdir(old_cwd)
+
     cwd = kw.get('cwd', '.')
     cmd_desc = ' '.join(cmd)
     log.info('Running "%s" in %s' % (cmd_desc, cwd))
-    returncode = subprocess.call(cmd, **kw)
+    returncode = proc_call(cmd, **kw)
     if returncode:
         raise Exception('Command "%s" returned code %s' % (cmd_desc, returncode))
 
@@ -161,14 +252,32 @@ def safe_mkdir(dir):
     if not os.path.exists(dir):
         os.makedirs(dir)
 
+def cmmi(configure_cmd, build_dir, multicore=None, **call_setup):
+    print('Starting build in %s' % build_dir)
+    call_subprocess(configure_cmd, cwd=build_dir, **call_setup)
+    if not multicore:
+        make_jobs = multi_make_options
+    elif int(multicore) > 1:
+        make_jobs = ['-j%s' % multicore]
+    else:
+        make_jobs = []
+    call_subprocess(
+        ['make'] + make_jobs,
+        cwd=build_dir, **call_setup)
+    call_subprocess(
+        ['make'] + make_jobs + ['install'],
+        cwd=build_dir, **call_setup)
+
 def build_libxml2xslt(download_dir, build_dir,
                       static_include_dirs, static_library_dirs,
                       static_cflags, static_binaries,
-                      libxml2_version=None, libxslt_version=None):
+                      libxml2_version=None, libxslt_version=None, libiconv_version=None,
+                      multicore=None):
     safe_mkdir(download_dir)
     safe_mkdir(build_dir)
-    libxml2_dir = unpack_tarball(download_libxml2(download_dir, libxml2_version), build_dir)
-    libxslt_dir = unpack_tarball(download_libxslt(download_dir, libxslt_version), build_dir)
+    libiconv_dir = unpack_tarball(download_libiconv(download_dir, libiconv_version), build_dir)
+    libxml2_dir  = unpack_tarball(download_libxml2(download_dir, libxml2_version), build_dir)
+    libxslt_dir  = unpack_tarball(download_libxslt(download_dir, libxslt_version), build_dir)
     prefix = os.path.join(os.path.abspath(build_dir), 'libxml2')
     safe_mkdir(prefix)
 
@@ -177,7 +286,7 @@ def build_libxml2xslt(download_dir, build_dir,
     if sys.platform in ('darwin',):
         import platform
         # We compile Universal if we are on a machine > 10.3
-        major_version, minor_version = map(int, platform.mac_ver()[0].split('.')[:2])
+        major_version, minor_version = tuple(map(int, platform.mac_ver()[0].split('.')[:2]))
         if major_version > 7:
             env = os.environ.copy()
             if minor_version < 6:
@@ -194,35 +303,38 @@ def build_libxml2xslt(download_dir, build_dir,
                     })
             call_setup['env'] = env
 
-        # We may loose the link to iconv, so make sure it's there
-        static_binaries.append('-liconv')
-
     configure_cmd = ['./configure',
-                     '--without-python',
                      '--disable-dependency-tracking',
                      '--disable-shared',
                      '--prefix=%s' % prefix,
                      ]
-    call_subprocess(configure_cmd, cwd=libxml2_dir, **call_setup)
-    call_subprocess(
-        ['make'], cwd=libxml2_dir, **call_setup)
-    call_subprocess(
-        ['make', 'install'], cwd=libxml2_dir, **call_setup)
 
+    # build libiconv
+    cmmi(configure_cmd, libiconv_dir, multicore, **call_setup)
+
+    # build libxml2
+    libxml2_configure_cmd = configure_cmd + [
+        '--without-python',
+        '--with-iconv=%s' % prefix]
+    try:
+        if libxml2_version and tuple(map(tryint, libxml2_version.split('.'))) >= (2,7,3):
+            libxml2_configure_cmd.append('--enable-rebuild-docs=no')
+    except Exception:
+        pass # this isn't required, so ignore any errors
+    cmmi(libxml2_configure_cmd, libxml2_dir, multicore, **call_setup)
+
+    # build libxslt
     libxslt_configure_cmd = configure_cmd + [
+        '--without-python',
         '--with-libxml-prefix=%s' % prefix,
         ]
     if sys.platform in ('darwin',):
         libxslt_configure_cmd += [
             '--without-crypto',
             ]
+    cmmi(libxslt_configure_cmd, libxslt_dir, multicore, **call_setup)
 
-    call_subprocess(libxslt_configure_cmd, cwd=libxslt_dir, **call_setup)
-    call_subprocess(
-        ['make'], cwd=libxslt_dir, **call_setup)
-    call_subprocess(
-        ['make', 'install'], cwd=libxslt_dir, **call_setup)
-
+    # collect build setup for lxml
     xslt_config = os.path.join(prefix, 'bin', 'xslt-config')
     xml2_config = os.path.join(prefix, 'bin', 'xml2-config')
 
@@ -235,7 +347,7 @@ def build_libxml2xslt(download_dir, build_dir,
     static_library_dirs.append(lib_dir)
 
     for filename in os.listdir(lib_dir):
-        if [l for l in ['libxml2', 'libxslt', 'libexslt'] if l in filename]:
+        if [l for l in ['iconv', 'libxml2', 'libxslt', 'libexslt'] if l in filename]:
             if [ext for ext in ['.a'] if filename.endswith(ext)]:
                 static_binaries.append(os.path.join(lib_dir,filename))
 

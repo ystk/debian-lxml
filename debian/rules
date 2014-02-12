@@ -19,6 +19,8 @@ prebuild-stamp: src/lxml/lxml.etree.pyx src/lxml/lxml.objectify.pyx
 #	cython src/lxml/lxml.etree.pyx src/lxml/lxml.objectify.pyx
 	touch $@
 
+build-arch: build
+build-indep: build
 build: build-stamp build3-stamp
 build-stamp: $(PYVERS:%=build-python%) $(PYVERS:%=dbg-build-python%)
 	touch $@
@@ -42,7 +44,7 @@ clean:
 	dh_testdir
 	dh_testroot
 	rm -f build*-stamp build*-python* dbg-build*-python* prebuild-stamp
-	rm -rf build dist
+	rm -rf build dist __pycache__
 #	rm -f src/lxml/lxml.etree_api.h src/lxml/lxml.etree.c \
 #	      src/lxml/lxml.etree.h src/lxml/lxml.objectify.c
 

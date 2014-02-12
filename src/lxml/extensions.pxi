@@ -42,6 +42,8 @@ cdef class _BaseContext:
     cdef _TempStore _temp_refs
     cdef set _temp_documents
     cdef _ExceptionContext _exc
+    def __cinit__(self):
+        self._xpathCtxt = NULL
 
     def __init__(self, namespaces, extensions, enable_regexp,
                  build_smart_strings):
@@ -103,6 +105,8 @@ cdef class _BaseContext:
         cdef _BaseContext context
         if self._namespaces is not None:
             namespaces = self._namespaces[:]
+        else:
+            namespaces = None
         context = self.__class__(namespaces, None, False,
                                  self._build_smart_strings)
         if self._extensions is not None:
@@ -208,8 +212,8 @@ cdef class _BaseContext:
             self._extensions = {}
         self._extensions[(ns_utf, name_utf)] = function
 
-    cdef void registerGlobalFunctions(self, void* ctxt,
-                                      _register_function reg_func):
+    cdef registerGlobalFunctions(self, void* ctxt,
+                                 _register_function reg_func):
         cdef python.PyObject* dict_result
         cdef dict d
         for ns_utf, ns_functions in __FUNCTION_NAMESPACE_REGISTRIES.iteritems():
@@ -224,8 +228,8 @@ cdef class _BaseContext:
                 d[name_utf] = function
                 reg_func(ctxt, name_utf, ns_utf)
 
-    cdef void registerLocalFunctions(self, void* ctxt,
-                                      _register_function reg_func):
+    cdef registerLocalFunctions(self, void* ctxt,
+                                _register_function reg_func):
         cdef python.PyObject* dict_result
         cdef dict d
         if self._extensions is None:
@@ -340,7 +344,7 @@ cdef class _BaseContext:
         """
         cdef _Document doc
         for doc in self._temp_documents:
-            if doc._c_doc is c_node.doc:
+            if doc is not None and doc._c_doc is c_node.doc:
                 return doc
         return None
 
@@ -374,7 +378,7 @@ def Extension(module, function_mapping=None, *, ns=None):
 
 cdef class _ExsltRegExp:
     cdef dict _compile_map
-    def __init__(self):
+    def __cinit__(self):
         self._compile_map = {}
 
     cdef _make_string(self, value):
@@ -472,12 +476,16 @@ cdef class _ExsltRegExp:
 ################################################################################
 # helper functions
 
-cdef xpath.xmlXPathObject* _wrapXPathObject(object obj) except NULL:
+cdef xpath.xmlXPathObject* _wrapXPathObject(object obj, _Document doc,
+                                            _BaseContext context) except NULL:
     cdef xpath.xmlNodeSet* resultSet
-    cdef _Element node
+    cdef _Element fake_node = None
+    cdef xmlNode* c_node
+
     if python.PyUnicode_Check(obj):
         obj = _utf8(obj)
-    if python.PyString_Check(obj):
+    if python.PyBytes_Check(obj):
+        # libxml2 copies the string value
         return xpath.xmlXPathNewCString(_cstr(obj))
     if python.PyBool_Check(obj):
         return xpath.xmlXPathNewBoolean(obj)
@@ -489,13 +497,42 @@ cdef xpath.xmlXPathObject* _wrapXPathObject(object obj) except NULL:
         resultSet = xpath.xmlXPathNodeSetCreate((<_Element>obj)._c_node)
     elif python.PySequence_Check(obj):
         resultSet = xpath.xmlXPathNodeSetCreate(NULL)
-        for element in obj:
-            if isinstance(element, _Element):
-                node = <_Element>element
-                xpath.xmlXPathNodeSetAdd(resultSet, node._c_node)
-            else:
-                xpath.xmlXPathFreeNodeSet(resultSet)
-                raise XPathResultError, u"This is not a node: %r" % element
+        try:
+            for value in obj:
+                if isinstance(value, _Element):
+                    if context is not None:
+                        context._hold(value)
+                    xpath.xmlXPathNodeSetAdd(resultSet, (<_Element>value)._c_node)
+                else:
+                    if context is None or doc is None:
+                        raise XPathResultError, \
+                              u"Non-Element values not supported at this point - got %r" % value
+                    # support strings by appending text nodes to an Element
+                    if python.PyUnicode_Check(value):
+                        value = _utf8(value)
+                    if python.PyBytes_Check(value):
+                        if fake_node is None:
+                            fake_node = _makeElement("text-root", NULL, doc, None,
+                                                     None, None, None, None, None)
+                            context._hold(fake_node)
+                        else:
+                            # append a comment node to keep the text nodes separate
+                            c_node = tree.xmlNewDocComment(doc._c_doc, "")
+                            if c_node is NULL:
+                                python.PyErr_NoMemory()
+                            tree.xmlAddChild(fake_node._c_node, c_node)
+                        context._hold(value)
+                        c_node = tree.xmlNewDocText(doc._c_doc, _cstr(value))
+                        if c_node is NULL:
+                            python.PyErr_NoMemory()
+                        tree.xmlAddChild(fake_node._c_node, c_node)
+                        xpath.xmlXPathNodeSetAdd(resultSet, c_node)
+                    else:
+                        raise XPathResultError, \
+                              u"This is not a supported node-set result: %r" % value
+        except:
+            xpath.xmlXPathFreeNodeSet(resultSet)
+            raise
     else:
         raise XPathResultError, u"Unknown return type: %s" % \
             python._fqtypename(obj)
@@ -515,7 +552,7 @@ cdef object _unwrapXPathObject(xpath.xmlXPathObject* xpathObj,
         stringval = funicode(xpathObj.stringval)
         if context._build_smart_strings:
             stringval = _elementStringResultFactory(
-                stringval, None, 0, 0)
+                stringval, None, None, 0)
         return stringval
     elif xpathObj.type == xpath.XPATH_POINT:
         raise NotImplementedError, u"XPATH_POINT"
@@ -538,7 +575,7 @@ cdef object _createNodeSetResult(xpath.xmlXPathObject* xpathObj, _Document doc,
     result = []
     if xpathObj.nodesetval is NULL:
         return result
-    for i from 0 <= i < xpathObj.nodesetval.nodeNr:
+    for i in range(xpathObj.nodesetval.nodeNr):
         c_node = xpathObj.nodesetval.nodeTab[i]
         _unpackNodeSetEntry(result, c_node, doc, context,
                             xpathObj.type == xpath.XPATH_XSLT_TREE)
@@ -616,36 +653,39 @@ cdef _Element _instantiateElementFromXPath(xmlNode* c_node, _Document doc,
 ################################################################################
 # special str/unicode subclasses
 
-cdef class _ElementUnicodeResult(python.unicode):
+cdef class _ElementUnicodeResult(unicode):
     cdef _Element _parent
     cdef readonly object is_tail
     cdef readonly object is_text
     cdef readonly object is_attribute
+    cdef readonly object attrname
 
     def getparent(self):
         return self._parent
 
-class _ElementStringResult(str):
-    # we need to use a Python class here, str cannot be C-subclassed
+class _ElementStringResult(bytes):
+    # we need to use a Python class here, bytes cannot be C-subclassed
     # in Pyrex/Cython
     def getparent(self):
         return self._parent
 
 cdef object _elementStringResultFactory(string_value, _Element parent,
-                                        bint is_attribute, bint is_tail):
+                                        attrname, bint is_tail):
     cdef _ElementUnicodeResult uresult
     cdef bint is_text
+    cdef bint is_attribute = attrname is not None
     if parent is None:
         is_text = 0
     else:
         is_text = not (is_tail or is_attribute)
 
-    if python.PyString_CheckExact(string_value):
+    if python.PyBytes_CheckExact(string_value):
         result = _ElementStringResult(string_value)
         result._parent = parent
         result.is_attribute = is_attribute
         result.is_tail = is_tail
         result.is_text = is_text
+        result.attrname = attrname
         return result
     else:
         uresult = _ElementUnicodeResult(string_value)
@@ -653,17 +693,19 @@ cdef object _elementStringResultFactory(string_value, _Element parent,
         uresult.is_attribute = is_attribute
         uresult.is_tail = is_tail
         uresult.is_text = is_text
+        uresult.attrname = attrname
         return uresult
 
 cdef object _buildElementStringResult(_Document doc, xmlNode* c_node,
                                       _BaseContext context):
-    cdef _Element parent
+    cdef _Element parent = None
+    cdef object attrname = None
     cdef xmlNode* c_element
     cdef char* s
-    cdef bint is_attribute, is_text, is_tail
+    cdef bint is_tail
 
     if c_node.type == tree.XML_ATTRIBUTE_NODE:
-        is_attribute = 1
+        attrname = _namespacedName(c_node)
         is_tail = 0
         s = tree.xmlNodeGetContent(c_node)
         try:
@@ -673,7 +715,6 @@ cdef object _buildElementStringResult(_Document doc, xmlNode* c_node,
         c_element = NULL
     else:
         #assert c_node.type == tree.XML_TEXT_NODE or c_node.type == tree.XML_CDATA_SECTION_NODE, "invalid node type"
-        is_attribute = 0
         # may be tail text or normal text
         value = funicode(c_node.content)
         c_element = _previousElement(c_node)
@@ -692,7 +733,7 @@ cdef object _buildElementStringResult(_Document doc, xmlNode* c_node,
         parent = _instantiateElementFromXPath(c_element, doc, context)
 
     return _elementStringResultFactory(
-        value, parent, is_attribute, is_tail)
+        value, parent, attrname, is_tail)
 
 ################################################################################
 # callbacks for XPath/XSLT extension functions
@@ -701,12 +742,12 @@ cdef void _extension_function_call(_BaseContext context, function,
                                    xpath.xmlXPathParserContext* ctxt, int nargs):
     cdef _Document doc
     cdef xpath.xmlXPathObject* obj
-    cdef int i
     cdef list args
+    cdef int i
     doc = context._doc
     try:
         args = []
-        for i from 0 <= i < nargs:
+        for i in range(nargs):
             obj = xpath.valuePop(ctxt)
             o = _unwrapXPathObject(obj, doc, context)
             _freeXPathObject(obj)
@@ -715,7 +756,7 @@ cdef void _extension_function_call(_BaseContext context, function,
 
         res = function(context, *args)
         # wrap result for XPath consumption
-        obj = _wrapXPathObject(res)
+        obj = _wrapXPathObject(res, doc, context)
         # prevent Python from deallocating elements handed to libxml2
         context._hold(res)
         xpath.valuePush(ctxt, obj)
@@ -740,5 +781,5 @@ cdef void _xpath_function_call(xpath.xmlXPathParserContext* ctxt,
         else:
             fref = rctxt.function
         xpath.xmlXPathErr(ctxt, xpath.XPATH_UNKNOWN_FUNC_ERROR)
-        exception = XPathFunctionError(u"XPath function '%s' not found" % fref)
-        context._exc._store_exception(exception)
+        context._exc._store_exception(
+            XPathFunctionError(u"XPath function '%s' not found" % fref))

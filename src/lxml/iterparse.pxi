@@ -72,18 +72,14 @@ cdef class _IterparseContext(_ParserContext):
     cdef list _events
     cdef int _event_index
     cdef list _ns_stack
-    cdef object _pop_ns
     cdef list _node_stack
-    cdef object _pop_node
     cdef tuple _tag_tuple
     cdef char*  _tag_href
     cdef char*  _tag_name
 
-    def __init__(self):
+    def __cinit__(self):
         self._ns_stack = []
-        self._pop_ns = self._ns_stack.pop
         self._node_stack = []
-        self._pop_node = self._node_stack.pop
         self._events = []
         self._event_index = 0
 
@@ -127,11 +123,11 @@ cdef class _IterparseContext(_ParserContext):
         else:
             self._tag_tuple = _getNsTag(tag)
             href, name = self._tag_tuple
-            if href is None or href == '*':
+            if href is None or href == b'*':
                 self._tag_href = NULL
             else:
                 self._tag_href = _cstr(href)
-            if name is None or name == '*':
+            if name is None or name == b'*':
                 self._tag_name = NULL
             else:
                 self._tag_name = _cstr(name)
@@ -140,7 +136,7 @@ cdef class _IterparseContext(_ParserContext):
 
     cdef int startNode(self, xmlNode* c_node) except -1:
         cdef xmlNs* c_ns
-        cdef int ns_count
+        cdef int ns_count = 0
         if self._event_filter & ITERPARSE_FILTER_START_NS:
             ns_count = _appendStartNsEvents(c_node, self._events)
         elif self._event_filter & ITERPARSE_FILTER_END_NS:
@@ -169,7 +165,7 @@ cdef class _IterparseContext(_ParserContext):
                 if self._event_filter & (ITERPARSE_FILTER_START | \
                                          ITERPARSE_FILTER_START_NS | \
                                          ITERPARSE_FILTER_END_NS):
-                    node = self._pop_node()
+                    node = self._node_stack.pop()
                 else:
                     if self._root is None:
                         if self._doc is None:
@@ -179,7 +175,7 @@ cdef class _IterparseContext(_ParserContext):
                 self._events.append( (u"end", node) )
 
         if self._event_filter & ITERPARSE_FILTER_END_NS:
-            ns_count = self._pop_ns()
+            ns_count = self._ns_stack.pop()
             if ns_count > 0:
                 event = (u"end-ns", None)
                 for i from 0 <= i < ns_count:
@@ -311,48 +307,48 @@ cdef inline xmlNode* _iterparseFindLastNode(xmlparser.xmlParserCtxt* c_ctxt):
 cdef class iterparse(_BaseParser):
     u"""iterparse(self, source, events=("end",), tag=None, attribute_defaults=False, dtd_validation=False, load_dtd=False, no_network=True, remove_blank_text=False, remove_comments=False, remove_pis=False, encoding=None, html=False, huge_tree=False, schema=None)
 
-Incremental parser.
+    Incremental parser.
 
-Parses XML into a tree and generates tuples (event, element) in a
-SAX-like fashion. ``event`` is any of 'start', 'end', 'start-ns',
-'end-ns'.
+    Parses XML into a tree and generates tuples (event, element) in a
+    SAX-like fashion. ``event`` is any of 'start', 'end', 'start-ns',
+    'end-ns'.
 
-For 'start' and 'end', ``element`` is the Element that the parser just
-found opening or closing.  For 'start-ns', it is a tuple (prefix, URI) of
-a new namespace declaration.  For 'end-ns', it is simply None.  Note that
-all start and end events are guaranteed to be properly nested.
+    For 'start' and 'end', ``element`` is the Element that the parser just
+    found opening or closing.  For 'start-ns', it is a tuple (prefix, URI) of
+    a new namespace declaration.  For 'end-ns', it is simply None.  Note that
+    all start and end events are guaranteed to be properly nested.
 
-The keyword argument ``events`` specifies a sequence of event type names
-that should be generated.  By default, only 'end' events will be
-generated.
+    The keyword argument ``events`` specifies a sequence of event type names
+    that should be generated.  By default, only 'end' events will be
+    generated.
 
-The additional ``tag`` argument restricts the 'start' and 'end' events to
-those elements that match the given tag.  By default, events are generated
-for all elements.  Note that the 'start-ns' and 'end-ns' events are not
-impacted by this restriction.
+    The additional ``tag`` argument restricts the 'start' and 'end' events to
+    those elements that match the given tag.  By default, events are generated
+    for all elements.  Note that the 'start-ns' and 'end-ns' events are not
+    impacted by this restriction.
 
-The other keyword arguments in the constructor are mainly based on the
-libxml2 parser configuration.  A DTD will also be loaded if validation or
-attribute default values are requested.
+    The other keyword arguments in the constructor are mainly based on the
+    libxml2 parser configuration.  A DTD will also be loaded if validation or
+    attribute default values are requested.
 
-Available boolean keyword arguments:
- - attribute_defaults: read default attributes from DTD
- - dtd_validation: validate (if DTD is available)
- - load_dtd: use DTD for parsing
- - no_network: prevent network access for related files
- - remove_blank_text: discard blank text nodes
- - remove_comments: discard comments
- - remove_pis: discard processing instructions
- - strip_cdata: replace CDATA sections by normal text content (default: True)
- - compact: safe memory for short text content (default: True)
- - resolve_entities: replace entities by their text value (default: True)
- - huge_tree: disable security restrictions and support very deep trees
-              and very long text content (only affects libxml2 2.7+)
+    Available boolean keyword arguments:
+     - attribute_defaults: read default attributes from DTD
+     - dtd_validation: validate (if DTD is available)
+     - load_dtd: use DTD for parsing
+     - no_network: prevent network access for related files
+     - remove_blank_text: discard blank text nodes
+     - remove_comments: discard comments
+     - remove_pis: discard processing instructions
+     - strip_cdata: replace CDATA sections by normal text content (default: True)
+     - compact: safe memory for short text content (default: True)
+     - resolve_entities: replace entities by their text value (default: True)
+     - huge_tree: disable security restrictions and support very deep trees
+                  and very long text content (only affects libxml2 2.7+)
 
-Other keyword arguments:
- - encoding: override the document encoding
- - schema: an XMLSchema to validate against
-""" # stupid, stupid MSVC has a 2048 bytes limit for strings!!!
+    Other keyword arguments:
+     - encoding: override the document encoding
+     - schema: an XMLSchema to validate against
+    """
     cdef object _tag
     cdef object _events
     cdef readonly object root
@@ -360,6 +356,8 @@ Other keyword arguments:
     cdef object _buffer
     cdef int (*_parse_chunk)(xmlparser.xmlParserCtxt* ctxt,
                              char* chunk, int size, int terminate) nogil
+    cdef bint _close_source_after_read
+
     def __init__(self, source, events=(u"end",), *, tag=None,
                  attribute_defaults=False, dtd_validation=False,
                  load_dtd=False, no_network=True, remove_blank_text=False,
@@ -374,8 +372,10 @@ Other keyword arguments:
             if not python.IS_PYTHON3:
                 source = filename
             source = open(source, u'rb')
+            self._close_source_after_read = True
         else:
             filename = _encodeFilename(_getFilenameForFile(source))
+            self._close_source_after_read = False
 
         self._source = source
         if html:
@@ -449,6 +449,18 @@ Other keyword arguments:
         context._setEventFilter(self._events, self._tag)
         return context
 
+    cdef _close_source(self):
+        if self._source is None or not self._close_source_after_read:
+            return
+        try:
+            close = self._source.close
+        except AttributeError:
+            close = None
+        finally:
+            self._source = None
+        if close is not None:
+            close()
+
     def copy(self):
         raise TypeError, u"iterparse parsers cannot be copied"
 
@@ -457,38 +469,41 @@ Other keyword arguments:
 
     def __next__(self):
         cdef _IterparseContext context
-        cdef xmlparser.xmlParserCtxt* pctxt
-        cdef cstd.FILE* c_stream
-        cdef char* c_data
-        cdef Py_ssize_t c_data_len
-        cdef int error, done
         if self._source is None:
             raise StopIteration
 
         context = <_IterparseContext>self._push_parser_context
-        if python.PyList_GET_SIZE(context._events) > context._event_index:
-            item = python.PyList_GET_ITEM(context._events, context._event_index)
-            python.Py_INCREF(item) # 'borrowed reference' from PyList_GET_ITEM
-            context._event_index += 1
-            return item
+        events = context._events
+        if len(events) <= context._event_index:
+            self._read_more_events(context)
+        item = events[context._event_index]
+        context._event_index += 1
+        return item
 
-        del context._events[:]
-        pctxt = context._c_ctxt
-        error = done = 0
+    cdef _read_more_events(self, _IterparseContext context):
+        cdef cstd.FILE* c_stream
+        cdef char* c_data
+        cdef Py_ssize_t c_data_len
+        cdef xmlparser.xmlParserCtxt* pctxt = context._c_ctxt
+        cdef int error = 0, done = 0
+
+        events = context._events
+        del events[:]
+        context._event_index = 0
         c_stream = python.PyFile_AsFile(self._source)
-        while python.PyList_GET_SIZE(context._events) == 0:
+        while not events:
             if c_stream is NULL:
                 data = self._source.read(__ITERPARSE_CHUNK_SIZE)
-                if not python.PyString_Check(data):
-                    self._source = None
+                if not python.PyBytes_Check(data):
+                    self._close_source()
                     raise TypeError, u"reading file objects must return plain strings"
-                c_data_len = python.PyString_GET_SIZE(data)
+                c_data_len = python.PyBytes_GET_SIZE(data)
                 c_data = _cstr(data)
                 done = (c_data_len == 0)
                 error = self._parse_chunk(pctxt, c_data, c_data_len, done)
             else:
                 if self._buffer is None:
-                    self._buffer = python.PyString_FromStringAndSize(
+                    self._buffer = python.PyBytes_FromStringAndSize(
                         NULL, __ITERPARSE_CHUNK_SIZE)
                 c_data = _cstr(self._buffer)
                 with nogil:
@@ -509,19 +524,14 @@ Other keyword arguments:
         if not error and context._validator is not None:
             error = not context._validator.isvalid()
         if error:
-            self._source = None
-            del context._events[:]
+            self._close_source()
+            del events[:]
             context._assureDocGetsFreed()
             _raiseParseError(pctxt, self._filename, context._error_log)
-        if python.PyList_GET_SIZE(context._events) == 0:
+        if not events:
             self.root = context._root
-            self._source = None
+            self._close_source()
             raise StopIteration
-
-        context._event_index = 1
-        element = python.PyList_GET_ITEM(context._events, 0)
-        python.Py_INCREF(element) # 'borrowed reference' from PyList_GET_ITEM
-        return element
 
 
 cdef class iterwalk:
@@ -531,7 +541,6 @@ cdef class iterwalk:
     was parsing XML data with ``iterparse()``.
     """
     cdef list   _node_stack
-    cdef object _pop_node
     cdef int    _index
     cdef list   _events
     cdef object _pop_event
@@ -547,7 +556,6 @@ cdef class iterwalk:
         self._event_filter = _buildIterparseEventFilter(events)
         self._setTagFilter(tag)
         self._node_stack  = []
-        self._pop_node = self._node_stack.pop
         self._events = []
         self._pop_event = self._events.pop
 
@@ -565,11 +573,11 @@ cdef class iterwalk:
         else:
             self._tag_tuple = _getNsTag(tag)
             href, name = self._tag_tuple
-            if href is None or href == u'*':
+            if href is None or href == b'*':
                 self._tag_href = NULL
             else:
                 self._tag_href = _cstr(href)
-            if name is None or name == u'*':
+            if name is None or name == b'*':
                 self._tag_name = NULL
             else:
                 self._tag_name = _cstr(name)
@@ -584,7 +592,7 @@ cdef class iterwalk:
         cdef _Element node
         cdef _Element next_node
         cdef int ns_count
-        if python.PyList_GET_SIZE(self._events):
+        if self._events:
             return self._pop_event(0)
         ns_count = 0
         # find next node
@@ -600,7 +608,7 @@ cdef class iterwalk:
                 next_node = None
                 while next_node is None:
                     # back off through parents
-                    self._index = self._index - 1
+                    self._index -= 1
                     node = self._end_node()
                     if self._index < 0:
                         break
@@ -612,8 +620,8 @@ cdef class iterwalk:
                 elif self._event_filter & ITERPARSE_FILTER_END_NS:
                     ns_count = _countNsDefs(next_node._c_node)
                 self._node_stack.append( (next_node, ns_count) )
-                self._index = self._index + 1
-            if python.PyList_GET_SIZE(self._events):
+                self._index += 1
+            if self._events:
                 return self._pop_event(0)
         raise StopIteration
 
@@ -634,7 +642,7 @@ cdef class iterwalk:
     cdef _Element _end_node(self):
         cdef _Element node
         cdef int i, ns_count
-        node, ns_count = self._pop_node()
+        node, ns_count = self._node_stack.pop()
         if self._event_filter & ITERPARSE_FILTER_END:
             if self._tag_tuple is None or \
                    _tagMatches(node._c_node, self._tag_href, self._tag_name):

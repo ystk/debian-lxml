@@ -50,6 +50,7 @@ ElementTree_.
      6.3  What is the difference between str(xslt(doc)) and xslt(doc).write() ?
      6.4  Why can't I just delete parents or clear the root node in iterparse()?
      6.5  How do I output null characters in XML text?
+     6.6  Is lxml vulnerable to XML bombs?
    7  XPath and Document Traversal
      7.1  What are the ``findall()`` and ``xpath()`` methods on Element(Tree)?
      7.2  Why doesn't ``findall()`` support full XPath expressions?
@@ -128,7 +129,7 @@ The `generated API documentation`_ is a comprehensive API reference
 for the lxml package.
 
 .. _`ElementTree API`: http://effbot.org/zone/element-index.htm
-.. _`the web page`:    http://codespeak.net/lxml/#documentation
+.. _`the web page`:    http://lxml.de/#documentation
 .. _`generated API documentation`: api/index.html
 
 
@@ -160,9 +161,10 @@ support for various XML standards.  The important ones are:
 * xml:base
 
 Support for XML Schema is currently not 100% complete in libxml2, but
-is definitely very close to compliance.  Schematron is supported,
-although not necessarily complete.  libxml2 also supports loading
-documents through HTTP and FTP.
+is definitely very close to compliance.  Schematron is supported in
+two ways, the best being the original ISO Schematron reference
+implementation via XSLT.  libxml2 also supports loading documents
+through HTTP and FTP.
 
 
 Who uses lxml?
@@ -170,11 +172,11 @@ Who uses lxml?
 
 As an XML library, lxml is often used under the hood of in-house
 server applications, such as web servers or applications that
-facilitate some kind of document management.  Many people who deploy
-Zope_ or Plone_ use it together with lxml.  Therefore, it is hard to
-get an idea of who uses it, and the following list of 'users and
-projects we know of' is definitely not a complete list of lxml's
-users.
+facilitate some kind of content management.  Many people who deploy
+Zope_, Plone_ or Django_ use it together with lxml in the background,
+without speaking publicly about it.  Therefore, it is hard to get an
+idea of who uses it, and the following list of 'users and projects we
+know of' is very far from a complete list of lxml's users.
 
 Also note that the compatibility to the ElementTree library does not
 require projects to set a hard dependency on lxml - as long as they do
@@ -186,10 +188,13 @@ not take advantage of lxml's enhanced feature set.
 * Inteproxy_, a secure HTTP proxy
 * lwebstring_, an XML template engine
 * OpenXMLlib_, a library for handling OpenXML document meta data
+* PsychoPy_, psychology software in Python
 * Pycoon_, a WSGI web development framework based on XML pipelines
 * PyQuery_, a query framework for XML/HTML, similar to jQuery for JavaScript
+* `python-docx`_, a package for handling Microsoft's Word OpenXML format
 * Rambler_, a meta search engine that aggregates different data sources
 * rdfadict_, an RDFa parser with a simple dictionary-like interface.
+* `xupdate-processor`_, an XUpdate implementation for lxml.etree
 
 Zope3 and some of its extensions have good support for lxml:
 
@@ -198,13 +203,14 @@ Zope3 and some of its extensions have good support for lxml:
 * zif.sedna_, an XQuery based interface to the Sedna OpenSource XML database
 
 And don't miss the quotes by our generally happy_ users_, and other
-`sites that link to lxml`_.  As `Liza Daly`_ puts it: "Many software
+`sites that link to lxml`_.   As `Liza Daly`_ puts it: "Many software
 products come with the pick-two caveat, meaning that you must choose
 only two: speed, flexibility, or readability.  When used carefully,
 lxml can provide all three."
 
 .. _Zope: http://www.zope.org/
 .. _Plone: http://www.plone.org/
+.. _Django: https://www.djangoproject.com/
 .. _cssutils: http://code.google.com/p/cssutils/source/browse/trunk/examples/style.py?r=917
 .. _Deliverance: http://www.openplans.org/projects/deliverance/project-home
 .. _`Enfold Proxy 4`: http://www.enfoldsystems.com/Products/Proxy/4
@@ -212,16 +218,19 @@ lxml can provide all three."
 .. _Inteproxy: http://lists.wald.intevation.org/pipermail/inteproxy-devel/2007-February/000000.html
 .. _lwebstring: http://pypi.python.org/pypi/lwebstring
 .. _OpenXMLlib: http://permalink.gmane.org/gmane.comp.python.lxml.devel/3250
+.. _PsychoPy: http://www.psychopy.org/
 .. _Pycoon: http://pypi.python.org/pypi/pycoon
 .. _PyQuery: http://pypi.python.org/pypi/pyquery
 .. _Rambler: http://beta.rambler.ru/srch?query=python+lxml&searchtype=web
 .. _rdfadict: http://pypi.python.org/pypi/rdfadict
 .. _z3c.rml: http://pypi.python.org/pypi/z3c.rml
 .. _zif.sedna: http://pypi.python.org/pypi/zif.sedna
+.. _`python-docx`: http://github.com/mikemaccana/python-docx
+.. _`xupdate-processor`: http://pypi.python.org/pypi/xupdate-processor
 
 .. _happy: http://thread.gmane.org/gmane.comp.python.lxml.devel/3244/focus=3244
 .. _users: http://article.gmane.org/gmane.comp.python.lxml.devel/3246
-.. _`sites that link to lxml`: http://www.google.com/search?as_lq=http:%2F%2Fcodespeak.net%2Flxml
+.. _`sites that link to lxml`: http://www.google.com/search?as_lq=http:%2F%2Flxml.de%2F
 .. _`Liza Daly`: http://www.ibm.com/developerworks/xml/library/x-hiperfparse/
 
 
@@ -380,25 +389,30 @@ see when (or if) a specific bug has been fixed.
 Where are the binary builds?
 ----------------------------
 
-Sidnei da Silva regularly contributes Windows binaries for new
-releases.  This is because two of the major problems of Microsoft
-Windows make it non-trivial for users to build lxml on this platform:
-the lack of a pre-installed standard compiler and the missing package
-management.
+Binary builds are often requested by users of Microsoft Windows.  Two
+of the major design issues of this operating system make it
+non-trivial for users to build lxml: the lack of a pre-installed
+standard compiler and the missing package management.
 
-If there is not currently a binary distribution of the most recent
-lxml release for this platform available from the Python Package Index
-(PyPI), please look through the older versions to see if they provide
-a binary build.  This is done by appending the version number to the
-PyPI URL, e.g.::
+We previously provided Windows binaries for new releases, but
+currently lack a maintainer with a suitable build system.  If there is
+not currently a binary distribution of the most recent lxml release
+for this platform available from the Python Package Index (PyPI),
+please look through the older versions to see if they provide a binary
+build.  This is done by appending the version number to the PyPI URL,
+e.g.::
 
-	  http://pypi.python.org/pypi/lxml/2.1.5
+	  http://pypi.python.org/pypi/lxml/2.2.8
+
+Christoph Gohlke also provides `unofficial lxml binary builds for
+Windows <http://www.lfd.uci.edu/~gohlke/pythonlibs/#lxml>`_ that are
+usually very up to date.
 
 Apart from that, we generally do not provide binary builds of lxml, as
 most of the other operating systems out there can build lxml without
-problems (with the exception of `MacOS-X`_), and the sheer mass of
-variations between platforms makes it futile to provide builds for
-everyone.
+problems (with `MacOS-X`_ being sometimes an exception), and the sheer
+mass of variations between platforms makes it futile to provide builds
+for everyone.
 
 
 Why do I get errors about missing UCS4 symbols when installing lxml?
@@ -461,8 +475,8 @@ implement but didn't due to lack if time.  If *you* find the time,
 patches are very welcome.
 
 .. _ReST: http://docutils.sourceforge.net/rst.html
-.. _`text files`: http://codespeak.net/svn/lxml/trunk/doc/
-.. _`list of missing features`: http://codespeak.net/svn/lxml/trunk/IDEAS.txt
+.. _`text files`: https://github.com/lxml/lxml/tree/master/doc
+.. _`list of missing features`: https://github.com/lxml/lxml/blob/master/IDEAS.txt
 
 Besides enhancing the code, there are a lot of places where you can help the
 project and its user base.  You can
@@ -544,7 +558,7 @@ First, you should look at the `current developer changelog`_ to see if this
 is a known problem that has already been fixed in the SVN trunk since the
 release you are using.
 
-.. _`current developer changelog`: http://codespeak.net/svn/lxml/trunk/CHANGES.txt
+.. _`current developer changelog`: https://github.com/lxml/lxml/blob/master/CHANGES.txt
 
 Also, the 'crash' section above has a few good advices what to try to see if
 the problem is really in lxml - and not in your setup.  Believe it or not,
@@ -557,12 +571,15 @@ versions of libxml2 and libxslt - and make sure they are used.
 
 .. sourcecode:: python
 
+   import sys
    from lxml import etree
-   print "lxml.etree:       ", etree.LXML_VERSION
-   print "libxml used:      ", etree.LIBXML_VERSION
-   print "libxml compiled:  ", etree.LIBXML_COMPILED_VERSION
-   print "libxslt used:     ", etree.LIBXSLT_VERSION
-   print "libxslt compiled: ", etree.LIBXSLT_COMPILED_VERSION
+
+   print("%-20s: %s" % ('Python',           sys.version_info))
+   print("%-20s: %s" % ('lxml.etree',       etree.LXML_VERSION))
+   print("%-20s: %s" % ('libxml used',      etree.LIBXML_VERSION))
+   print("%-20s: %s" % ('libxml compiled',  etree.LIBXML_COMPILED_VERSION))
+   print("%-20s: %s" % ('libxslt used',     etree.LIBXSLT_VERSION))
+   print("%-20s: %s" % ('libxslt compiled', etree.LIBXSLT_COMPILED_VERSION))
 
 If you can figure that the problem is not in lxml but in the
 underlying libxml2 or libxslt, you can ask right on the respective
@@ -584,7 +601,7 @@ take longer for you to get a helpful answer.
 Since as a user of lxml you are likely a programmer, you might find
 `this article on bug reports`_ an interesting read.
 
-.. _`mailing list`: http://codespeak.net/mailman/listinfo/lxml-dev
+.. _`mailing list`: http://lxml.de/mailinglist/
 .. _`this article on bug reports`: http://www.chiark.greenend.org.uk/~sgtatham/bugs.html
 
 
@@ -895,6 +912,21 @@ Don't.  What you would produce is not well-formed XML.  XML parsers
 will refuse to parse a document that contains null characters.  The
 right way to embed binary data in XML is using a text encoding such as
 uuencode or base64.
+
+
+Is lxml vulnerable to XML bombs?
+--------------------------------
+
+This has nothing to do with lxml itself, only with the parser of
+libxml2.  Since libxml2 version 2.7, the parser imposes hard security
+limits on input documents to prevent DoS attacks with forged input
+data.  Since lxml 2.2.1, you can disable these limits with the
+``huge_tree`` parser option if you need to parse *really* large,
+trusted documents.  All lxml versions will leave these restrictions
+enabled by default.
+
+Note that libxml2 versions of the 2.6 series do not restrict their
+parser and are therefore vulnerable to DoS attacks.
 
 
 XPath and Document Traversal

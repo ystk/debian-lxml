@@ -61,6 +61,10 @@ cdef inline void _updateProxyDocument(xmlNode* c_node, _Document doc):
 # temporarily make a node the root node of its document
 
 cdef xmlDoc* _fakeRootDoc(xmlDoc* c_base_doc, xmlNode* c_node) except NULL:
+    return _plainFakeRootDoc(c_base_doc, c_node, 1)
+
+cdef xmlDoc* _plainFakeRootDoc(xmlDoc* c_base_doc, xmlNode* c_node,
+                               bint with_siblings) except NULL:
     # build a temporary document that has the given node as root node
     # note that copy and original must not be modified during its lifetime!!
     # always call _destroyFakeDoc() after use!
@@ -68,10 +72,11 @@ cdef xmlDoc* _fakeRootDoc(xmlDoc* c_base_doc, xmlNode* c_node) except NULL:
     cdef xmlNode* c_root
     cdef xmlNode* c_new_root
     cdef xmlDoc*  c_doc
-    c_root = tree.xmlDocGetRootElement(c_base_doc)
-    if c_root is c_node:
-        # already the root node
-        return c_base_doc
+    if with_siblings or (c_node.prev is NULL and c_node.next is NULL):
+        c_root = tree.xmlDocGetRootElement(c_base_doc)
+        if c_root is c_node:
+            # already the root node, no siblings
+            return c_base_doc
 
     c_doc  = _copyDoc(c_base_doc, 0)                   # non recursive!
     c_new_root = tree.xmlDocCopyNode(c_node, c_doc, 2) # non recursive!
@@ -261,11 +266,8 @@ cdef int _stripRedundantNamespaceDeclarations(
             _appendToNsCache(c_ns_cache, c_nsdef[0], c_nsdef[0])
             c_nsdef = &c_nsdef[0].next
         else:
-            # known namespace href => strip the ns
-            if c_ns is tree.xmlSearchNs(c_element.doc, c_element.parent,
-                                        c_ns.prefix):
-                # prefix is not shadowed by parents => ns is reusable
-                _appendToNsCache(c_ns_cache, c_nsdef[0], c_ns)
+            # known namespace href => cache mapping and strip old ns
+            _appendToNsCache(c_ns_cache, c_nsdef[0], c_ns)
             # cut out c_nsdef.next and prepend it to garbage chain
             c_ns_next = c_nsdef[0].next
             c_nsdef[0].next = c_del_ns_list[0]
@@ -348,7 +350,8 @@ cdef int moveNodeToDocument(_Document doc, xmlDoc* c_source_doc,
                 else:
                     # not in cache => find a replacement from this document
                     c_ns = doc._findOrBuildNodeNs(
-                        c_start_node, c_node.ns.href, c_node.ns.prefix)
+                        c_start_node, c_node.ns.href, c_node.ns.prefix,
+                        c_node.type == tree.XML_ATTRIBUTE_NODE)
                     _appendToNsCache(&c_ns_cache, c_node.ns, c_ns)
                     c_node.ns = c_ns
 
@@ -420,7 +423,7 @@ cdef void fixThreadDictNamesForNode(xmlNode* c_element,
     tree.BEGIN_FOR_EACH_FROM(c_element, c_node, 1)
     if c_node.name is not NULL:
         fixThreadDictNameForNode(c_node, c_src_dict, c_dict)
-    if c_node.type == tree.XML_ELEMENT_NODE or c_node.type == tree.XML_XINCLUDE_START:
+    if c_node.type in (tree.XML_ELEMENT_NODE, tree.XML_XINCLUDE_START):
         fixThreadDictNamesForAttributes(
             c_node.properties, c_src_dict, c_dict)
         fixThreadDictNsForNode(c_node, c_src_dict, c_dict)

@@ -22,9 +22,9 @@ except ImportError:
         ElementTree = None
 
 if hasattr(ElementTree, 'VERSION'):
-    if make_version_tuple(ElementTree.VERSION)[:2] < (1,3):
-        # compatibility tests require ET 1.3+
-        ElementTree = None
+    ET_VERSION = make_version_tuple(ElementTree.VERSION)
+else:
+    ET_VERSION = (0,0,0)
 
 try:
     import cElementTree # standard ET
@@ -35,9 +35,20 @@ except ImportError:
         cElementTree = None
 
 if hasattr(cElementTree, 'VERSION'):
-    if make_version_tuple(cElementTree.VERSION)[:2] <= (1,0):
-        # compatibility tests do not run with cET 1.0.7
-        cElementTree = None
+    CET_VERSION = make_version_tuple(cElementTree.VERSION)
+else:
+    CET_VERSION = (0,0,0)
+
+def filter_by_version(test_class, version_dict, current_version):
+    """Remove test methods that do not work with the current lib version.
+    """
+    find_required_version = version_dict.get
+    def dummy_test_method(self):
+        pass
+    for name in dir(test_class):
+        expected_version = find_required_version(name, (0,0,0))
+        if expected_version > current_version:
+            setattr(test_class, name, dummy_test_method)
 
 try:
     import doctest
@@ -67,7 +78,7 @@ def _get_caller_relative_path(filename, frame_depth=2):
 
 if sys.version_info[0] >= 3:
     # Python 3
-    unicode = str
+    from builtins import str as unicode
     def _str(s, encoding="UTF-8"):
         return s
     def _bytes(s, encoding="UTF-8"):
@@ -83,7 +94,7 @@ if sys.version_info[0] >= 3:
     _fix_exceptions = re.compile(r'(.*except [^(]*),\s*(.*:)').sub
     def make_doctest(filename):
         filename = _get_caller_relative_path(filename)
-        doctests = open(filename).read()
+        doctests = read_file(filename)
         doctests = _fix_unicode(r'\1\2', doctests)
         doctests = _fix_exceptions(r'\1 as \2', doctests)
         return doctest.DocTestCase(
@@ -91,6 +102,7 @@ if sys.version_info[0] >= 3:
                 doctests, {}, os.path.basename(filename), filename, 0))
 else:
     # Python 2
+    from __builtin__ import unicode
     def _str(s, encoding="UTF-8"):
         return unicode(s, encoding=encoding)
     def _bytes(s, encoding="UTF-8"):
@@ -104,7 +116,7 @@ else:
     _fix_bytes = re.compile(r'(\s+)b(["\'])').sub
     def make_doctest(filename):
         filename = _get_caller_relative_path(filename)
-        doctests = open(filename).read()
+        doctests = read_file(filename)
         doctests = _fix_traceback(r'\1\2', doctests)
         doctests = _fix_exceptions(r'\1, \2', doctests)
         doctests = _fix_bytes(r'\1\2', doctests)
@@ -206,9 +218,26 @@ def fileInTestDir(name):
     _testdir = os.path.dirname(__file__)
     return os.path.join(_testdir, name)
 
+def read_file(name, mode='r'):
+    f = open(name, mode)
+    try:
+        data = f.read()
+    finally:
+        f.close()
+    return data
+
+def write_to_file(name, data, mode='w'):
+    f = open(name, mode)
+    try:
+        data = f.write(data)
+    finally:
+        f.close()
+
+def readFileInTestDir(name, mode='r'):
+    return read_file(fileInTestDir(name), mode)
+
 def canonicalize(xml):
-    f = BytesIO(xml)
-    tree = etree.parse(f)
+    tree = etree.parse(BytesIO(xml))
     f = BytesIO()
     tree.write_c14n(f)
     return f.getvalue()

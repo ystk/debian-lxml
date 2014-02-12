@@ -1,4 +1,5 @@
 from cstd cimport FILE
+cimport cython
 
 cdef extern from "Python.h":
     ctypedef struct PyObject
@@ -11,38 +12,30 @@ cdef extern from "Python.h":
     cdef void Py_DECREF(object o)
     cdef void Py_XDECREF(PyObject* o)
 
-    ctypedef class __builtin__.slice [object PySliceObject]:
-        cdef object start
-        cdef object stop
-        cdef object step
-
-    ctypedef class __builtin__.unicode [object PyUnicodeObject]:
-        pass
-
     cdef FILE* PyFile_AsFile(object p)
 
     cdef bint PyUnicode_Check(object obj)
     cdef bint PyUnicode_CheckExact(object obj)
-    cdef bint PyString_Check(object obj)
-    cdef bint PyString_CheckExact(object obj)
+    cdef bint PyBytes_Check(object obj)
+    cdef bint PyBytes_CheckExact(object obj)
 
-    cdef object PyUnicode_FromEncodedObject(object s, char* encoding,
-                                            char* errors)
-    cdef object PyUnicode_AsEncodedString(object u, char* encoding,
-                                          char* errors)
-    cdef object PyUnicode_FromFormat(char* format, ...) # Python 3
-    cdef object PyUnicode_Decode(char* s, Py_ssize_t size,
-                                 char* encoding, char* errors)
-    cdef object PyUnicode_DecodeUTF8(char* s, Py_ssize_t size, char* errors)
-    cdef object PyUnicode_DecodeLatin1(char* s, Py_ssize_t size, char* errors)
-    cdef object PyUnicode_AsUTF8String(object ustring)
-    cdef object PyUnicode_AsASCIIString(object ustring)
+    cdef cython.unicode PyUnicode_FromEncodedObject(object s, char* encoding,
+                                                    char* errors)
+    cdef bytes PyUnicode_AsEncodedString(object u, char* encoding,
+                                         char* errors)
+    cdef cython.unicode PyUnicode_FromFormat(char* format, ...) # Python 3
+    cdef cython.unicode PyUnicode_Decode(char* s, Py_ssize_t size,
+                                         char* encoding, char* errors)
+    cdef cython.unicode PyUnicode_DecodeUTF8(char* s, Py_ssize_t size, char* errors)
+    cdef cython.unicode PyUnicode_DecodeLatin1(char* s, Py_ssize_t size, char* errors)
+    cdef bytes PyUnicode_AsUTF8String(object ustring)
+    cdef bytes PyUnicode_AsASCIIString(object ustring)
     cdef char* PyUnicode_AS_DATA(object ustring)
     cdef Py_ssize_t PyUnicode_GET_DATA_SIZE(object ustring)
     cdef Py_ssize_t PyUnicode_GET_SIZE(object ustring)
-    cdef object PyString_FromStringAndSize(char* s, Py_ssize_t size)
-    cdef object PyString_FromFormat(char* format, ...)
-    cdef Py_ssize_t PyString_GET_SIZE(object s)
+    cdef bytes PyBytes_FromStringAndSize(char* s, Py_ssize_t size)
+    cdef bytes PyBytes_FromFormat(char* format, ...)
+    cdef Py_ssize_t PyBytes_GET_SIZE(object s)
 
     cdef object PyNumber_Int(object value)
     cdef Py_ssize_t PyInt_AsSsize_t(object value)
@@ -90,6 +83,9 @@ cdef extern from "Python.h":
     cdef object PyObject_RichCompare(object o1, object o2, int op)
     cdef int PyObject_RichCompareBool(object o1, object o2, int op)
 
+#    object PyWeakref_NewRef(object ob, PyObject* callback)
+#    PyObject* PyWeakref_GET_OBJECT(object ref)
+
     cdef void* PyMem_Malloc(size_t size)
     cdef void* PyMem_Realloc(void* p, size_t size)
     cdef void PyMem_Free(void* p)
@@ -104,7 +100,7 @@ cdef extern from "Python.h":
 
     # some handy functions
     cdef int callable "PyCallable_Check" (object obj)
-    cdef char* _cstr "PyString_AS_STRING" (object s)
+    cdef char* _cstr "PyBytes_AS_STRING" (object s)
 
     # Py_buffer related flags
     cdef int PyBUF_SIMPLE

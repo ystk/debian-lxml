@@ -124,12 +124,11 @@ cdef void _xslt_store_resolver_exception(char* c_uri, void* context,
 cdef xmlDoc* _xslt_doc_loader(char* c_uri, tree.xmlDict* c_dict,
                               int parse_options, void* c_ctxt,
                               xslt.xsltLoadType c_type) nogil:
-    # no Python objects here, may be called without thread context !
-    # when we declare a Python object, Pyrex will INCREF(None) !
+    # nogil => no Python objects here, may be called without thread context !
     cdef xmlDoc* c_doc
     cdef xmlDoc* result
     cdef void* c_pcontext
-    cdef int error
+    cdef int error = 0
     # find resolver contexts of stylesheet and transformed doc
     if c_type == xslt.XSLT_LOAD_DOCUMENT:
         # transformation time
@@ -186,7 +185,7 @@ cdef class XSLTAccessControl:
     See `XSLT`.
     """
     cdef xslt.xsltSecurityPrefs* _prefs
-    def __init__(self, *, read_file=True, write_file=True, create_dir=True,
+    def __cinit__(self, *, read_file=True, write_file=True, create_dir=True,
                  read_network=True, write_network=True):
         self._prefs = xslt.xsltNewSecurityPrefs()
         if self._prefs is NULL:
@@ -271,10 +270,12 @@ cdef class _XSLTContext(_BaseContext):
     cdef xslt.xsltTransformContext* _xsltCtxt
     cdef _ReadOnlyElementProxy _extension_element_proxy
     cdef dict _extension_elements
-    def __init__(self, namespaces, extensions, enable_regexp,
-                 build_smart_strings):
+    def __cinit__(self):
         self._xsltCtxt = NULL
         self._extension_elements = EMPTY_DICT
+
+    def __init__(self, namespaces, extensions, enable_regexp,
+                 build_smart_strings):
         if extensions is not None and extensions:
             for ns_name_tuple, extension in extensions.items():
                 if ns_name_tuple[0] is None:
@@ -319,8 +320,8 @@ cdef class _XSLTQuotedStringParam:
     u"""A wrapper class for literal XSLT string parameters that require
     quote escaping.
     """
-    cdef str strval
-    def __init__(self, strval):
+    cdef bytes strval
+    def __cinit__(self, strval):
         self.strval = _utf8(strval)
 
 
@@ -355,6 +356,9 @@ cdef class XSLT:
     cdef _XSLTResolverContext _xslt_resolver_context
     cdef XSLTAccessControl _access_control
     cdef _ErrorLog _error_log
+
+    def __cinit__(self):
+        self._c_style = NULL
 
     def __init__(self, xslt_input, *, extensions=None, regexp=True,
                  access_control=None):
@@ -413,7 +417,8 @@ cdef class XSLT:
                self._xslt_resolver_context._c_style_doc is not NULL:
             tree.xmlFreeDoc(self._xslt_resolver_context._c_style_doc)
         # this cleans up the doc copy as well
-        xslt.xsltFreeStylesheet(self._c_style)
+        if self._c_style is not NULL:
+            xslt.xsltFreeStylesheet(self._c_style)
 
     property error_log:
         u"The log of errors and warnings of an XSLT execution."
@@ -464,18 +469,20 @@ cdef class XSLT:
         about the XSLT.  The result of the XSLT will have a property
         xslt_profile that holds an XML tree with profiling data.
         """
-        cdef _XSLTContext context
+        cdef _XSLTContext context = None
         cdef _XSLTResolverContext resolver_context
         cdef _Document input_doc
         cdef _Element root_node
         cdef _Document result_doc
-        cdef _Document profile_doc
+        cdef _Document profile_doc = None
         cdef xmlDoc* c_profile_doc
         cdef xslt.xsltTransformContext* transform_ctxt
         cdef xmlDoc* c_result = NULL
         cdef xmlDoc* c_doc
         cdef tree.xmlDict* c_dict
+        cdef char** params = NULL
 
+        assert self._c_style is not NULL, "XSLT stylesheet not initialised"
         input_doc = _documentOrRaise(_input)
         root_node = _rootNodeOrRaise(_input)
 
@@ -509,8 +516,13 @@ cdef class XSLT:
             resolver_context = self._xslt_resolver_context._copy()
             transform_ctxt._private = <python.PyObject*>resolver_context
 
+            live_refs = _convert_xslt_parameters(transform_ctxt, kw, &params)
             c_result = self._run_transform(
-                c_doc, kw, context, transform_ctxt)
+                c_doc, params, context, transform_ctxt)
+            if params is not NULL:
+                # deallocate space for parameters
+                python.PyMem_Free(params)
+            live_refs = None
 
             if transform_ctxt.state != xslt.XSLT_STATE_OK:
                 if c_result is not NULL:
@@ -579,68 +591,64 @@ cdef class XSLT:
         return _xsltResultTreeFactory(result_doc, self, profile_doc)
 
     cdef xmlDoc* _run_transform(self, xmlDoc* c_input_doc,
-                                dict parameters, _XSLTContext context,
+                                char** params, _XSLTContext context,
                                 xslt.xsltTransformContext* transform_ctxt):
         cdef xmlDoc* c_result
-        cdef char** params
-        cdef Py_ssize_t i, parameter_count
-        cdef list keep_ref
-
         xslt.xsltSetTransformErrorFunc(transform_ctxt, <void*>self._error_log,
                                        _receiveXSLTError)
-
         if self._access_control is not None:
             self._access_control._register_in_context(transform_ctxt)
-
-        parameter_count = len(parameters)
-        if parameter_count > 0:
-            # allocate space for parameters
-            # * 2 as we want an entry for both key and value,
-            # and + 1 as array is NULL terminated
-            params = <char**>python.PyMem_Malloc(
-                sizeof(char*) * (parameter_count * 2 + 1))
-            try:
-                i = 0
-                keep_ref = []
-                for key, value in parameters.iteritems():
-                    k = _utf8(key)
-                    if isinstance(value, _XSLTQuotedStringParam):
-                        v = (<_XSLTQuotedStringParam>value).strval
-                        xslt.xsltQuoteOneUserParam(
-                            transform_ctxt, _cstr(k), _cstr(v))
-                    else:
-                        v = _utf8(value)
-                        params[i] = _cstr(k)
-                        i += 1
-                        params[i] = _cstr(v)
-                        i += 1
-                    keep_ref.append(k)
-                    keep_ref.append(v)
-            except:
-                python.PyMem_Free(params)
-                raise
-            params[i] = NULL
-        else:
-            params = NULL
-
         with nogil:
             c_result = xslt.xsltApplyStylesheetUser(
                 self._c_style, c_input_doc, params, NULL, NULL, transform_ctxt)
-
-        if params is not NULL:
-            # deallocate space for parameters
-            python.PyMem_Free(params)
-
         return c_result
 
-cdef extern from "etree_defs.h":
-    # macro call to 't->tp_new()' for instantiation without calling __init__()
-    cdef XSLT NEW_XSLT "PY_NEW" (object t)
+cdef _convert_xslt_parameters(xslt.xsltTransformContext* transform_ctxt,
+                              dict parameters, char*** params_ptr):
+    cdef Py_ssize_t i, parameter_count
+    cdef char** params
+    cdef list keep_ref
+    params_ptr[0] = NULL
+    parameter_count = len(parameters)
+    if parameter_count == 0:
+        return None
+    # allocate space for parameters
+    # * 2 as we want an entry for both key and value,
+    # and + 1 as array is NULL terminated
+    params = <char**>python.PyMem_Malloc(
+        sizeof(char*) * (parameter_count * 2 + 1))
+    try:
+        i = 0
+        keep_ref = []
+        for key, value in parameters.iteritems():
+            k = _utf8(key)
+            keep_ref.append(k)
+            if isinstance(value, _XSLTQuotedStringParam):
+                v = (<_XSLTQuotedStringParam>value).strval
+                xslt.xsltQuoteOneUserParam(
+                    transform_ctxt, _cstr(k), _cstr(v))
+            else:
+                if isinstance(value, XPath):
+                    v = (<XPath>value)._path
+                else:
+                    v = _utf8(value)
+                    keep_ref.append(v)
+                params[i] = _cstr(k)
+                i += 1
+                params[i] = _cstr(v)
+                i += 1
+    except:
+        python.PyMem_Free(params)
+        raise
+    params[i] = NULL
+    params_ptr[0] = params
+    return keep_ref
 
 cdef XSLT _copyXSLT(XSLT stylesheet):
     cdef XSLT new_xslt
     cdef xmlDoc* c_doc
-    new_xslt = NEW_XSLT(XSLT) # without calling __init__()
+    assert stylesheet._c_style is not NULL, "XSLT stylesheet not initialised"
+    new_xslt = XSLT.__new__(XSLT)
     new_xslt._access_control = stylesheet._access_control
     new_xslt._error_log = _ErrorLog()
     new_xslt._context = stylesheet._context._copy()
@@ -663,11 +671,18 @@ cdef class _XSLTResultTree(_ElementTree):
     cdef char* _buffer
     cdef Py_ssize_t _buffer_len
     cdef Py_ssize_t _buffer_refcnt
+    def __cinit__(self):
+        self._buffer = NULL
+        self._buffer_len = 0
+        self._buffer_refcnt = 0
+
     cdef _saveToStringAndSize(self, char** s, int* l):
         cdef _Document doc
         cdef int r
         if self._context_node is not None:
             doc = self._context_node._doc
+        else:
+            doc = None
         if doc is None:
             doc = self._doc
             if doc is None:
@@ -680,8 +695,8 @@ cdef class _XSLTResultTree(_ElementTree):
             python.PyErr_NoMemory()
 
     def __str__(self):
-        cdef char* s
-        cdef int l
+        cdef char* s = NULL
+        cdef int l = 0
         if python.IS_PYTHON3:
             return self.__unicode__()
         self._saveToStringAndSize(&s, &l)
@@ -689,31 +704,32 @@ cdef class _XSLTResultTree(_ElementTree):
             return ''
         # we must not use 'funicode' here as this is not always UTF-8
         try:
-            result = python.PyString_FromStringAndSize(s, l)
+            result = <bytes>s[:l]
         finally:
             tree.xmlFree(s)
         return result
 
     def __unicode__(self):
         cdef char* encoding
-        cdef char* s
-        cdef int l
+        cdef char* s = NULL
+        cdef int l = 0
         self._saveToStringAndSize(&s, &l)
         if s is NULL:
             return u''
         encoding = self._xslt._c_style.encoding
-        if encoding is NULL:
-            encoding = 'ascii'
         try:
-            result = python.PyUnicode_Decode(s, l, encoding, 'strict')
+            if encoding is NULL:
+                result = s[:l].decode('UTF-8')
+            else:
+                result = python.PyUnicode_Decode(s, l, encoding, 'strict')
         finally:
             tree.xmlFree(s)
         return _stripEncodingDeclaration(result)
 
     def __getbuffer__(self, Py_buffer* buffer, int flags):
-        cdef int l
+        cdef int l = 0
         if buffer is NULL:
-            return # LOCK
+            return
         if self._buffer is NULL or flags & python.PyBUF_WRITABLE:
             self._saveToStringAndSize(<char**>&buffer.buf, &l)
             buffer.len = l
@@ -742,7 +758,7 @@ cdef class _XSLTResultTree(_ElementTree):
 
     def __releasebuffer__(self, Py_buffer* buffer):
         if buffer is NULL:
-            return # UNLOCK
+            return
         if <char*>buffer.buf is self._buffer:
             self._buffer_refcnt -= 1
             if self._buffer_refcnt == 0:
@@ -772,9 +788,6 @@ cdef _xsltResultTreeFactory(_Document doc, XSLT xslt, _Document profile):
     result = <_XSLTResultTree>_newElementTree(doc, None, _XSLTResultTree)
     result._xslt = xslt
     result._profile = profile
-    result._buffer = NULL
-    result._buffer_refcnt = 0
-    result._buffer_len = 0
     return result
 
 # functions like "output" and "write" are a potential security risk, but we
@@ -788,20 +801,10 @@ xslt.exsltRegisterAll()
 ################################################################################
 # XSLT PI support
 
-cdef object _FIND_PI_ATTRIBUTES
-_FIND_PI_ATTRIBUTES = re.compile(ur'\s+(\w+)\s*=\s*["\']([^"\']+)["\']', re.U).findall
-
-cdef object _RE_PI_HREF
-_RE_PI_HREF = re.compile(ur'\s+href\s*=\s*["\']([^"\']+)["\']')
-
-cdef object _FIND_PI_HREF
-_FIND_PI_HREF = _RE_PI_HREF.findall
-
-cdef object _REPLACE_PI_HREF
-_REPLACE_PI_HREF = _RE_PI_HREF.sub
-
-cdef XPath __findStylesheetByID
-__findStylesheetByID = None
+cdef object _RE_PI_HREF = re.compile(ur'\s+href\s*=\s*(?:\'([^\']*)\'|"([^"]*)")')
+cdef object _FIND_PI_HREF = _RE_PI_HREF.findall
+cdef object _REPLACE_PI_HREF = _RE_PI_HREF.sub
+cdef XPath __findStylesheetByID = None
 
 cdef _findStylesheetByID(_Document doc, id):
     global __findStylesheetByID
@@ -813,10 +816,12 @@ cdef _findStylesheetByID(_Document doc, id):
 
 cdef class _XSLTProcessingInstruction(PIBase):
     def parseXSL(self, parser=None):
-        u"""Try to parse the stylesheet referenced by this PI and return an
-        ElementTree for it.  If the stylesheet is embedded in the same
-        document (referenced via xml:id), find and return an ElementTree for
-        the stylesheet Element.
+        u"""parseXSL(self, parser=None)
+
+        Try to parse the stylesheet referenced by this PI and return
+        an ElementTree for it.  If the stylesheet is embedded in the
+        same document (referenced via xml:id), find and return an
+        ElementTree for the stylesheet Element.
 
         The optional ``parser`` keyword argument can be passed to specify the
         parser used to read from external stylesheet URLs.
@@ -825,12 +830,14 @@ cdef class _XSLTProcessingInstruction(PIBase):
         cdef _Element  result_node
         cdef char* c_href
         cdef xmlAttr* c_attr
+        _assertValidNode(self)
         if self._c_node.content is NULL:
             raise ValueError, u"PI lacks content"
-        hrefs = _FIND_PI_HREF(u' ' + funicode(self._c_node.content))
+        hrefs = _FIND_PI_HREF(u' ' + self._c_node.content.decode('UTF-8'))
         if len(hrefs) != 1:
             raise ValueError, u"malformed PI attributes"
-        href_utf = utf8(hrefs[0])
+        hrefs = hrefs[0]
+        href_utf = utf8(hrefs[0] or hrefs[1])
         c_href = _cstr(href_utf)
 
         if c_href[0] != c'#':
@@ -846,6 +853,7 @@ cdef class _XSLTProcessingInstruction(PIBase):
 
         # ID reference to embedded stylesheet
         # try XML:ID lookup
+        _assertValidDoc(self._doc)
         c_href += 1 # skip leading '#'
         c_attr = tree.xmlGetID(self._c_node.doc, c_href)
         if c_attr is not NULL and c_attr.doc is self._c_node.doc:
@@ -862,6 +870,11 @@ cdef class _XSLTProcessingInstruction(PIBase):
         return _elementTreeFactory(result_node._doc, result_node)
 
     def set(self, key, value):
+        u"""set(self, key, value)
+
+        Supports setting the 'href' pseudo-attribute in the text of
+        the processing instruction.
+        """
         if key != u"href":
             raise AttributeError, \
                 u"only setting the 'href' attribute is supported on XSLT-PIs"
@@ -876,9 +889,3 @@ cdef class _XSLTProcessingInstruction(PIBase):
             self.text = _REPLACE_PI_HREF(attrib, text)
         else:
             self.text = text + attrib
-
-    def get(self, key, default=None):
-        for attr, value in _FIND_PI_ATTRIBUTES(u' ' + self.text):
-            if attr == key:
-                return value
-        return default

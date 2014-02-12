@@ -37,6 +37,12 @@
 #  define PyString_AS_STRING(s)              PyBytes_AS_STRING(s)
 #else
 #if PY_VERSION_HEX < 0x02060000
+#  define PyBytes_CheckExact(o)              PyString_CheckExact(o)
+#  define PyBytes_Check(o)                   PyString_Check(o)
+#  define PyBytes_FromStringAndSize(s, len)  PyString_FromStringAndSize(s, len)
+#  define PyBytes_FromFormat                 PyString_FromFormat
+#  define PyBytes_GET_SIZE(s)                PyString_GET_SIZE(s)
+#  define PyBytes_AS_STRING(s)               PyString_AS_STRING(s)
 /* we currently only use three parameters - MSVC can't compile (s, ...) */
 #  define PyUnicode_FromFormat(s, a, b) (NULL)
 #endif
@@ -125,6 +131,13 @@
 #  define xmlSchematronSetValidStructuredErrors(ctxt, errorfunc, data)
 #endif
 
+/* libexslt 1.1.25+ support EXSLT functions in XPath */
+#if LIBXSLT_VERSION < 10125
+#define exsltDateXpathCtxtRegister(ctxt, prefix)
+#define exsltSetsXpathCtxtRegister(ctxt, prefix)
+#define exsltMathXpathCtxtRegister(ctxt, prefix)
+#define exsltStrXpathCtxtRegister(ctxt, prefix)
+#endif
 
 /* work around MSDEV 6.0 */
 #if (_MSC_VER == 1200) && (WINVER < 0x0500)
@@ -158,10 +171,7 @@ long _ftol2( double dblSource ) { return _ftol( dblSource ); }
                           PyUnicode_CheckExact(obj) || \
                           PyObject_TypeCheck(obj, &PyBaseString_Type))
 #else
-#define _isString(obj)   (PyUnicode_CheckExact(obj) || \
-			  PyBytes_CheckExact(obj) || \
-			  PyUnicode_Check(obj) || \
-			  PyBytes_Check(obj))
+#define _isString(obj)   (PyUnicode_Check(obj) || PyBytes_Check(obj))
 #endif
 
 #define _isElement(c_node) \

@@ -1,4 +1,8 @@
 """
+Legacy module - don't use in new code!
+
+html5lib now has its own proper implementation.
+
 This module implements a tree builder for html5lib that generates lxml
 html element trees.  This module uses camelCase as it follows the
 html5lib style guide.
@@ -77,7 +81,7 @@ class TreeBuilder(_base.TreeBuilder):
                                                   self.doctype.systemId))
             buf.append('>')
         buf.append('<html></html>')
-        root = html.fromstring(u''.join(buf))
+        root = html.fromstring(''.join(buf))
 
         # Append the initial comments:
         for comment in self.initialComments:

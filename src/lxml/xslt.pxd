@@ -30,9 +30,12 @@ cdef extern from "libxslt/xsltInternals.h":
         xmlNode* node
         xmlDoc* output
         xmlNode* insert
+        xmlNode* inst
         xsltTransformState state
 
     ctypedef struct xsltStackElem
+
+    ctypedef struct xsltTemplate
 
     cdef xsltStylesheet* xsltParseStylesheetDoc(xmlDoc* doc) nogil
     cdef void xsltFreeStylesheet(xsltStylesheet* sheet) nogil
@@ -84,6 +87,10 @@ cdef extern from "libxslt/transform.h":
     cdef xsltTransformContext* xsltNewTransformContext(xsltStylesheet* style,
                                                        xmlDoc* doc) nogil
     cdef void xsltFreeTransformContext(xsltTransformContext* context) nogil
+    cdef void xsltApplyOneTemplate(xsltTransformContext* ctxt,
+                                   xmlNode* contextNode, xmlNode* list,
+                                   xsltTemplate* templ,
+                                   xsltStackElem* params) nogil
 
 cdef extern from "libxslt/xsltutils.h":
     cdef int xsltSaveResultToString(char** doc_txt_ptr,
@@ -154,3 +161,15 @@ cdef extern from "libxslt/extra.h":
 
 cdef extern from "libexslt/exslt.h":
     cdef void exsltRegisterAll() nogil
+
+    # libexslt 1.1.25+
+    char* EXSLT_DATE_NAMESPACE
+    char* EXSLT_SETS_NAMESPACE
+    char* EXSLT_MATH_NAMESPACE
+    char* EXSLT_STRINGS_NAMESPACE
+
+    cdef int exsltDateXpathCtxtRegister(xmlXPathContext* ctxt, char* prefix)
+    cdef int exsltSetsXpathCtxtRegister(xmlXPathContext* ctxt, char* prefix)
+    cdef int exsltMathXpathCtxtRegister(xmlXPathContext* ctxt, char* prefix)
+    cdef int exsltStrXpathCtxtRegister(xmlXPathContext* ctxt, char* prefix)
+

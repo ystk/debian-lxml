@@ -1,12 +1,14 @@
 """
-An interface to html5lib.
+An interface to html5lib that mimics the lxml.html interface.
 """
 
 import urllib
+
 from html5lib import HTMLParser as _HTMLParser
+from html5lib.treebuilders.etree_lxml import TreeBuilder
+
 from lxml import etree
 from lxml.html import _contains_block_level_tag, XHTML_NAMESPACE
-from lxml.html._html5builder import TreeBuilder
 
 # python3 compatibility
 try:
@@ -89,22 +91,34 @@ def fragment_fromstring(html, create_parent=False,
     element.
 
     If create_parent is true (or is a tag name) then a parent node
-    will be created to encapsulate the HTML in a single element.
+    will be created to encapsulate the HTML in a single element.  In
+    this case, leading or trailing text is allowed.
     """
     if not isinstance(html, _strings):
         raise TypeError('string required')
 
+    accept_leading_text = bool(create_parent)
+
+    elements = fragments_fromstring(
+        html, guess_charset=guess_charset, parser=parser,
+        no_leading_text=not accept_leading_text, **kw)
+
     if create_parent:
-        container = create_parent or 'div'
-        html = '<%s>%s</%s>' % (container, html, container)
+        if not isinstance(create_parent, basestring):
+            create_parent = 'div'
+        new_root = Element(create_parent)
+        if elements:
+            if isinstance(elements[0], basestring):
+                new_root.text = elements[0]
+                del elements[0]
+            new_root.extend(elements)
+        return new_root
 
-    children = fragments_fromstring(html, True, guess_charset, parser)
-    if not children:
+    if not elements:
         raise etree.ParserError('No elements found')
-    if len(children) > 1:
+    if len(elements) > 1:
         raise etree.ParserError('Multiple elements found')
-
-    result = children[0]
+    result = elements[0]
     if result.tail and result.tail.strip():
         raise etree.ParserError('Element followed by text: %r' % result.tail)
     result.tail = None
