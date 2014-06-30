@@ -1,3 +1,4 @@
+>>> import re
 >>> from lxml.html import fromstring, tostring
 >>> from lxml.html.clean import clean, clean_html, Cleaner
 >>> from lxml.html import usedoctest
@@ -14,6 +15,7 @@
 ...   <body onload="evil_function()">
 ...     <!-- I am interpreted for EVIL! -->
 ...     <a href="javascript:evil_function()">a link</a>
+...     <a href="j\x01a\x02v\x03a\x04s\x05c\x06r\x07i\x0Ep t:evil_function()">a control char link</a>
 ...     <a href="#" onclick="evil_function()">another link</a>
 ...     <p onclick="evil_function()">a paragraph</p>
 ...     <div style="display: none">secret EVIL!</div>
@@ -27,7 +29,7 @@
 ...   </body>
 ... </html>'''
 
->>> print(doc)
+>>> print(re.sub('[\x00-\x07\x0E]', '', doc))
 <html>
   <head>
     <script type="text/javascript" src="evil-site"></script>
@@ -40,6 +42,7 @@
   <body onload="evil_function()">
     <!-- I am interpreted for EVIL! -->
     <a href="javascript:evil_function()">a link</a>
+    <a href="javascrip t:evil_function()">a control char link</a>
     <a href="#" onclick="evil_function()">another link</a>
     <p onclick="evil_function()">a paragraph</p>
     <div style="display: none">secret EVIL!</div>
@@ -66,6 +69,7 @@
   <body onload="evil_function()">
     <!-- I am interpreted for EVIL! -->
     <a href="javascript:evil_function()">a link</a>
+    <a href="javascrip%20t:evil_function()">a control char link</a>
     <a href="#" onclick="evil_function()">another link</a>
     <p onclick="evil_function()">a paragraph</p>
     <div style="display: none">secret EVIL!</div>
@@ -86,6 +90,7 @@
   </head>
   <body>
     <a href="">a link</a>
+    <a href="">a control char link</a>
     <a href="#">another link</a>
     <p>a paragraph</p>
     <div style="display: none">secret EVIL!</div>
@@ -103,6 +108,7 @@
   </head>
   <body>
     <a href="">a link</a>
+    <a href="">a control char link</a>
     <a href="#">another link</a>
     <p>a paragraph</p>
     <div>secret EVIL!</div>
