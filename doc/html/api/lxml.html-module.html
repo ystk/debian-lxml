@@ -83,7 +83,6 @@ The <tt class="rst-rst-rst-docutils literal rst-rst-docutils literal rst-docutil
   <tr><td class="summary">
   <ul class="nomargin">
     <li> <strong class="uidlink"><a href="lxml.html.ElementSoup-module.html">lxml.html.ElementSoup</a></strong>: <em class="summary">Legacy interface to the BeautifulSoup HTML parser.</em>    </li>
-    <li class="private"> <strong class="uidlink">lxml.html._dictmixin</strong>    </li>
     <li class="private"> <strong class="uidlink">lxml.html._setmixin</strong>    </li>
     <li> <strong class="uidlink"><a href="lxml.html.builder-module.html">lxml.html.builder</a></strong>: <em class="summary">A set of HTML generator tags for building HTML documents.</em>    </li>
     <li> <strong class="uidlink"><a href="lxml.html.clean-module.html">lxml.html.clean</a></strong>: <em class="summary">A cleanup tool for HTML.</em>    </li>
@@ -114,6 +113,22 @@ The <tt class="rst-rst-rst-docutils literal rst-rst-docutils literal rst-docutil
     </table>
   </td>
 </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="str-class.html" class="summary-name" onclick="show_private();">bytes</a><br />
+      str(object='') -&gt; string
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="str-class.html" class="summary-name" onclick="show_private();">unicode</a><br />
+      str(object='') -&gt; string
+    </td>
+  </tr>
 <tr class="private">
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
@@ -364,6 +379,42 @@ objects.
           <td><span class="summary-sig"><a name="_nons"></a><span class="summary-sig-name">_nons</span>(<span class="summary-sig-arg">tag</span>)</span></td>
           <td align="right" valign="top">
             <span class="codelink"><a href="lxml.html-pysrc.html#_nons">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_looks_like_full_html_unicode"></a><span class="summary-sig-name">_looks_like_full_html_unicode</span>(<span class="summary-sig-arg">...</span>)</span><br />
+      match(string[, pos[, endpos]]) --&gt; match object or None.
+Matches zero or more characters at the beginning of the string</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="lxml.html-pysrc.html#_looks_like_full_html_unicode">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_looks_like_full_html_bytes"></a><span class="summary-sig-name">_looks_like_full_html_bytes</span>(<span class="summary-sig-arg">...</span>)</span><br />
+      match(string[, pos[, endpos]]) --&gt; match object or None.
+Matches zero or more characters at the beginning of the string</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="lxml.html-pysrc.html#_looks_like_full_html_bytes">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -630,7 +681,9 @@ occurrences of pattern in string by the replacement repl.</td>
         <span class="summary-sig-arg">pretty_print</span>=<span class="summary-sig-default">False</span>,
         <span class="summary-sig-arg">include_meta_content_type</span>=<span class="summary-sig-default">False</span>,
         <span class="summary-sig-arg">encoding</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">method</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">html</code><code class="variable-quote">'</code></span>)</span><br />
+        <span class="summary-sig-arg">method</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">html</code><code class="variable-quote">'</code></span>,
+        <span class="summary-sig-arg">with_tail</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">doctype</span>=<span class="summary-sig-default">None</span>)</span><br />
       Return an HTML string representation of the document.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="lxml.html-pysrc.html#tostring">source&nbsp;code</a></span>
@@ -697,6 +750,13 @@ use.  This is mainly meant for debugging.</td>
     </table>
   </td>
 </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="basestring"></a><span class="summary-name">basestring</span> = <code title="str, bytes">str, bytes</code>
+    </td>
+  </tr>
 <tr class="private">
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
@@ -1016,7 +1076,9 @@ form data.</p>
         <span class="sig-arg">pretty_print</span>=<span class="sig-default">False</span>,
         <span class="sig-arg">include_meta_content_type</span>=<span class="sig-default">False</span>,
         <span class="sig-arg">encoding</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">method</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">html</code><code class="variable-quote">'</code></span>)</span>
+        <span class="sig-arg">method</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">html</code><code class="variable-quote">'</code></span>,
+        <span class="sig-arg">with_tail</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">doctype</span>=<span class="sig-default">None</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="lxml.html-pysrc.html#tostring">source&nbsp;code</a></span>&nbsp;
@@ -1030,12 +1092,18 @@ regardless of the value of include_meta_content_type any existing
 <tt class="rst-docutils literal">&lt;meta <span class="pre">http-equiv=&quot;Content-Type&quot;</span> <span class="pre">...&gt;</span></tt> tag will be removed</p>
 <p>The <tt class="rst-docutils literal">encoding</tt> argument controls the output encoding (defauts to
 ASCII, with &amp;#...; character references for any characters outside
-of ASCII).</p>
+of ASCII).  Note that you can pass the name <tt class="rst-docutils literal">'unicode'</tt> as
+<tt class="rst-docutils literal">encoding</tt> argument to serialise to a Unicode string.</p>
 <p>The <tt class="rst-docutils literal">method</tt> argument defines the output method.  It defaults to
 'html', but can also be 'xml' for xhtml output, or 'text' to
-serialise to plain text without markup.  Note that you can pass
-the builtin <tt class="rst-docutils literal">unicode</tt> type as <tt class="rst-docutils literal">encoding</tt> argument to serialise
-to a unicode string.</p>
+serialise to plain text without markup.</p>
+<p>To leave out the tail text of the top-level element that is being
+serialised, pass <tt class="rst-docutils literal">with_tail=False</tt>.</p>
+<p>The <tt class="rst-docutils literal">doctype</tt> option allows passing in a plain string that will
+be serialised before the XML tree.  Note that passing in non
+well-formed content here will make the XML output non well-formed.
+Also, an existing doctype in the document tree will not be removed
+when serialising an ElementTree instance.</p>
 <p>Example:</p>
 <pre class="rst-literal-block">
 &gt;&gt;&gt; from lxml import html
@@ -1052,8 +1120,25 @@ to a unicode string.</p>
 &gt;&gt;&gt; html.tostring(root, method='text')
 'Helloworld!'
 
-&gt;&gt;&gt; html.tostring(root, method='text', encoding=unicode)
+&gt;&gt;&gt; html.tostring(root, method='text', encoding='unicode')
 u'Helloworld!'
+
+&gt;&gt;&gt; root = html.fragment_fromstring('&lt;div&gt;&lt;p&gt;Hello&lt;br&gt;world!&lt;/p&gt;TAIL&lt;/div&gt;')
+&gt;&gt;&gt; html.tostring(root[0], method='text', encoding='unicode')
+u'Helloworld!TAIL'
+
+&gt;&gt;&gt; html.tostring(root[0], method='text', encoding='unicode', with_tail=False)
+u'Helloworld!'
+
+&gt;&gt;&gt; doc = html.document_fromstring('&lt;p&gt;Hello&lt;br&gt;world!&lt;/p&gt;')
+&gt;&gt;&gt; html.tostring(doc, method='html', encoding='unicode')
+u'&lt;html&gt;&lt;body&gt;&lt;p&gt;Hello&lt;br&gt;world!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;'
+
+&gt;&gt;&gt; print(html.tostring(doc, method='html', encoding='unicode',
+...          doctype='&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.01//EN&quot;'
+...                  ' &quot;http://www.w3.org/TR/html4/strict.dtd&quot;&gt;'))
+&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.01//EN&quot; &quot;http://www.w3.org/TR/html4/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;body&gt;&lt;p&gt;Hello&lt;br&gt;world!&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;
 </pre>
   <dl class="fields">
   </dl>
@@ -1240,7 +1325,7 @@ _MethodFunc('make_links_absolute', copy= True)
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Fri Nov 11 18:38:25 2011
+    Generated by Epydoc 3.0.1 on Fri Apr 18 08:58:40 2014
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

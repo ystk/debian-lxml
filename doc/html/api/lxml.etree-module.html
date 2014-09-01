@@ -66,7 +66,7 @@ for XML.
 
 <hr />
 <div class="fields">      <p><strong>Version:</strong>
-        2.3.2
+        2.3.6
       </p>
 </div><!-- ==================== CLASSES ==================== -->
 <a name="section-Classes"></a>
@@ -321,6 +321,14 @@ Iterates over the text content of a subtree.
       HTMLParser(self, encoding=None, remove_blank_text=False,                    remove_comments=False, remove_pis=False, strip_cdata=True,                    no_network=True, target=None, XMLSchema schema=None,                    recover=True, compact=True)
     </td>
   </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="lxml.etree.HTMLPullParser-class.html" class="summary-name" onclick="show_private();">HTMLPullParser</a><br />
+      HTMLPullParser(self, events=None, <a href="#id1"><span class="rst-rst-problematic rst-problematic" id="rst-rst-id2">*</span></a>, tag=None, base_url=None, <a href="#id3"><span class="rst-rst-problematic rst-problematic" id="rst-rst-id4">**</span></a>kwargs)
+    </td>
+  </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
@@ -410,7 +418,7 @@ Element class lookup based on a subclass method.
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
         <a href="lxml.etree.QName-class.html" class="summary-name">QName</a><br />
-      QName(text_or_uri, tag=None)
+      QName(text_or_uri_or_element, tag=None)
     </td>
   </tr>
 <tr>
@@ -544,6 +552,14 @@ XInclude processor.
     </td><td class="summary">
         <a href="lxml.etree.XMLParser-class.html" class="summary-name">XMLParser</a><br />
       XMLParser(self, encoding=None, attribute_defaults=False, dtd_validation=False, load_dtd=False, no_network=True, ns_clean=False, recover=False, XMLSchema schema=None, remove_blank_text=False, resolve_entities=True, remove_comments=False, remove_pis=False, strip_cdata=True, target=None, compact=True)
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="lxml.etree.XMLPullParser-class.html" class="summary-name" onclick="show_private();">XMLPullParser</a><br />
+      XMLPullParser(self, events=None, <a href="#id1"><span class="rst-rst-problematic rst-problematic" id="rst-rst-id2">*</span></a>, tag=None, <a href="#id3"><span class="rst-rst-problematic rst-problematic" id="rst-rst-id4">**</span></a>kwargs)
     </td>
   </tr>
 <tr>
@@ -729,15 +745,6 @@ Create an XPath evaluator for an element.
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="lxml.etree._AppendOnlyElementProxy-class.html" class="summary-name" onclick="show_private();">_AppendOnlyElementProxy</a><br />
-      A read-only element that allows adding children and changing the
-text content (i.e. everything that adds to the subtree).
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
         <a href="lxml.etree._Attrib-class.html" class="summary-name" onclick="show_private();">_Attrib</a><br />
       A dict-like proxy for the <tt class="rst-rst-docutils literal rst-docutils literal">Element.attrib</tt> property.
     </td>
@@ -746,37 +753,7 @@ text content (i.e. everything that adds to the subtree).
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="lxml.etree._AttribIterator-class.html" class="summary-name" onclick="show_private();">_AttribIterator</a><br />
-      Attribute iterator - for internal use only!
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.etree._BaseContext-class.html" class="summary-name" onclick="show_private();">_BaseContext</a>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
         <a href="lxml.etree._BaseErrorLog-class.html" class="summary-name" onclick="show_private();">_BaseErrorLog</a>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.etree._BaseParser-class.html" class="summary-name" onclick="show_private();">_BaseParser</a>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.etree._ClassNamespaceRegistry-class.html" class="summary-name" onclick="show_private();">_ClassNamespaceRegistry</a><br />
-      Dictionary-like registry for namespace implementation classes
     </td>
   </tr>
 <tr class="private">
@@ -813,7 +790,15 @@ text content (i.e. everything that adds to the subtree).
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="lxml.etree._ElementIterator-class.html" class="summary-name" onclick="show_private();">_ElementIterator</a>
+        <a href="lxml.etree._ElementIterator-class.html" class="summary-name" onclick="show_private();">_ElementIterator</a><br />
+      Dead but public. :)
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="lxml.etree._ElementMatchIterator-class.html" class="summary-name" onclick="show_private();">_ElementMatchIterator</a>
     </td>
   </tr>
 <tr class="private">
@@ -827,7 +812,8 @@ text content (i.e. everything that adds to the subtree).
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="lxml.etree._ElementTagMatcher-class.html" class="summary-name" onclick="show_private();">_ElementTagMatcher</a>
+        <a href="lxml.etree._ElementTagMatcher-class.html" class="summary-name" onclick="show_private();">_ElementTagMatcher</a><br />
+      Dead but public. :)
     </td>
   </tr>
 <tr class="private">
@@ -862,42 +848,7 @@ text content (i.e. everything that adds to the subtree).
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="lxml.etree._ExceptionContext-class.html" class="summary-name" onclick="show_private();">_ExceptionContext</a>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.etree._ExsltRegExp-class.html" class="summary-name" onclick="show_private();">_ExsltRegExp</a>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
         <a href="lxml.etree._FeedParser-class.html" class="summary-name" onclick="show_private();">_FeedParser</a>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.etree._FileReaderContext-class.html" class="summary-name" onclick="show_private();">_FileReaderContext</a>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.etree._FilelikeWriter-class.html" class="summary-name" onclick="show_private();">_FilelikeWriter</a>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.etree._FunctionNamespaceRegistry-class.html" class="summary-name" onclick="show_private();">_FunctionNamespaceRegistry</a>
     </td>
   </tr>
 <tr class="private">
@@ -907,20 +858,6 @@ text content (i.e. everything that adds to the subtree).
         <a href="lxml.etree._IDDict-class.html" class="summary-name" onclick="show_private();">_IDDict</a><br />
       IDDict(self, etree)
 A dictionary-like proxy class that mapps ID attributes to elements.
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.etree._InputDocument-class.html" class="summary-name" onclick="show_private();">_InputDocument</a>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.etree._IterparseContext-class.html" class="summary-name" onclick="show_private();">_IterparseContext</a>
     </td>
   </tr>
 <tr class="private">
@@ -943,128 +880,7 @@ A dictionary-like proxy class that mapps ID attributes to elements.
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="lxml.etree._ModifyContentOnlyEntityProxy-class.html" class="summary-name" onclick="show_private();">_ModifyContentOnlyEntityProxy</a><br />
-      A read-only proxy for entity references (for internal use only!)
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.etree._ModifyContentOnlyPIProxy-class.html" class="summary-name" onclick="show_private();">_ModifyContentOnlyPIProxy</a><br />
-      A read-only proxy that allows changing the text/target content of a
-processing instruction.
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.etree._ModifyContentOnlyProxy-class.html" class="summary-name" onclick="show_private();">_ModifyContentOnlyProxy</a><br />
-      A read-only proxy that allows changing the text content.
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.etree._NamespaceRegistry-class.html" class="summary-name" onclick="show_private();">_NamespaceRegistry</a><br />
-      Dictionary-like namespace registry
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.etree._OpaqueDocumentWrapper-class.html" class="summary-name" onclick="show_private();">_OpaqueDocumentWrapper</a>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.etree._OpaqueNodeWrapper-class.html" class="summary-name" onclick="show_private();">_OpaqueNodeWrapper</a>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.etree._ParserContext-class.html" class="summary-name" onclick="show_private();">_ParserContext</a>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.etree._ParserDictionaryContext-class.html" class="summary-name" onclick="show_private();">_ParserDictionaryContext</a>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.etree._ParserSchemaValidationContext-class.html" class="summary-name" onclick="show_private();">_ParserSchemaValidationContext</a>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
         <a href="lxml.etree._ProcessingInstruction-class.html" class="summary-name" onclick="show_private();">_ProcessingInstruction</a>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.etree._PythonSaxParserTarget-class.html" class="summary-name" onclick="show_private();">_PythonSaxParserTarget</a>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.etree._ReadOnlyElementProxy-class.html" class="summary-name" onclick="show_private();">_ReadOnlyElementProxy</a><br />
-      The main read-only Element proxy class (for internal use only!).
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.etree._ReadOnlyEntityProxy-class.html" class="summary-name" onclick="show_private();">_ReadOnlyEntityProxy</a><br />
-      A read-only proxy for entity references (for internal use only!)
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.etree._ReadOnlyPIProxy-class.html" class="summary-name" onclick="show_private();">_ReadOnlyPIProxy</a><br />
-      A read-only proxy for processing instructions (for internal use only!)
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.etree._ReadOnlyProxy-class.html" class="summary-name" onclick="show_private();">_ReadOnlyProxy</a><br />
-      A read-only proxy class suitable for PIs/Comments (for internal use only!).
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.etree._ResolverContext-class.html" class="summary-name" onclick="show_private();">_ResolverContext</a>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.etree._ResolverRegistry-class.html" class="summary-name" onclick="show_private();">_ResolverRegistry</a>
     </td>
   </tr>
 <tr class="private">
@@ -1078,14 +894,6 @@ processing instruction.
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="lxml.etree._SaxParserContext-class.html" class="summary-name" onclick="show_private();">_SaxParserContext</a><br />
-      This class maps SAX2 events to method calls.
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
         <a href="lxml.etree._SaxParserTarget-class.html" class="summary-name" onclick="show_private();">_SaxParserTarget</a>
     </td>
   </tr>
@@ -1093,22 +901,7 @@ processing instruction.
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="lxml.etree._TargetParserContext-class.html" class="summary-name" onclick="show_private();">_TargetParserContext</a><br />
-      This class maps SAX2 events to the ET parser target interface.
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
         <a href="lxml.etree._TargetParserResult-class.html" class="summary-name" onclick="show_private();">_TargetParserResult</a>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.etree._TempStore-class.html" class="summary-name" onclick="show_private();">_TempStore</a>
     </td>
   </tr>
 <tr class="private">
@@ -1123,28 +916,7 @@ processing instruction.
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="lxml.etree._XPathContext-class.html" class="summary-name" onclick="show_private();">_XPathContext</a>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
         <a href="lxml.etree._XPathEvaluatorBase-class.html" class="summary-name" onclick="show_private();">_XPathEvaluatorBase</a>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.etree._XPathFunctionNamespaceRegistry-class.html" class="summary-name" onclick="show_private();">_XPathFunctionNamespaceRegistry</a>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.etree._XSLTContext-class.html" class="summary-name" onclick="show_private();">_XSLTContext</a>
     </td>
   </tr>
 <tr class="private">
@@ -1158,30 +930,7 @@ processing instruction.
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="lxml.etree._XSLTQuotedStringParam-class.html" class="summary-name" onclick="show_private();">_XSLTQuotedStringParam</a><br />
-      A wrapper class for literal XSLT string parameters that require
-quote escaping.
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.etree._XSLTResolverContext-class.html" class="summary-name" onclick="show_private();">_XSLTResolverContext</a>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
         <a href="lxml.etree._XSLTResultTree-class.html" class="summary-name" onclick="show_private();">_XSLTResultTree</a>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.etree.__ContentOnlyElement-class.html" class="summary-name" onclick="show_private();">__ContentOnlyElement</a>
     </td>
   </tr>
 <tr>
@@ -1189,7 +938,7 @@ quote escaping.
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
         <a href="lxml.etree.iterparse-class.html" class="summary-name">iterparse</a><br />
-      iterparse(self, source, events=(&quot;end&quot;,), tag=None, attribute_defaults=False, dtd_validation=False, load_dtd=False, no_network=True, remove_blank_text=False, remove_comments=False, remove_pis=False, encoding=None, html=False, huge_tree=False, schema=None)
+      iterparse(self, source, events=(&quot;end&quot;,), tag=None,                   attribute_defaults=False, dtd_validation=False,                   load_dtd=False, no_network=True, remove_blank_text=False,                   remove_comments=False, remove_pis=False, encoding=None,                   html=False, recover=None, huge_tree=False, schema=None)
     </td>
   </tr>
 <tr>
@@ -1198,6 +947,14 @@ quote escaping.
     </td><td class="summary">
         <a href="lxml.etree.iterwalk-class.html" class="summary-name">iterwalk</a><br />
       iterwalk(self, element_or_tree, events=(&quot;end&quot;,), tag=None)
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="lxml.etree.xmlfile-class.html" class="summary-name" onclick="show_private();">xmlfile</a><br />
+      xmlfile(self, output_file, encoding=None, compression=None)
     </td>
   </tr>
 </table>
@@ -1762,7 +1519,7 @@ Element (or ElementTree) and its descendants.</td>
 subtree.  This will remove the elements and their entire subtree,
 including all their attributes, text content and descendants.  It
 will also remove the tail text of the element unless you
-explicitly set the <tt class="rst-docutils literal">with_tail</tt> option to False.</td>
+explicitly set the <tt class="rst-docutils literal">with_tail</tt> keyword argument option to False.</td>
           <td align="right" valign="top">
             
             
@@ -1809,7 +1566,8 @@ parent.</td>
         <span class="summary-sig-arg">standalone</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">doctype</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">exclusive</span>=<span class="summary-sig-default">False</span>,
-        <span class="summary-sig-arg">with_comments</span>=<span class="summary-sig-default">True</span>)</span><br />
+        <span class="summary-sig-arg">with_comments</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">inclusive_ns_prefixes</span>=<span class="summary-sig-default">None</span>)</span><br />
       Serialize an element to an encoded string representation of its XML
 tree.</td>
           <td align="right" valign="top">
@@ -1910,72 +1668,80 @@ standard Python logging package.</td>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="LIBXML_COMPILED_VERSION"></a><span class="summary-name">LIBXML_COMPILED_VERSION</span> = <code title="(2, 7, 6)"><code class="variable-group">(</code>2<code class="variable-op">, </code>7<code class="variable-op">, </code>6<code class="variable-group">)</code></code>
+        <a name="LIBXML_COMPILED_VERSION"></a><span class="summary-name">LIBXML_COMPILED_VERSION</span> = <code title="(2, 9, 1)"><code class="variable-group">(</code>2<code class="variable-op">, </code>9<code class="variable-op">, </code>1<code class="variable-group">)</code></code>
     </td>
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="LIBXML_VERSION"></a><span class="summary-name">LIBXML_VERSION</span> = <code title="(2, 7, 8)"><code class="variable-group">(</code>2<code class="variable-op">, </code>7<code class="variable-op">, </code>8<code class="variable-group">)</code></code>
+        <a name="LIBXML_VERSION"></a><span class="summary-name">LIBXML_VERSION</span> = <code title="(2, 9, 1)"><code class="variable-group">(</code>2<code class="variable-op">, </code>9<code class="variable-op">, </code>1<code class="variable-group">)</code></code>
     </td>
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="LIBXSLT_COMPILED_VERSION"></a><span class="summary-name">LIBXSLT_COMPILED_VERSION</span> = <code title="(1, 1, 26)"><code class="variable-group">(</code>1<code class="variable-op">, </code>1<code class="variable-op">, </code>26<code class="variable-group">)</code></code>
+        <a name="LIBXSLT_COMPILED_VERSION"></a><span class="summary-name">LIBXSLT_COMPILED_VERSION</span> = <code title="(1, 1, 28)"><code class="variable-group">(</code>1<code class="variable-op">, </code>1<code class="variable-op">, </code>28<code class="variable-group">)</code></code>
     </td>
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="LIBXSLT_VERSION"></a><span class="summary-name">LIBXSLT_VERSION</span> = <code title="(1, 1, 26)"><code class="variable-group">(</code>1<code class="variable-op">, </code>1<code class="variable-op">, </code>26<code class="variable-group">)</code></code>
+        <a name="LIBXSLT_VERSION"></a><span class="summary-name">LIBXSLT_VERSION</span> = <code title="(1, 1, 28)"><code class="variable-group">(</code>1<code class="variable-op">, </code>1<code class="variable-op">, </code>28<code class="variable-group">)</code></code>
     </td>
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="LXML_VERSION"></a><span class="summary-name">LXML_VERSION</span> = <code title="(2, 3, 2, 0)"><code class="variable-group">(</code>2<code class="variable-op">, </code>3<code class="variable-op">, </code>2<code class="variable-op">, </code>0<code class="variable-group">)</code></code>
+        <a name="LXML_VERSION"></a><span class="summary-name">LXML_VERSION</span> = <code title="(2, 3, 6, 0)"><code class="variable-group">(</code>2<code class="variable-op">, </code>3<code class="variable-op">, </code>6<code class="variable-op">, </code>0<code class="variable-group">)</code></code>
     </td>
   </tr>
 <tr class="private">
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="__package__"></a><span class="summary-name">__package__</span> = <code title="'lxml'"><code class="variable-quote">'</code><code class="variable-string">lxml</code><code class="variable-quote">'</code></code>
+        <a name="__package__"></a><span class="summary-name">__package__</span> = <code title="None">None</code><br />
+      hash(x)
     </td>
   </tr>
 <tr class="private">
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="lxml.etree-module.html#__pyx_capi__" class="summary-name" onclick="show_private();">__pyx_capi__</a> = <code title="{'appendChild': &lt;PyCObject object at 0x2ad4d2a4ff08&gt;,
- 'attributeValue': &lt;PyCObject object at 0x2ad4d2a4fd78&gt;,
- 'attributeValueFromNsName': &lt;PyCObject object at 0x2ad4d2a4fd28&gt;,
- 'callLookupFallback': &lt;PyCObject object at 0x2ad4d2a4fc88&gt;,
- 'collectAttributes': &lt;PyCObject object at 0x2ad4d2a4fdf0&gt;,
- 'deepcopyNodeToDocument': &lt;PyCObject object at 0x2ad4d2a4faa8&gt;,
- 'delAttribute': &lt;PyCObject object at 0x2ad4d2a4fb48&gt;,
- 'delAttributeFromNsName': &lt;PyCObject object at 0x2ad4d2a4f148&gt;,
-..."><code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">appendChild</code><code class="variable-quote">'</code><code class="variable-op">: </code>&lt;PyCObject object at 0x2ad4d2a4<code class="variable-ellipsis">...</code></code>
+        <a href="lxml.etree-module.html#__pyx_capi__" class="summary-name" onclick="show_private();">__pyx_capi__</a> = <code title="{'appendChild': &lt;capsule object &quot;void (struct LxmlElement *, struct Lx\
+mlElement *)&quot; at 0x2b5c0c0&gt;,
+ 'appendChildToElement': &lt;capsule object &quot;int (struct LxmlElement *, s\
+truct LxmlElement *)&quot; at 0x2b5c0f0&gt;,
+ 'attributeValue': &lt;capsule object &quot;PyObject *(xmlNode *, xmlAttr *)&quot; \
+at 0x2b58d50&gt;,
+ 'attributeValueFromNsName': &lt;capsule object &quot;PyObject *(xmlNode *, co\
+nst xmlChar *, const xmlChar *)&quot; at 0x2b58d80&gt;,
+..."><code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">appendChild</code><code class="variable-quote">'</code><code class="variable-op">: </code>&lt;capsule object &quot;void (struct L<code class="variable-ellipsis">...</code></code>
     </td>
   </tr>
 <tr class="private">
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="lxml.etree-module.html#__test__" class="summary-name" onclick="show_private();">__test__</a> = <code title="{u'XML (line 2711)': u'''XML(text, parser=None, base_url=None)
+        <a href="lxml.etree-module.html#__test__" class="summary-name" onclick="show_private();">__test__</a> = <code title="{u'XML (line 2987)': u'''XML(text, parser=None, base_url=None)
 
     Parses an XML document or fragment from a string constant.
     Returns the root node (or the result returned by a parser target).
     This function can be used to embed &quot;XML literals&quot; in Python code,
     like in
 
-       &gt;&gt;&gt; root = etree.XML(&quot;&lt;root&gt;&lt;test/&gt;&lt;/root&gt;&quot;)
-..."><code class="variable-group">{</code><code class="variable-quote">u'</code><code class="variable-string">XML (line 2711)</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">u'</code><code class="variable-string">XML(text, parser=None, base_</code><code class="variable-ellipsis">...</code></code>
+       &gt;&gt;&gt; root = XML(&quot;&lt;root&gt;&lt;test/&gt;&lt;/root&gt;&quot;)
+..."><code class="variable-group">{</code><code class="variable-quote">u'</code><code class="variable-string">XML (line 2987)</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">u'</code><code class="variable-string">XML(text, parser=None, base_</code><code class="variable-ellipsis">...</code></code>
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a name="memory_debugger"></a><span class="summary-name">memory_debugger</span> = <code title="&lt;lxml.etree._MemDebug object at 0x2b69f32578c0&gt;">&lt;lxml.etree._MemDebug object at 0x2b69f32578c0&gt;</code>
     </td>
   </tr>
 </table>
@@ -2017,7 +1783,7 @@ standard Python logging package.</td>
   <p>Element factory.  This function returns an object implementing the
 Element interface.</p>
 <p>Also look at the <a href="lxml.etree._Element-class.html#makeelement" class="link">_Element.makeelement()</a> and
-<a href="lxml.etree._BaseParser-class.html#makeelement" class="link">_BaseParser.makeelement()</a> methods, which provide a faster way to
+<code class="link">_BaseParser.makeelement()</code> methods, which provide a faster way to
 create an Element within a specific document or parser context.</p>
   <dl class="fields">
   </dl>
@@ -2122,7 +1888,9 @@ This function can be used to embed &quot;XML literals&quot; in Python code,
 like in</p>
 <blockquote>
 <pre class="py-doctest">
-<span class="py-prompt">&gt;&gt;&gt; </span>root = etree.XML(<span class="py-string">&quot;&lt;root&gt;&lt;test/&gt;&lt;/root&gt;&quot;</span>)</pre>
+<span class="py-prompt">&gt;&gt;&gt; </span>root = XML(<span class="py-string">&quot;&lt;root&gt;&lt;test/&gt;&lt;/root&gt;&quot;</span>)
+<span class="py-prompt">&gt;&gt;&gt; </span><span class="py-keyword">print</span>(root.tag)
+<span class="py-output">root</span></pre>
 </blockquote>
 <p>To override the parser with a different <tt class="rst-docutils literal">XMLParser</tt> you can pass it to
 the <tt class="rst-docutils literal">parser</tt> keyword argument.</p>
@@ -2366,11 +2134,13 @@ parser for each thread explicitly or use a parser pool.</p>
   
   <p>Delete all attributes with the provided attribute names from an
 Element (or ElementTree) and its descendants.</p>
+<p>Attribute names can contain wildcards as in <a href="lxml.etree._Element-class.html#iter" class="link">_Element.iter</a>.</p>
 <p>Example usage:</p>
 <pre class="rst-literal-block">
 strip_attributes(root_element,
                  'simpleattr',
-                 '{http://some/ns}attrname')
+                 '{http://some/ns}attrname',
+                 '{http://other/ns}*')
 </pre>
   <dl class="fields">
   </dl>
@@ -2396,7 +2166,8 @@ strip_attributes(root_element,
 subtree.  This will remove the elements and their entire subtree,
 including all their attributes, text content and descendants.  It
 will also remove the tail text of the element unless you
-explicitly set the <tt class="rst-rst-docutils literal rst-docutils literal">with_tail</tt> option to False.</p>
+explicitly set the <tt class="rst-rst-docutils literal rst-docutils literal">with_tail</tt> keyword argument option to False.</p>
+<p>Tag names can contain wildcards as in <a href="lxml.etree._Element-class.html#iter" class="link">_Element.iter</a>.</p>
 <p>Note that this will not delete the element (or ElementTree root
 element) that you passed even if it matches.  It will only treat
 its descendants.  If you want to include the root element, check
@@ -2407,7 +2178,7 @@ strip_elements(some_element,
     'simpletagname',             # non-namespaced tag
     '{http://some/ns}tagname',   # namespaced tag
     '{http://some/other/ns}*'    # any tag from a namespace
-    Comment                      # comments
+    lxml.etree.Comment           # comments
     )
 </pre>
   <dl class="fields">
@@ -2434,6 +2205,7 @@ subtree.  This will remove the elements and their attributes, but
 <em>not</em> their text/tail content or descendants.  Instead, it will
 merge the text content and children of the element into its
 parent.</p>
+<p>Tag names can contain wildcards as in <a href="lxml.etree._Element-class.html#iter" class="link">_Element.iter</a>.</p>
 <p>Note that this will not delete the element (or ElementTree root
 element) that you passed even if it matches.  It will only treat
 its descendants.</p>
@@ -2466,7 +2238,8 @@ strip_tags(some_element,
         <span class="sig-arg">standalone</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">doctype</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">exclusive</span>=<span class="sig-default">False</span>,
-        <span class="sig-arg">with_comments</span>=<span class="sig-default">True</span>)</span>
+        <span class="sig-arg">with_comments</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">inclusive_ns_prefixes</span>=<span class="sig-default">None</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     >&nbsp;
@@ -2495,7 +2268,9 @@ C14N serialisation respectively.</p>
 an XML declaration with the corresponding <tt class="rst-docutils literal">standalone</tt> flag.</p>
 <p>The <tt class="rst-docutils literal">doctype</tt> option allows passing in a plain string that will
 be serialised before the XML tree.  Note that passing in non
-well-formed content here will make the XML output non well-formed.</p>
+well-formed content here will make the XML output non well-formed.
+Also, an existing doctype in the document tree will not be removed
+when serialising an ElementTree instance.</p>
 <p>You can prevent the tail text of the element from being serialised
 by passing the boolean <tt class="rst-docutils literal">with_tail</tt> option.  This has no impact
 on the tail text of children, which will always be serialised.</p>
@@ -2559,7 +2334,7 @@ on the tail text of children, which will always be serialised.</p>
   <dl class="fields">
   </dl>
 <div class="fields">      <p><strong>Deprecated:</strong>
-        use <tt class="rst-rst-docutils literal rst-docutils literal">tostring(el, encoding=unicode)</tt> instead.
+        use <tt class="rst-rst-docutils literal rst-docutils literal">tostring(el, <span class="pre">encoding='unicode')</span></tt> instead.
       </p>
 </div></td></tr></table>
 </div>
@@ -2619,14 +2394,14 @@ function will only set the global error log of the current thread.</p>
   <dl class="fields">
     <dt>Value:</dt>
       <dd><table><tr><td><pre class="variable">
-<code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">appendChild</code><code class="variable-quote">'</code><code class="variable-op">: </code>&lt;PyCObject object at 0x2ad4d2a4ff08&gt;<code class="variable-op">,</code>
- <code class="variable-quote">'</code><code class="variable-string">attributeValue</code><code class="variable-quote">'</code><code class="variable-op">: </code>&lt;PyCObject object at 0x2ad4d2a4fd78&gt;<code class="variable-op">,</code>
- <code class="variable-quote">'</code><code class="variable-string">attributeValueFromNsName</code><code class="variable-quote">'</code><code class="variable-op">: </code>&lt;PyCObject object at 0x2ad4d2a4fd28&gt;<code class="variable-op">,</code>
- <code class="variable-quote">'</code><code class="variable-string">callLookupFallback</code><code class="variable-quote">'</code><code class="variable-op">: </code>&lt;PyCObject object at 0x2ad4d2a4fc88&gt;<code class="variable-op">,</code>
- <code class="variable-quote">'</code><code class="variable-string">collectAttributes</code><code class="variable-quote">'</code><code class="variable-op">: </code>&lt;PyCObject object at 0x2ad4d2a4fdf0&gt;<code class="variable-op">,</code>
- <code class="variable-quote">'</code><code class="variable-string">deepcopyNodeToDocument</code><code class="variable-quote">'</code><code class="variable-op">: </code>&lt;PyCObject object at 0x2ad4d2a4faa8&gt;<code class="variable-op">,</code>
- <code class="variable-quote">'</code><code class="variable-string">delAttribute</code><code class="variable-quote">'</code><code class="variable-op">: </code>&lt;PyCObject object at 0x2ad4d2a4fb48&gt;<code class="variable-op">,</code>
- <code class="variable-quote">'</code><code class="variable-string">delAttributeFromNsName</code><code class="variable-quote">'</code><code class="variable-op">: </code>&lt;PyCObject object at 0x2ad4d2a4f148&gt;<code class="variable-op">,</code>
+<code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">appendChild</code><code class="variable-quote">'</code><code class="variable-op">: </code>&lt;capsule object &quot;void (struct LxmlElement *, struct Lx<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+mlElement *)&quot; at 0x2b5c0c0&gt;<code class="variable-op">,</code>
+ <code class="variable-quote">'</code><code class="variable-string">appendChildToElement</code><code class="variable-quote">'</code><code class="variable-op">: </code>&lt;capsule object &quot;int (struct LxmlElement *, s<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+truct LxmlElement *)&quot; at 0x2b5c0f0&gt;<code class="variable-op">,</code>
+ <code class="variable-quote">'</code><code class="variable-string">attributeValue</code><code class="variable-quote">'</code><code class="variable-op">: </code>&lt;capsule object &quot;PyObject *(xmlNode *, xmlAttr *)&quot; <span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+at 0x2b58d50&gt;<code class="variable-op">,</code>
+ <code class="variable-quote">'</code><code class="variable-string">attributeValueFromNsName</code><code class="variable-quote">'</code><code class="variable-op">: </code>&lt;capsule object &quot;PyObject *(xmlNode *, co<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
+nst xmlChar *, const xmlChar *)&quot; at 0x2b58d80&gt;<code class="variable-op">,</code>
 <code class="variable-ellipsis">...</code>
 </pre></td></tr></table>
 </dd>
@@ -2645,14 +2420,14 @@ function will only set the global error log of the current thread.</p>
   <dl class="fields">
     <dt>Value:</dt>
       <dd><table><tr><td><pre class="variable">
-<code class="variable-group">{</code><code class="variable-quote">u'</code><code class="variable-string">XML (line 2711)</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">u'''</code><code class="variable-string">XML(text, parser=None, base_url=None)</code>
+<code class="variable-group">{</code><code class="variable-quote">u'</code><code class="variable-string">XML (line 2987)</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">u'''</code><code class="variable-string">XML(text, parser=None, base_url=None)</code>
 <code class="variable-string"></code>
 <code class="variable-string">    Parses an XML document or fragment from a string constant.</code>
 <code class="variable-string">    Returns the root node (or the result returned by a parser target).</code>
 <code class="variable-string">    This function can be used to embed &quot;XML literals&quot; in Python code,</code>
 <code class="variable-string">    like in</code>
 <code class="variable-string"></code>
-<code class="variable-string">       &gt;&gt;&gt; root = etree.XML(&quot;&lt;root&gt;&lt;test/&gt;&lt;/root&gt;&quot;)</code>
+<code class="variable-string">       &gt;&gt;&gt; root = XML(&quot;&lt;root&gt;&lt;test/&gt;&lt;/root&gt;&quot;)</code>
 <code class="variable-ellipsis">...</code>
 </pre></td></tr></table>
 </dd>
@@ -2691,7 +2466,7 @@ function will only set the global error log of the current thread.</p>
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Fri Nov 11 18:38:25 2011
+    Generated by Epydoc 3.0.1 on Fri Apr 18 08:58:40 2014
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

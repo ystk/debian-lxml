@@ -1,5 +1,6 @@
-import os, re, sys
-from distutils import log, sysconfig
+import os, re, sys, subprocess
+import tarfile
+from distutils import log, sysconfig, version
 
 try:
     from urlparse import urlsplit, urljoin
@@ -48,18 +49,37 @@ def download_and_extract_zlatkovic_binaries(destdir):
 
     return libs
 
+
+def find_top_dir_of_zipfile(zipfile):
+    topdir = None
+    files = [f.filename for f in zipfile.filelist]
+    dirs = [d for d in files if d.endswith('/')]
+    if dirs:
+        dirs.sort(key=len)
+        topdir = dirs[0]
+        topdir = topdir[:topdir.index("/")+1]
+        for path in files:
+            if not path.startswith(topdir):
+                topdir = None
+                break
+    assert topdir, (
+        "cannot determine single top-level directory in zip file %s" %
+        zipfile.filename)
+    return topdir.rstrip('/')
+
+
 def unpack_zipfile(zipfn, destdir):
     assert zipfn.endswith('.zip')
     import zipfile
     print('Unpacking %s into %s' % (os.path.basename(zipfn), destdir))
     f = zipfile.ZipFile(zipfn)
     try:
+        extracted_dir = os.path.join(destdir, find_top_dir_of_zipfile(f))
         f.extractall(path=destdir)
     finally:
         f.close()
-    edir = os.path.join(destdir, os.path.basename(zipfn)[:-len('.zip')])
-    assert os.path.exists(edir), 'missing: %s' % edir
-    return edir
+    assert os.path.exists(extracted_dir), 'missing: %s' % extracted_dir
+    return extracted_dir
 
 def get_prebuilt_libxml2xslt(download_dir, static_include_dirs, static_library_dirs):
     assert sys.platform.startswith('win')
@@ -173,7 +193,7 @@ def _extractall(self, path=".", members=None):
     import copy
     is_ignored_file = re.compile(
         r'''[\\/]((test|results?)[\\/]
-                  |doc[\\/].*(Log|[.](out|imp|err|png|ent|gif|tif|pdf))$
+                  |doc[\\/].*(Log|[.](out|imp|err|ent|gif|tif|pdf))$
                   |tests[\\/](.*[\\/])?(?!Makefile)[^\\/]*$
                   |python[\\/].*[.]py$
                  )
@@ -212,7 +232,6 @@ def _extractall(self, path=".", members=None):
                 self._dbg(1, "tarfile: %s" % sys.exc_info()[1])
 
 def unpack_tarball(tar_filename, dest):
-    import tarfile
     print('Unpacking %s into %s' % (os.path.basename(tar_filename), dest))
     tar = tarfile.open(tar_filename)
     base_dir = None
@@ -268,6 +287,40 @@ def cmmi(configure_cmd, build_dir, multicore=None, **call_setup):
         ['make'] + make_jobs + ['install'],
         cwd=build_dir, **call_setup)
 
+def configure_darwin_env(env_setup):
+    import platform
+    # check target architectures on MacOS-X (ppc, i386, x86_64)
+    major_version, minor_version = tuple(map(int, platform.mac_ver()[0].split('.')[:2]))
+    if major_version > 7:
+        # Check to see if ppc is supported (XCode4 drops ppc support)
+        include_ppc = True
+        if os.path.exists('/usr/bin/xcodebuild'):
+            pipe = subprocess.Popen(['/usr/bin/xcodebuild', '-version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            out, _ = pipe.communicate()
+            xcode_version = (out.decode('utf8').splitlines() or [''])[0]
+            # Also parse only first digit, because 3.2.1 can't be parsed nicely
+            if (xcode_version.startswith('Xcode') and
+                version.StrictVersion(xcode_version.split()[1]) >= version.StrictVersion('4.0')):
+                include_ppc = False
+        arch_string = ""
+        if include_ppc:
+            arch_string = "-arch ppc "
+        if minor_version < 6:
+            env_default = {
+                'CFLAGS' : arch_string + "-arch i386 -isysroot /Developer/SDKs/MacOSX10.4u.sdk -O2",
+                'LDFLAGS' : arch_string + "-arch i386 -isysroot /Developer/SDKs/MacOSX10.4u.sdk",
+                'MACOSX_DEPLOYMENT_TARGET' : "10.3"
+            }
+        else:
+            env_default = {
+                'CFLAGS' : arch_string + "-arch i386 -arch x86_64 -O2",
+                'LDFLAGS' : arch_string + "-arch i386 -arch x86_64",
+                'MACOSX_DEPLOYMENT_TARGET' : "10.6"
+            }
+        env = os.environ.copy()
+        env_default.update(env)
+        env_setup['env'] = env_default
+
 def build_libxml2xslt(download_dir, build_dir,
                       static_include_dirs, static_library_dirs,
                       static_cflags, static_binaries,
@@ -282,26 +335,8 @@ def build_libxml2xslt(download_dir, build_dir,
     safe_mkdir(prefix)
 
     call_setup = {}
-    env_setup = None
-    if sys.platform in ('darwin',):
-        import platform
-        # We compile Universal if we are on a machine > 10.3
-        major_version, minor_version = tuple(map(int, platform.mac_ver()[0].split('.')[:2]))
-        if major_version > 7:
-            env = os.environ.copy()
-            if minor_version < 6:
-                env.update({
-                    'CFLAGS' : "-arch ppc -arch i386 -isysroot /Developer/SDKs/MacOSX10.4u.sdk -O2",
-                    'LDFLAGS' : "-arch ppc -arch i386 -isysroot /Developer/SDKs/MacOSX10.4u.sdk",
-                    'MACOSX_DEPLOYMENT_TARGET' : "10.3"
-                    })
-            else:
-                env.update({
-                    'CFLAGS' : "-arch ppc -arch i386 -arch x86_64 -O2",
-                    'LDFLAGS' : "-arch ppc -arch i386 -arch x86_64",
-                    'MACOSX_DEPLOYMENT_TARGET' : "10.6"
-                    })
-            call_setup['env'] = env
+    if sys.platform == 'darwin':
+        configure_darwin_env(call_setup)
 
     configure_cmd = ['./configure',
                      '--disable-dependency-tracking',

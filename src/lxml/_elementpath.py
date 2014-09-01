@@ -93,7 +93,7 @@ def prepare_child(next, token):
 def prepare_star(next, token):
     def select(result):
         for elem in result:
-            for e in elem:
+            for e in elem.iterchildren('*'):
                 yield e
     return select
 
@@ -157,7 +157,7 @@ def prepare_predicate(next, token):
                 if elem.get(key) == value:
                     yield elem
         return select
-    if signature == "-" and not re.match("\d+$", predicate[0]):
+    if signature == "-" and not re.match("-?\d+$", predicate[0]):
         # [tag]
         tag = predicate[0]
         def select(result):
@@ -166,7 +166,7 @@ def prepare_predicate(next, token):
                     yield elem
                     break
         return select
-    if signature == "-='" and not re.match("\d+$", predicate[0]):
+    if signature == "-='" and not re.match("-?\d+$", predicate[0]):
         # [tag='value']
         tag = predicate[0]
         value = predicate[-1]
@@ -180,7 +180,14 @@ def prepare_predicate(next, token):
     if signature == "-" or signature == "-()" or signature == "-()-":
         # [index] or [last()] or [last()-index]
         if signature == "-":
+            # [index]
             index = int(predicate[0]) - 1
+            if index < 0:
+                if index == -1:
+                    raise SyntaxError(
+                        "indices in path predicates are 1-based, not 0-based")
+                else:
+                    raise SyntaxError("path index >= 1 expected")
         else:
             if predicate[0] != "last":
                 raise SyntaxError("unsupported function")
@@ -224,7 +231,7 @@ def _build_path_iterator(path, namespaces):
     if path[-1:] == "/":
         path = path + "*" # implicit all (FIXME: keep this?)
     try:
-        return _cache[path]
+        return _cache[(path, namespaces and tuple(sorted(namespaces.items())) or None)]
     except KeyError:
         pass
     if len(_cache) > 100:
@@ -238,7 +245,10 @@ def _build_path_iterator(path, namespaces):
     except AttributeError:
         # Python 3
         _next = stream.__next__
-    token = _next()
+    try:
+        token = _next()
+    except StopIteration:
+        raise SyntaxError("empty path expression")
     selector = []
     while 1:
         try:

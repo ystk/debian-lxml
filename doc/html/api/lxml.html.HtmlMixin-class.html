@@ -42,8 +42,9 @@
   <tr valign="top">
     <td width="100%">
       <span class="breadcrumbs">
-        <a href="lxml-module.html">Package&nbsp;lxml</a> ::
-        <a href="lxml.html-module.html">Package&nbsp;html</a> ::
+        lxml ::
+        html ::
+        HtmlMixin ::
         Class&nbsp;HtmlMixin
       </span>
     </td>
@@ -71,7 +72,7 @@ object --+
 <dl><dt>Known Subclasses:</dt>
 <dd>
       <ul class="subclass-list">
-<li class="private"><a href="lxml.html.HtmlElement-class.html" onclick="show_private();">HtmlElement</a></li><li class="private">, <a href="lxml.html.HtmlComment-class.html" onclick="show_private();">HtmlComment</a></li><li class="private">, <a href="lxml.html.HtmlEntity-class.html" onclick="show_private();">HtmlEntity</a></li><li class="private">, <a href="lxml.html.HtmlProcessingInstruction-class.html" onclick="show_private();">HtmlProcessingInstruction</a></li>  </ul>
+<li><a href="lxml.html.HtmlElement-class.html">HtmlElement</a></li><li>, <a href="lxml.html.HtmlComment-class.html">HtmlComment</a></li><li>, <a href="lxml.html.HtmlEntity-class.html">HtmlEntity</a></li><li>, <a href="lxml.html.HtmlProcessingInstruction-class.html">HtmlProcessingInstruction</a></li>  </ul>
 </dd></dl>
 
 <hr />
@@ -260,7 +261,8 @@ otherwise.</td>
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a href="lxml.html.HtmlMixin-class.html#cssselect" class="summary-sig-name">cssselect</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">expr</span>)</span><br />
+        <span class="summary-sig-arg">expr</span>,
+        <span class="summary-sig-arg">translator</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">html</code><code class="variable-quote">'</code></span>)</span><br />
       Run the CSS expression on this element and its children,
 returning a list of the results.</td>
           <td align="right" valign="top">
@@ -280,10 +282,12 @@ returning a list of the results.</td>
         <tr>
           <td><span class="summary-sig"><a href="lxml.html.HtmlMixin-class.html#make_links_absolute" class="summary-sig-name">make_links_absolute</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">base_url</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">resolve_base_href</span>=<span class="summary-sig-default">True</span>)</span><br />
+        <span class="summary-sig-arg">resolve_base_href</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">handle_failures</span>=<span class="summary-sig-default">None</span>)</span><br />
       Make all links in the document absolute, given the
 <tt class="rst-docutils literal">base_url</tt> for the document (the full URL where the document
-came from), or if no <tt class="rst-docutils literal">base_url</tt> is given, then the <tt class="rst-docutils literal">.base_url</tt> of the document.</td>
+came from), or if no <tt class="rst-docutils literal">base_url</tt> is given, then the <tt class="rst-docutils literal">.base_url</tt>
+of the document.</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="lxml.html-pysrc.html#HtmlMixin.make_links_absolute">source&nbsp;code</a></span>
             
@@ -299,7 +303,8 @@ came from), or if no <tt class="rst-docutils literal">base_url</tt> is given, th
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="resolve_base_href"></a><span class="summary-sig-name">resolve_base_href</span>(<span class="summary-sig-arg">self</span>)</span><br />
+          <td><span class="summary-sig"><a href="lxml.html.HtmlMixin-class.html#resolve_base_href" class="summary-sig-name">resolve_base_href</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">handle_failures</span>=<span class="summary-sig-default">None</span>)</span><br />
       Find any <tt class="rst-docutils literal">&lt;base href&gt;</tt> tag in the document, and apply its
 values to all links found in the document.  Also remove the
 tag once it has been applied.</td>
@@ -479,7 +484,7 @@ are merged into the parent.</p>
 <pre class="rst-literal-block">
 &gt;&gt;&gt; h = fragment_fromstring('&lt;div&gt;Hello &lt;b&gt;World!&lt;/b&gt;&lt;/div&gt;')
 &gt;&gt;&gt; h.find('.//b').drop_tag()
-&gt;&gt;&gt; print(tostring(h, encoding=unicode))
+&gt;&gt;&gt; print(tostring(h, encoding='unicode'))
 &lt;div&gt;Hello World!&lt;/div&gt;
 </pre>
   <dl class="fields">
@@ -521,7 +526,8 @@ the same.</p>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">cssselect</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">expr</span>)</span>
+        <span class="sig-arg">expr</span>,
+        <span class="sig-arg">translator</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">html</code><code class="variable-quote">'</code></span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="lxml.html-pysrc.html#HtmlMixin.cssselect">source&nbsp;code</a></span>&nbsp;
@@ -530,8 +536,8 @@ the same.</p>
   
   <p>Run the CSS expression on this element and its children,
 returning a list of the results.</p>
-<p>Equivalent to lxml.cssselect.CSSSelect(expr)(self) -- note
-that pre-compiling the expression can provide a substantial
+<p>Equivalent to lxml.cssselect.CSSSelect(expr, translator='html')(self)
+-- note that pre-compiling the expression can provide a substantial
 speedup.</p>
   <dl class="fields">
   </dl>
@@ -546,7 +552,8 @@ speedup.</p>
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">make_links_absolute</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">base_url</span>=<span class="sig-default">None</span>,
-        <span class="sig-arg">resolve_base_href</span>=<span class="sig-default">True</span>)</span>
+        <span class="sig-arg">resolve_base_href</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">handle_failures</span>=<span class="sig-default">None</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="lxml.html-pysrc.html#HtmlMixin.make_links_absolute">source&nbsp;code</a></span>&nbsp;
@@ -555,10 +562,39 @@ speedup.</p>
   
   <p>Make all links in the document absolute, given the
 <tt class="rst-rst-docutils literal rst-docutils literal">base_url</tt> for the document (the full URL where the document
-came from), or if no <tt class="rst-rst-docutils literal rst-docutils literal">base_url</tt> is given, then the <tt class="rst-rst-docutils literal rst-docutils literal">.base_url</tt> of the document.</p>
+came from), or if no <tt class="rst-rst-docutils literal rst-docutils literal">base_url</tt> is given, then the <tt class="rst-rst-docutils literal rst-docutils literal">.base_url</tt>
+of the document.</p>
 <p>If <tt class="rst-docutils literal">resolve_base_href</tt> is true, then any <tt class="rst-docutils literal">&lt;base href&gt;</tt>
 tags in the document are used <em>and</em> removed from the document.
 If it is false then any such tag is ignored.</p>
+<p>If <tt class="rst-docutils literal">handle_failures</tt> is None (default), a failure to process
+a URL will abort the processing.  If set to 'ignore', errors
+are ignored.  If set to 'discard', failing URLs will be removed.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="resolve_base_href"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">resolve_base_href</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">handle_failures</span>=<span class="sig-default">None</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="lxml.html-pysrc.html#HtmlMixin.resolve_base_href">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Find any <tt class="rst-rst-docutils literal rst-docutils literal">&lt;base href&gt;</tt> tag in the document, and apply its
+values to all links found in the document.  Also remove the
+tag once it has been applied.</p>
+<p>If <tt class="rst-docutils literal">handle_failures</tt> is None (default), a failure to process
+a URL will abort the processing.  If set to 'ignore', errors
+are ignored.  If set to 'discard', failing URLs will be removed.</p>
   <dl class="fields">
   </dl>
 </td></tr></table>
@@ -764,7 +800,7 @@ element to get the document's head.
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Fri Nov 11 18:38:27 2011
+    Generated by Epydoc 3.0.1 on Fri Apr 18 08:58:41 2014
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

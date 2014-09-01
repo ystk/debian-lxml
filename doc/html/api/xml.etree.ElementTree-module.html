@@ -85,7 +85,21 @@ hash(x)
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
+        <a href="xml.etree.ElementTree.Element-class.html" class="summary-name">Element</a>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
         <a href="xml.etree.ElementTree.ElementTree-class.html" class="summary-name">ElementTree</a>
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="xml.etree.ElementTree.ParseError-class.html" class="summary-name">ParseError</a>
     </td>
   </tr>
 <tr>
@@ -106,28 +120,35 @@ hash(x)
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="xml.etree.ElementTree.XMLTreeBuilder-class.html" class="summary-name">XMLParser</a>
+        <a href="xml.etree.ElementTree.XMLParser-class.html" class="summary-name">XMLParser</a>
     </td>
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="xml.etree.ElementTree.XMLTreeBuilder-class.html" class="summary-name">XMLTreeBuilder</a>
+        <a href="xml.etree.ElementTree.XMLParser-class.html" class="summary-name">XMLTreeBuilder</a>
     </td>
   </tr>
 <tr class="private">
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="xml.etree.ElementTree._ElementInterface-class.html" class="summary-name" onclick="show_private();">_Element</a>
+        <a href="xml.etree.ElementTree.Element-class.html" class="summary-name" onclick="show_private();">_Element</a>
     </td>
   </tr>
 <tr class="private">
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="xml.etree.ElementTree._ElementInterface-class.html" class="summary-name" onclick="show_private();">_ElementInterface</a>
+        <a href="xml.etree.ElementTree.Element-class.html" class="summary-name" onclick="show_private();">_ElementInterface</a>
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="xml.etree.ElementTree._IterParseIterator-class.html" class="summary-name" onclick="show_private();">_IterParseIterator</a>
     </td>
   </tr>
 <tr class="private">
@@ -135,13 +156,6 @@ hash(x)
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
         <a href="xml.etree.ElementTree._SimpleElementPath-class.html" class="summary-name" onclick="show_private();">_SimpleElementPath</a>
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="xml.etree.ElementTree.iterparse-class.html" class="summary-name">iterparse</a>
     </td>
   </tr>
 </table>
@@ -171,24 +185,6 @@ hash(x)
           <td><span class="summary-sig"><a name="Comment"></a><span class="summary-sig-name">Comment</span>(<span class="summary-sig-arg">text</span>=<span class="summary-sig-default">None</span>)</span></td>
           <td align="right" valign="top">
             <span class="codelink"><a href="xml.etree.ElementTree-pysrc.html#Comment">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="Element"></a><span class="summary-sig-name">Element</span>(<span class="summary-sig-arg">tag</span>,
-        <span class="summary-sig-arg">attrib</span>=<span class="summary-sig-default"><code class="variable-group">{</code><code class="variable-group">}</code></span>,
-        <span class="summary-sig-arg">**extra</span>)</span></td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="xml.etree.ElementTree-pysrc.html#Element">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -255,7 +251,8 @@ hash(x)
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="XML"></a><span class="summary-sig-name">XML</span>(<span class="summary-sig-arg">text</span>)</span></td>
+          <td><span class="summary-sig"><a name="XML"></a><span class="summary-sig-name">XML</span>(<span class="summary-sig-arg">text</span>,
+        <span class="summary-sig-arg">parser</span>=<span class="summary-sig-default">None</span>)</span></td>
           <td align="right" valign="top">
             <span class="codelink"><a href="xml.etree.ElementTree-pysrc.html#XML">source&nbsp;code</a></span>
             
@@ -271,7 +268,8 @@ hash(x)
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="XMLID"></a><span class="summary-sig-name">XMLID</span>(<span class="summary-sig-arg">text</span>)</span></td>
+          <td><span class="summary-sig"><a name="XMLID"></a><span class="summary-sig-name">XMLID</span>(<span class="summary-sig-arg">text</span>,
+        <span class="summary-sig-arg">parser</span>=<span class="summary-sig-default">None</span>)</span></td>
           <td align="right" valign="top">
             <span class="codelink"><a href="xml.etree.ElementTree-pysrc.html#XMLID">source&nbsp;code</a></span>
             
@@ -287,7 +285,7 @@ hash(x)
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="_encode"></a><span class="summary-sig-name">_encode</span>(<span class="summary-sig-arg">s</span>,
+          <td><span class="summary-sig"><a name="_encode"></a><span class="summary-sig-name">_encode</span>(<span class="summary-sig-arg">text</span>,
         <span class="summary-sig-arg">encoding</span>)</span></td>
           <td align="right" valign="top">
             <span class="codelink"><a href="xml.etree.ElementTree-pysrc.html#_encode">source&nbsp;code</a></span>
@@ -304,26 +302,8 @@ hash(x)
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="_encode_entity"></a><span class="summary-sig-name">_encode_entity</span>(<span class="summary-sig-arg">text</span>,
-        <span class="summary-sig-arg">pattern</span>=<span class="summary-sig-default">re.compile(r'<code class="re-group">[</code>&amp;&lt;&gt;&quot;\x80<code class="re-op">-</code>\uffff<code class="re-group">]</code><code class="re-op">+</code>')</span>)</span></td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="xml.etree.ElementTree-pysrc.html#_encode_entity">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
           <td><span class="summary-sig"><a name="_escape_attrib"></a><span class="summary-sig-name">_escape_attrib</span>(<span class="summary-sig-arg">text</span>,
-        <span class="summary-sig-arg">encoding</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">replace</span>=<span class="summary-sig-default">&lt;function replace at 0x2ad4d2b8a398&gt;</span>)</span></td>
+        <span class="summary-sig-arg">encoding</span>)</span></td>
           <td align="right" valign="top">
             <span class="codelink"><a href="xml.etree.ElementTree-pysrc.html#_escape_attrib">source&nbsp;code</a></span>
             
@@ -339,11 +319,45 @@ hash(x)
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
+          <td><span class="summary-sig"><a name="_escape_attrib_html"></a><span class="summary-sig-name">_escape_attrib_html</span>(<span class="summary-sig-arg">text</span>,
+        <span class="summary-sig-arg">encoding</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="xml.etree.ElementTree-pysrc.html#_escape_attrib_html">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
           <td><span class="summary-sig"><a name="_escape_cdata"></a><span class="summary-sig-name">_escape_cdata</span>(<span class="summary-sig-arg">text</span>,
-        <span class="summary-sig-arg">encoding</span>=<span class="summary-sig-default">None</span>,
-        <span class="summary-sig-arg">replace</span>=<span class="summary-sig-default">&lt;function replace at 0x2ad4d2b8a398&gt;</span>)</span></td>
+        <span class="summary-sig-arg">encoding</span>)</span></td>
           <td align="right" valign="top">
             <span class="codelink"><a href="xml.etree.ElementTree-pysrc.html#_escape_cdata">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_namespaces"></a><span class="summary-sig-name">_namespaces</span>(<span class="summary-sig-arg">elem</span>,
+        <span class="summary-sig-arg">encoding</span>,
+        <span class="summary-sig-arg">default_namespace</span>=<span class="summary-sig-default">None</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="xml.etree.ElementTree-pysrc.html#_namespaces">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -367,6 +381,64 @@ hash(x)
       
     </td>
   </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_serialize_html"></a><span class="summary-sig-name">_serialize_html</span>(<span class="summary-sig-arg">write</span>,
+        <span class="summary-sig-arg">elem</span>,
+        <span class="summary-sig-arg">encoding</span>,
+        <span class="summary-sig-arg">qnames</span>,
+        <span class="summary-sig-arg">namespaces</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="xml.etree.ElementTree-pysrc.html#_serialize_html">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_serialize_text"></a><span class="summary-sig-name">_serialize_text</span>(<span class="summary-sig-arg">write</span>,
+        <span class="summary-sig-arg">elem</span>,
+        <span class="summary-sig-arg">encoding</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="xml.etree.ElementTree-pysrc.html#_serialize_text">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_serialize_xml"></a><span class="summary-sig-name">_serialize_xml</span>(<span class="summary-sig-arg">write</span>,
+        <span class="summary-sig-arg">elem</span>,
+        <span class="summary-sig-arg">encoding</span>,
+        <span class="summary-sig-arg">qnames</span>,
+        <span class="summary-sig-arg">namespaces</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="xml.etree.ElementTree-pysrc.html#_serialize_xml">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
@@ -383,16 +455,16 @@ hash(x)
       
     </td>
   </tr>
-<tr class="private">
+<tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="fixtag"></a><span class="summary-sig-name">fixtag</span>(<span class="summary-sig-arg">tag</span>,
-        <span class="summary-sig-arg">namespaces</span>)</span></td>
+          <td><span class="summary-sig"><a name="fromstring"></a><span class="summary-sig-name">fromstring</span>(<span class="summary-sig-arg">text</span>,
+        <span class="summary-sig-arg">parser</span>=<span class="summary-sig-default">None</span>)</span></td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="xml.etree.ElementTree-pysrc.html#fixtag">source&nbsp;code</a></span>
+            <span class="codelink"><a href="xml.etree.ElementTree-pysrc.html#XML">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -406,9 +478,10 @@ hash(x)
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="fromstring"></a><span class="summary-sig-name">fromstring</span>(<span class="summary-sig-arg">text</span>)</span></td>
+          <td><span class="summary-sig"><a name="fromstringlist"></a><span class="summary-sig-name">fromstringlist</span>(<span class="summary-sig-arg">sequence</span>,
+        <span class="summary-sig-arg">parser</span>=<span class="summary-sig-default">None</span>)</span></td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="xml.etree.ElementTree-pysrc.html#XML">source&nbsp;code</a></span>
+            <span class="codelink"><a href="xml.etree.ElementTree-pysrc.html#fromstringlist">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -438,10 +511,45 @@ hash(x)
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
+          <td><span class="summary-sig"><a name="iterparse"></a><span class="summary-sig-name">iterparse</span>(<span class="summary-sig-arg">source</span>,
+        <span class="summary-sig-arg">events</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">parser</span>=<span class="summary-sig-default">None</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="xml.etree.ElementTree-pysrc.html#iterparse">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
           <td><span class="summary-sig"><a name="parse"></a><span class="summary-sig-name">parse</span>(<span class="summary-sig-arg">source</span>,
         <span class="summary-sig-arg">parser</span>=<span class="summary-sig-default">None</span>)</span></td>
           <td align="right" valign="top">
             <span class="codelink"><a href="xml.etree.ElementTree-pysrc.html#parse">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="register_namespace"></a><span class="summary-sig-name">register_namespace</span>(<span class="summary-sig-arg">prefix</span>,
+        <span class="summary-sig-arg">uri</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="xml.etree.ElementTree-pysrc.html#register_namespace">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -456,9 +564,28 @@ hash(x)
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a name="tostring"></a><span class="summary-sig-name">tostring</span>(<span class="summary-sig-arg">element</span>,
-        <span class="summary-sig-arg">encoding</span>=<span class="summary-sig-default">None</span>)</span></td>
+        <span class="summary-sig-arg">encoding</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">method</span>=<span class="summary-sig-default">None</span>)</span></td>
           <td align="right" valign="top">
             <span class="codelink"><a href="xml.etree.ElementTree-pysrc.html#tostring">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="tostringlist"></a><span class="summary-sig-name">tostringlist</span>(<span class="summary-sig-arg">element</span>,
+        <span class="summary-sig-arg">encoding</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">method</span>=<span class="summary-sig-default">None</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="xml.etree.ElementTree-pysrc.html#tostringlist">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -484,11 +611,26 @@ hash(x)
     </table>
   </td>
 </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="xml.etree.ElementTree-module.html#HTML_EMPTY" class="summary-name" onclick="show_private();">HTML_EMPTY</a> = <code title="set(['area',
+     'base',
+     'basefont',
+     'br',
+     'col',
+     'frame',
+     'hr',
+     'img',
+..."><code class="variable-group">set([</code><code class="variable-quote">'</code><code class="variable-string">area</code><code class="variable-quote">'</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">base</code><code class="variable-quote">'</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">basefont</code><code class="variable-quote">'</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">br</code><code class="variable-quote">'</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">col</code><code class="variable-quote">'</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">fr</code><code class="variable-ellipsis">...</code></code>
+    </td>
+  </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="VERSION"></a><span class="summary-name">VERSION</span> = <code title="'1.2.6'"><code class="variable-quote">'</code><code class="variable-string">1.2.6</code><code class="variable-quote">'</code></code>
+        <a name="VERSION"></a><span class="summary-name">VERSION</span> = <code title="'1.3.0'"><code class="variable-quote">'</code><code class="variable-string">1.3.0</code><code class="variable-quote">'</code></code>
     </td>
   </tr>
 <tr class="private">
@@ -502,24 +644,22 @@ hash(x)
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="_escape"></a><span class="summary-name">_escape</span> = <code title="re.compile(r'[&amp;&lt;&gt;&quot;\x80-\uffff]+')">re.compile(r'<code class="re-group">[</code>&amp;&lt;&gt;&quot;\x80<code class="re-op">-</code>\uffff<code class="re-group">]</code><code class="re-op">+</code>')</code>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="xml.etree.ElementTree-module.html#_escape_map" class="summary-name" onclick="show_private();">_escape_map</a> = <code title="{'&quot;': '&amp;quot;', '&amp;': '&amp;amp;', '&lt;': '&amp;lt;', '&gt;': '&amp;gt;'}"><code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">&quot;</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">&amp;quot;</code><code class="variable-quote">'</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">&amp;</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">&amp;amp;</code><code class="variable-quote">'</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">&lt;</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">&amp;lt;</code><code class="variable-quote">'</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">&gt;</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-ellipsis">...</code></code>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="xml.etree.ElementTree-module.html#_namespace_map" class="summary-name" onclick="show_private();">_namespace_map</a> = <code title="{'http://schemas.xmlsoap.org/wsdl/': 'wsdl',
+        <a href="xml.etree.ElementTree-module.html#_namespace_map" class="summary-name" onclick="show_private();">_namespace_map</a> = <code title="{'http://purl.org/dc/elements/1.1/': 'dc',
+ 'http://schemas.xmlsoap.org/wsdl/': 'wsdl',
  'http://www.w3.org/1999/02/22-rdf-syntax-ns#': 'rdf',
  'http://www.w3.org/1999/xhtml': 'html',
- 'http://www.w3.org/XML/1998/namespace': 'xml'}"><code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">http://schemas.xmlsoap.org/wsdl/</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">wsdl</code><code class="variable-quote">'</code><code class="variable-op">, </code><code class="variable-ellipsis">...</code></code>
+ 'http://www.w3.org/2001/XMLSchema': 'xs',
+ 'http://www.w3.org/2001/XMLSchema-instance': 'xsi',
+ 'http://www.w3.org/XML/1998/namespace': 'xml'}"><code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">http://purl.org/dc/elements/1.1/</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">dc</code><code class="variable-quote">'</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">h</code><code class="variable-ellipsis">...</code></code>
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="xml.etree.ElementTree-module.html#_serialize" class="summary-name" onclick="show_private();">_serialize</a> = <code title="{'html': &lt;function _serialize_html at 0x3d5c398&gt;,
+ 'text': &lt;function _serialize_text at 0x3d5c410&gt;,
+ 'xml': &lt;function _serialize_xml at 0x3d5c320&gt;}"><code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">html</code><code class="variable-quote">'</code><code class="variable-op">: </code>&lt;function _serialize_html at 0x3d5c398&gt;<code class="variable-op">,</code><code class="variable-ellipsis">...</code></code>
     </td>
   </tr>
 </table>
@@ -541,19 +681,27 @@ hash(x)
   </td>
 </tr>
 </table>
-<a name="_escape_map"></a>
+<a name="HTML_EMPTY"></a>
 <div class="private">
 <table class="details" border="1" cellpadding="3"
        cellspacing="0" width="100%" bgcolor="white">
 <tr><td>
-  <h3 class="epydoc">_escape_map</h3>
+  <h3 class="epydoc">HTML_EMPTY</h3>
   
   <dl class="fields">
   </dl>
   <dl class="fields">
     <dt>Value:</dt>
       <dd><table><tr><td><pre class="variable">
-<code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">&quot;</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">&amp;quot;</code><code class="variable-quote">'</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">&amp;</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">&amp;amp;</code><code class="variable-quote">'</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">&lt;</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">&amp;lt;</code><code class="variable-quote">'</code><code class="variable-op">, </code><code class="variable-quote">'</code><code class="variable-string">&gt;</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">&amp;gt;</code><code class="variable-quote">'</code><code class="variable-group">}</code>
+<code class="variable-group">set([</code><code class="variable-quote">'</code><code class="variable-string">area</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+     <code class="variable-quote">'</code><code class="variable-string">base</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+     <code class="variable-quote">'</code><code class="variable-string">basefont</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+     <code class="variable-quote">'</code><code class="variable-string">br</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+     <code class="variable-quote">'</code><code class="variable-string">col</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+     <code class="variable-quote">'</code><code class="variable-string">frame</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+     <code class="variable-quote">'</code><code class="variable-string">hr</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+     <code class="variable-quote">'</code><code class="variable-string">img</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+<code class="variable-ellipsis">...</code>
 </pre></td></tr></table>
 </dd>
   </dl>
@@ -571,10 +719,33 @@ hash(x)
   <dl class="fields">
     <dt>Value:</dt>
       <dd><table><tr><td><pre class="variable">
-<code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">http://schemas.xmlsoap.org/wsdl/</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">wsdl</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+<code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">http://purl.org/dc/elements/1.1/</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">dc</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+ <code class="variable-quote">'</code><code class="variable-string">http://schemas.xmlsoap.org/wsdl/</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">wsdl</code><code class="variable-quote">'</code><code class="variable-op">,</code>
  <code class="variable-quote">'</code><code class="variable-string">http://www.w3.org/1999/02/22-rdf-syntax-ns#</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">rdf</code><code class="variable-quote">'</code><code class="variable-op">,</code>
  <code class="variable-quote">'</code><code class="variable-string">http://www.w3.org/1999/xhtml</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">html</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+ <code class="variable-quote">'</code><code class="variable-string">http://www.w3.org/2001/XMLSchema</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">xs</code><code class="variable-quote">'</code><code class="variable-op">,</code>
+ <code class="variable-quote">'</code><code class="variable-string">http://www.w3.org/2001/XMLSchema-instance</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">xsi</code><code class="variable-quote">'</code><code class="variable-op">,</code>
  <code class="variable-quote">'</code><code class="variable-string">http://www.w3.org/XML/1998/namespace</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">'</code><code class="variable-string">xml</code><code class="variable-quote">'</code><code class="variable-group">}</code>
+</pre></td></tr></table>
+</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="_serialize"></a>
+<div class="private">
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <h3 class="epydoc">_serialize</h3>
+  
+  <dl class="fields">
+  </dl>
+  <dl class="fields">
+    <dt>Value:</dt>
+      <dd><table><tr><td><pre class="variable">
+<code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">html</code><code class="variable-quote">'</code><code class="variable-op">: </code>&lt;function _serialize_html at 0x3d5c398&gt;<code class="variable-op">,</code>
+ <code class="variable-quote">'</code><code class="variable-string">text</code><code class="variable-quote">'</code><code class="variable-op">: </code>&lt;function _serialize_text at 0x3d5c410&gt;<code class="variable-op">,</code>
+ <code class="variable-quote">'</code><code class="variable-string">xml</code><code class="variable-quote">'</code><code class="variable-op">: </code>&lt;function _serialize_xml at 0x3d5c320&gt;<code class="variable-group">}</code>
 </pre></td></tr></table>
 </dd>
   </dl>
@@ -612,7 +783,7 @@ hash(x)
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Fri Nov 11 18:38:25 2011
+    Generated by Epydoc 3.0.1 on Fri Apr 18 08:58:40 2014
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

@@ -228,7 +228,8 @@ expression.  Same as getroot().findtext(path)</td>
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a href="lxml.etree._ElementTree-class.html#getiterator" class="summary-sig-name">getiterator</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">tag</span>=<span class="summary-sig-default">None</span>)</span><br />
+        <span class="summary-sig-arg">tag</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">*tags</span>)</span><br />
       Returns a sequence or iterator of all elements in document order
 (depth first pre-order), starting with the root element.</td>
           <td align="right" valign="top">
@@ -281,8 +282,9 @@ expression.  Same as getroot().findtext(path)</td>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="iter"></a><span class="summary-sig-name">iter</span>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">tag</span>=<span class="summary-sig-default">None</span>)</span><br />
+          <td><span class="summary-sig"><a href="lxml.etree._ElementTree-class.html#iter" class="summary-sig-name">iter</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">tag</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">*tags</span>)</span><br />
       Creates an iterator for the root element.  The iterator loops over
 all elements in this tree, in document order.</td>
           <td align="right" valign="top">
@@ -368,7 +370,8 @@ Same as getroot().iterfind(path).</td>
         <span class="summary-sig-arg">standalone</span>=<span class="summary-sig-default">None</span>,
         <span class="summary-sig-arg">compression</span>=<span class="summary-sig-default">0</span>,
         <span class="summary-sig-arg">exclusive</span>=<span class="summary-sig-default">False</span>,
-        <span class="summary-sig-arg">with_comments</span>=<span class="summary-sig-default">True</span>)</span><br />
+        <span class="summary-sig-arg">with_comments</span>=<span class="summary-sig-default">True</span>,
+        <span class="summary-sig-arg">inclusive_ns_prefixes</span>=<span class="summary-sig-default">None</span>)</span><br />
       Write the tree to a filename, file or file-like object.</td>
           <td align="right" valign="top">
             
@@ -389,7 +392,8 @@ Same as getroot().iterfind(path).</td>
         <span class="summary-sig-arg">file</span>,
         <span class="summary-sig-arg">exclusive</span>=<span class="summary-sig-default">False</span>,
         <span class="summary-sig-arg">with_comments</span>=<span class="summary-sig-default">True</span>,
-        <span class="summary-sig-arg">compression</span>=<span class="summary-sig-default">0</span>)</span><br />
+        <span class="summary-sig-arg">compression</span>=<span class="summary-sig-default">0</span>,
+        <span class="summary-sig-arg">inclusive_ns_prefixes</span>=<span class="summary-sig-default">None</span>)</span><br />
       C14N write of document. Always writes UTF-8.</td>
           <td align="right" valign="top">
             
@@ -669,7 +673,8 @@ prefixes in the path expression.</p>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">getiterator</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">tag</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">tag</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">*tags</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     >&nbsp;
@@ -678,11 +683,8 @@ prefixes in the path expression.</p>
   
   <p>Returns a sequence or iterator of all elements in document order
 (depth first pre-order), starting with the root element.</p>
-<p>Can be restricted to find only elements with a specific tag
-(pass <tt class="rst-docutils literal"><span class="pre">tag=&quot;xyz&quot;</span></tt> or <tt class="rst-docutils literal"><span class="pre">tag=&quot;{ns}xyz&quot;</span></tt>) or from a namespace
-(pass <tt class="rst-docutils literal"><span class="pre">tag=&quot;{ns}*&quot;</span></tt>).</p>
-<p>You can also pass the Element, Comment, ProcessingInstruction and
-Entity factory functions to look only for the specific element type.</p>
+<p>Can be restricted to find only elements with a specific tag,
+see <a href="lxml.etree._Element-class.html#iter" class="link">_Element.iter</a>.</p>
   <dl class="fields">
   </dl>
 <div class="fields">      <p><strong>Deprecated:</strong>
@@ -695,6 +697,30 @@ method in new code if you require backwards compatibility
 with older versions of lxml or ElementTree.
       </p>
 </div></td></tr></table>
+</div>
+<a name="iter"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">iter</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">tag</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">*tags</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    >&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Creates an iterator for the root element.  The iterator loops over
+all elements in this tree, in document order.</p>
+<p>Can be restricted to find only elements with a specific tag,
+see <a href="lxml.etree._Element-class.html#iter" class="link">_Element.iter</a>.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
 </div>
 <a name="iterfind"></a>
 <div>
@@ -764,7 +790,8 @@ class directly.</p>
         <span class="sig-arg">standalone</span>=<span class="sig-default">None</span>,
         <span class="sig-arg">compression</span>=<span class="sig-default">0</span>,
         <span class="sig-arg">exclusive</span>=<span class="sig-default">False</span>,
-        <span class="sig-arg">with_comments</span>=<span class="sig-default">True</span>)</span>
+        <span class="sig-arg">with_comments</span>=<span class="sig-default">True</span>,
+        <span class="sig-arg">inclusive_ns_prefixes</span>=<span class="sig-default">None</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     >&nbsp;
@@ -782,6 +809,14 @@ uncommented C14N serialisation respectively.</p>
 output an XML declaration with the corresponding
 <tt class="rst-docutils literal">standalone</tt> flag.</p>
 <p>The <tt class="rst-docutils literal">compression</tt> option enables GZip compression level 1-9.</p>
+<p>The <tt class="rst-docutils literal">inclusive_ns_prefixes</tt> should be a list of namespace strings
+(i.e. ['xs', 'xsi']) that will be promoted to the top-level element
+during exclusive C14N serialisation.  This parameter is ignored if
+exclusive mode=False.</p>
+<p>If exclusive=True and no list is provided, a namespace will only be
+rendered if it is used by the immediate parent or one of its attributes
+and its prefix and values have not already been rendered by an ancestor
+of the namespace node's parent element.</p>
   <dl class="fields">
   </dl>
 </td></tr></table>
@@ -797,7 +832,8 @@ output an XML declaration with the corresponding
         <span class="sig-arg">file</span>,
         <span class="sig-arg">exclusive</span>=<span class="sig-default">False</span>,
         <span class="sig-arg">with_comments</span>=<span class="sig-default">True</span>,
-        <span class="sig-arg">compression</span>=<span class="sig-default">0</span>)</span>
+        <span class="sig-arg">compression</span>=<span class="sig-default">0</span>,
+        <span class="sig-arg">inclusive_ns_prefixes</span>=<span class="sig-default">None</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     >&nbsp;
@@ -806,6 +842,14 @@ output an XML declaration with the corresponding
   
   <p>C14N write of document. Always writes UTF-8.</p>
 <p>The <tt class="rst-docutils literal">compression</tt> option enables GZip compression level 1-9.</p>
+<p>The <tt class="rst-docutils literal">inclusive_ns_prefixes</tt> should be a list of namespace strings
+(i.e. ['xs', 'xsi']) that will be promoted to the top-level element
+during exclusive C14N serialisation.  This parameter is ignored if
+exclusive mode=False.</p>
+<p>If exclusive=True and no list is provided, a namespace will only be
+rendered if it is used by the immediate parent or one of its attributes
+and its prefix and values have not already been rendered by an ancestor
+of the namespace node's parent element.</p>
   <dl class="fields">
   </dl>
 </td></tr></table>
@@ -954,7 +998,7 @@ class directly.</p>
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Fri Nov 11 18:38:26 2011
+    Generated by Epydoc 3.0.1 on Fri Apr 18 08:58:40 2014
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

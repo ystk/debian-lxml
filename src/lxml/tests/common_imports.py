@@ -1,6 +1,19 @@
-import unittest
+import os
 import os.path
-import re, gc, sys
+import re
+import gc
+import sys
+import unittest
+
+try:
+    import urlparse
+except ImportError:
+    import urllib.parse as urlparse 
+
+try:
+    from urllib import pathname2url
+except:
+    from urllib.request import pathname2url
 
 from lxml import etree
 
@@ -13,11 +26,16 @@ def make_version_tuple(version_string):
             l.append(part)
     return tuple(l)
 
+IS_PYPY = (getattr(sys, 'implementation', None) == 'pypy' or
+           getattr(sys, 'pypy_version_info', None) is not None)
+
+IS_PYTHON3 = sys.version_info[0] >= 3
+
 try:
-    from elementtree import ElementTree # standard ET
+    from xml.etree import ElementTree # Python 2.5+
 except ImportError:
     try:
-        from xml.etree import ElementTree # Python 2.5+
+        from elementtree import ElementTree # standard ET
     except ImportError:
         ElementTree = None
 
@@ -27,10 +45,10 @@ else:
     ET_VERSION = (0,0,0)
 
 try:
-    import cElementTree # standard ET
+    from xml.etree import cElementTree # Python 2.5+
 except ImportError:
     try:
-        from xml.etree import cElementTree # Python 2.5+
+        import cElementTree # standard ET
     except ImportError:
         cElementTree = None
 
@@ -70,6 +88,26 @@ except NameError:
         return seq
 else:
     locals()['sorted'] = sorted
+
+
+try:
+    next
+except NameError:
+    def next(it):
+        return it.next()
+else:
+    locals()['next'] = next
+
+
+try:
+    import pytest
+except ImportError:
+    class skipif(object):
+        "Using a class because a function would bind into a method when used in classes"
+        def __init__(self, *args): pass
+        def __call__(self, func, *args): return func
+else:
+    skipif = pytest.mark.skipif
 
 def _get_caller_relative_path(filename, frame_depth=2):
     module = sys.modules[sys._getframe(frame_depth).f_globals['__name__']]
@@ -123,6 +161,16 @@ else:
         return doctest.DocTestCase(
             doctest_parser.get_doctest(
                 doctests, {}, os.path.basename(filename), filename, 0))
+
+try:
+    skipIf = unittest.skipIf
+except AttributeError:
+    def skipIf(condition, why,
+               _skip=lambda test_method: None,
+               _keep=lambda test_method: test_method):
+        if condition:
+            return _skip
+        return _keep
 
 class HelperTestCase(unittest.TestCase):
     def tearDown(self):
@@ -217,6 +265,13 @@ class LargeFileLikeUnicode(LargeFileLike):
 def fileInTestDir(name):
     _testdir = os.path.dirname(__file__)
     return os.path.join(_testdir, name)
+
+def path2url(path):
+    return urlparse.urljoin(
+        'file:', pathname2url(path))
+
+def fileUrlInTestDir(name):
+    return path2url(fileInTestDir(name))
 
 def read_file(name, mode='r'):
     f = open(name, mode)

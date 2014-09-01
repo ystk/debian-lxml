@@ -1,7 +1,17 @@
 from docstructure import SITE_STRUCTURE, HREF_MAP, BASENAME_MAP
-from lxml.etree import (parse, fromstring, tostring, ElementTree,
+from lxml.etree import (parse, fromstring, ElementTree,
                         Element, SubElement, XPath, XML)
-import os, shutil, re, sys, copy, time
+import os
+import re
+import sys
+import copy
+import shutil
+import subprocess
+
+try:
+    from io import open as open_file
+except ImportError:
+    from codecs import open as open_file
 
 RST2HTML_OPTIONS = " ".join([
     '--no-toc-backlinks',
@@ -106,11 +116,53 @@ def inject_flatter_button(tree):
         '</p>'
         ))
 
+def inject_donate_buttons(lxml_path, rst2html_script, tree):
+    command = ([sys.executable, rst2html_script]
+               + RST2HTML_OPTIONS.split() + [os.path.join(lxml_path, 'README.rst')])
+    rst2html = subprocess.Popen(command, stdout=subprocess.PIPE)
+    stdout, _ = rst2html.communicate()
+    readme = fromstring(stdout)
+
+    intro_div = tree.xpath('h:body//h:div[@id = "introduction"][1]',
+                           namespaces=htmlnsmap)[0]
+    support_div = readme.xpath('h:body//h:div[@id = "support-the-project"][1]',
+                               namespaces=htmlnsmap)[0]
+    intro_div.append(support_div)
+
+    legal = readme.xpath('h:body//h:div[@id = "legal-notice-for-donations"][1]',
+                         namespaces=htmlnsmap)[0]
+    last_div = tree.xpath('h:body//h:div//h:div', namespaces=htmlnsmap)[-1]
+    last_div.addnext(legal)
+
 def rest2html(script, source_path, dest_path, stylesheet_url):
     command = ('%s %s %s --stylesheet=%s --link-stylesheet %s > %s' %
                (sys.executable, script, RST2HTML_OPTIONS,
                 stylesheet_url, source_path, dest_path))
-    os.system(command)
+    subprocess.call(command, shell=True)
+
+def convert_changelog(lxml_path, changelog_file_path, rst2html_script, stylesheet_url):
+    f = open_file(os.path.join(lxml_path, 'CHANGES.txt'), 'r', encoding='utf-8')
+    try:
+        content = f.read()
+    finally:
+        f.close()
+
+    links = dict(LP='`%s <https://bugs.launchpad.net/lxml/+bug/%s>`_',
+                 GH='`%s <https://github.com/lxml/lxml/issues/%s>`_')
+    replace_tracker_links = re.compile('((LP|GH)#([0-9]+))').sub
+    def insert_link(match):
+        text, ref_type, ref_id = match.groups()
+        return links[ref_type] % (text, ref_id)
+    content = replace_tracker_links(insert_link, content)
+
+    command = [sys.executable, rst2html_script] + RST2HTML_OPTIONS.split() + [
+        '--link-stylesheet', '--stylesheet', stylesheet_url ]
+    out_file = open(changelog_file_path, 'wb')
+    try:
+        rst2html = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=out_file)
+        rst2html.communicate(content.encode('utf8'))
+    finally:
+        out_file.close()
 
 def publish(dirname, lxml_path, release):
     if not os.path.exists(dirname):
@@ -146,17 +198,19 @@ def publish(dirname, lxml_path, release):
                 outpath = os.path.join(dirname, outname)
 
                 rest2html(script, path, outpath, stylesheet_url)
-
                 tree = parse(outpath)
-                trees[filename] = (tree, basename, outpath)
 
+                if filename == 'main.txt':
+                    # inject donation buttons
+                    #inject_flatter_button(tree)
+                    inject_donate_buttons(lxml_path, script, tree)
+
+                trees[filename] = (tree, basename, outpath)
                 build_menu(tree, basename, section_head)
 
     # also convert CHANGES.txt
-    rest2html(script,
-              os.path.join(lxml_path, 'CHANGES.txt'),
-              os.path.join(dirname, 'changes-%s.html' % release),
-              '')
+    convert_changelog(lxml_path, os.path.join(dirname, 'changes-%s.html' % release),
+                      script, stylesheet_url)
 
     # generate sitemap from menu
     sitemap = XML('''\
@@ -182,9 +236,6 @@ def publish(dirname, lxml_path, release):
 
     # integrate sitemap into the menu
     SubElement(SubElement(menu[-1], 'li'), 'a', href='http://lxml.de/sitemap.html').text = 'Sitemap'
-
-    # inject flattr button
-    inject_flatter_button(trees['main.txt'][0])
 
     # integrate menu into web pages
     for tree, basename, outpath in trees.itervalues():
