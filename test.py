@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.3
+#!/usr/bin/env python
 #
 # SchoolTool - common information systems platform for school administration
 # Copyright (c) 2003 Shuttleworth Foundation
@@ -561,6 +561,19 @@ def main(argv):
 
     # Finding and importing
     test_files = get_test_files(cfg)
+
+    if sys.version_info[:2] < (2,5):
+        # exclude tests that require the 'with' statement
+        test_files = [
+            test_file for test_file in test_files
+            if 'test_incremental_xmlfile.py' not in test_file]
+
+    if sys.version_info[:2] < (2,6):
+        # exclude tests that require recent Python features
+        test_files = [
+            test_file for test_file in test_files
+            if 'test_http_io.py' not in test_file]
+
     if cfg.list_tests or cfg.run_tests:
         test_cases = get_test_cases(test_files, cfg, tracer=tracer)
     if cfg.list_hooks or cfg.run_tests:

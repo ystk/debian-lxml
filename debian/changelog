@@ -1,3 +1,84 @@
+lxml (3.3.5-1) unstable; urgency=medium
+
+  * New upstrea version 3.3.5.
+
+ -- Matthias Klose <doko@debian.org>  Sun, 18 May 2014 20:03:12 +0200
+
+lxml (3.3.2-1) unstable; urgency=medium
+
+  * New upstrea version 3.3.2.
+    - Re-add lost properties of iterparse objects. Closes: #740226,
+      #740102.
+
+ -- Matthias Klose <doko@ubuntu.com>  Mon, 03 Mar 2014 23:22:35 +0100
+
+lxml (3.3.1-1) unstable; urgency=medium
+
+  * New upstream version 3.3.1.
+
+ -- Matthias Klose <doko@debian.org>  Mon, 17 Feb 2014 11:20:43 +0100
+
+lxml (3.3.0~beta4-1) experimental; urgency=medium
+
+  * New upstream version 3.3.0 beta4.
+  * Update homepage. Closes: #698851.
+
+ -- Matthias Klose <doko@debian.org>  Tue, 14 Jan 2014 09:27:36 +0100
+
+lxml (3.3.0~beta2-1) experimental; urgency=low
+
+  * New upstream version 3.3.0 beta2.
+
+ -- Matthias Klose <doko@debian.org>  Thu, 26 Dec 2013 00:37:23 +0100
+
+lxml (3.2.0-1) unstable; urgency=low
+
+  * New upstream version.
+
+ -- Matthias Klose <doko@debian.org>  Sat, 11 May 2013 16:53:02 +0200
+
+lxml (3.1.0-1) experimental; urgency=low
+
+  * New upstream version.
+
+ -- Matthias Klose <doko@debian.org>  Tue, 19 Feb 2013 21:47:31 +0100
+
+lxml (3.1~beta1-1) experimental; urgency=low
+
+  * New upstream version.
+
+ -- Matthias Klose <doko@debian.org>  Sun, 27 Jan 2013 22:14:53 +0100
+
+lxml (3.0.1-1) experimental; urgency=low
+
+  * New upstream version.
+
+ -- Matthias Klose <doko@debian.org>  Sun, 21 Oct 2012 19:29:34 +0200
+
+lxml (2.3.5-1) unstable; urgency=low
+
+  * New upstream version.
+    - Features added:
+      * lxml.html.tostring() gained new serialisation options
+        ``with_tail`` and ``doctype``.
+    - Bugs fixed:
+      * Crash when merging text nodes in ``element.remove()``.
+      * Crash in sax/target parser when reporting empty doctype.
+      * Crash when building an nsmap (Element property) with empty
+        namespace URIs.
+      * Crash due to race condition when errors (or user messages) occur
+        during threaded XSLT processing.
+      * XSLT stylesheet compilation could ignore compilation errors.
+      * Fixed a crash when using ``iterparse()`` for HTML parsing and
+        requesting start events.
+      * Fixed parsing of more selectors in cssselect.  Whitespace before
+        pseudo-elements and pseudo-classes is significant as it is a
+        descendant combinator.
+      * lxml.html.diff no longer raises an exception when hitting
+        'img' tags without 'src' attribute.
+
+ -- Matthias Klose <doko@debian.org>  Mon, 17 Sep 2012 13:29:26 +0200
+
 lxml (2.3.2-1) unstable; urgency=low
 
   * New upstream version.

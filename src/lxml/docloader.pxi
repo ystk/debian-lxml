@@ -7,9 +7,11 @@ ctypedef enum _InputDocumentDataType:
     PARSER_DATA_FILENAME
     PARSER_DATA_FILE
 
+@cython.final
+@cython.internal
 cdef class _InputDocument:
     cdef _InputDocumentDataType _type
-    cdef object _data_bytes
+    cdef bytes _data_bytes
     cdef object _filename
     cdef object _file
     cdef bint _close_file
@@ -53,9 +55,9 @@ cdef class Resolver:
         argument.
         """
         cdef _InputDocument doc_ref
-        if python.PyUnicode_Check(string):
-            string = python.PyUnicode_AsUTF8String(string)
-        elif not python.PyBytes_Check(string):
+        if isinstance(string, unicode):
+            string = (<unicode>string).encode('utf8')
+        elif not isinstance(string, bytes):
             raise TypeError, "argument must be a byte string or unicode string"
         doc_ref = _InputDocument()
         doc_ref._type = PARSER_DATA_STRING
@@ -106,6 +108,8 @@ cdef class Resolver:
         doc_ref._file = f
         return doc_ref
 
+@cython.final
+@cython.internal
 cdef class _ResolverRegistry:
     cdef object _resolvers
     cdef Resolver _default_resolver
@@ -153,6 +157,7 @@ cdef class _ResolverRegistry:
     def __repr__(self):
         return repr(self._resolvers)
 
+@cython.internal
 cdef class _ResolverContext(_ExceptionContext):
     cdef _ResolverRegistry _resolvers
     cdef _TempStore _storage

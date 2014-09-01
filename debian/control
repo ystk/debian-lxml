@@ -2,16 +2,14 @@ Source: lxml
 Section: python
 Priority: optional
 Maintainer: Matthias Klose <doko@debian.org>
-Build-Depends: debhelper (>= 5.0.37.1), python-all-dev (>= 2.6.6-1~), python-all-dbg, python3-all-dev (>= 3.1.2-10~), python3-all-dbg, python-pyrex (>= 0.9.4.1), libxml2-dev, libxslt1-dev, zlib1g-dev, python-setuptools, python3-setuptools
+Build-Depends: debhelper (>= 5.0.37.1), python-all-dev (>= 2.6.6-1~), python-all-dbg, python3-all-dev (>= 3.3.3), python3-all-dbg, python-pyrex (>= 0.9.4.1), libxml2-dev, libxslt1-dev, zlib1g-dev, python-setuptools, python3-setuptools (>= 0.6.29)
 X-Python-Version: all
-Standards-Version: 3.9.2
-Homepage: http://codespeak.net/lxml/
+Standards-Version: 3.9.5
+Homepage: http://lxml.de/
 
 Package: python-lxml
 Architecture: any
 Depends: ${python:Depends}, ${shlibs:Depends}, ${misc:Depends}
-Conflicts: python2.3-lxml, python2.4-lxml
-Replaces: python2.3-lxml, python2.4-lxml
 Provides: ${python:Provides}
 Suggests: python-lxml-dbg
 Description: pythonic binding for the libxml2 and libxslt libraries

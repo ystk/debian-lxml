@@ -115,7 +115,7 @@ binary-arch: build install
 	dh_testdir
 	dh_testroot
 	dh_installchangelogs -a CHANGES.txt
-	dh_installdocs -a CREDITS.txt README.txt TODO.txt
+	dh_installdocs -a CREDITS.txt README.rst TODO.txt
 	dh_installexamples -a samples/*
 	dh_python2 -a
 	dh_python3 -a

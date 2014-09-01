@@ -1,5 +1,6 @@
 # read-only tree implementation
 
+@cython.internal
 cdef class _ReadOnlyProxy:
     u"A read-only proxy class suitable for PIs/Comments (for internal use only!)."
     cdef bint _free_after_use
@@ -13,10 +14,11 @@ cdef class _ReadOnlyProxy:
     cdef int _assertNode(self) except -1:
         u"""This is our way of saying: this proxy is invalid!
         """
-        assert self._c_node is not NULL, u"Proxy invalidated!"
+        if not self._c_node:
+            raise ReferenceError("Proxy invalidated!")
         return 0
 
-    cdef int _raise_unsupported_type(self):
+    cdef int _raise_unsupported_type(self) except -1:
         raise TypeError("Unsupported node type: %d" % self._c_node.type)
 
     cdef void free_after_use(self):
@@ -107,7 +109,7 @@ cdef class _ReadOnlyProxy:
         cdef _node_to_node_function next_element
         cdef list result
         self._assertNode()
-        if python.PySlice_Check(x):
+        if isinstance(x, slice):
             # slicing
             if _isFullSlice(<slice>x):
                 return _collectChildren(self)
@@ -241,6 +243,8 @@ cdef class _ReadOnlyProxy:
         return None
 
 
+@cython.final
+@cython.internal
 cdef class _ReadOnlyPIProxy(_ReadOnlyProxy):
     u"A read-only proxy for processing instructions (for internal use only!)"
     property target:
@@ -248,6 +252,8 @@ cdef class _ReadOnlyPIProxy(_ReadOnlyProxy):
             self._assertNode()
             return funicode(self._c_node.name)
 
+@cython.final
+@cython.internal
 cdef class _ReadOnlyEntityProxy(_ReadOnlyProxy):
     u"A read-only proxy for entity references (for internal use only!)"
     property name:
@@ -256,15 +262,16 @@ cdef class _ReadOnlyEntityProxy(_ReadOnlyProxy):
 
         def __set__(self, value):
             value_utf = _utf8(value)
-            assert u'&' not in value and u';' not in value, \
-                u"Invalid entity name '%s'" % value
-            tree.xmlNodeSetName(self._c_node, _cstr(value_utf))
+            if u'&' in value or u';' in value:
+                raise ValueError(u"Invalid entity name '%s'" % value)
+            tree.xmlNodeSetName(self._c_node, _xcstr(value_utf))
 
     property text:
         def __get__(self):
             return u'&%s;' % funicode(self._c_node.name)
 
 
+@cython.internal
 cdef class _ReadOnlyElementProxy(_ReadOnlyProxy):
     u"The main read-only Element proxy class (for internal use only!)."
 
@@ -354,11 +361,14 @@ cdef _freeReadOnlyProxies(_ReadOnlyProxy sourceProxy):
 # This class does not imply any restrictions on modifiability or
 # read-only status of the node, so use with caution.
 
+@cython.internal
 cdef class _OpaqueNodeWrapper:
     cdef tree.xmlNode* _c_node
     def __init__(self):
-        raise TypeError, u"This type cannot be instatiated from Python"
+        raise TypeError, u"This type cannot be instantiated from Python"
 
+@cython.final
+@cython.internal
 cdef class _OpaqueDocumentWrapper(_OpaqueNodeWrapper):
     cdef int _assertNode(self) except -1:
         u"""This is our way of saying: this proxy is invalid!
@@ -402,6 +412,7 @@ cdef _OpaqueNodeWrapper _newOpaqueAppendOnlyNodeWrapper(xmlNode* c_node):
 
 # element proxies that allow restricted modification
 
+@cython.internal
 cdef class _ModifyContentOnlyProxy(_ReadOnlyProxy):
     u"""A read-only proxy that allows changing the text content.
     """
@@ -415,15 +426,16 @@ cdef class _ModifyContentOnlyProxy(_ReadOnlyProxy):
 
         def __set__(self, value):
             cdef tree.xmlDict* c_dict
-            cdef char* c_text
             self._assertNode()
             if value is None:
-                c_text = NULL
+                c_text = <const_xmlChar*>NULL
             else:
                 value = _utf8(value)
-                c_text = _cstr(value)
+                c_text = _xcstr(value)
             tree.xmlNodeSetContent(self._c_node, c_text)
 
+@cython.final
+@cython.internal
 cdef class _ModifyContentOnlyPIProxy(_ModifyContentOnlyProxy):
     u"""A read-only proxy that allows changing the text/target content of a
     processing instruction.
@@ -436,9 +448,11 @@ cdef class _ModifyContentOnlyPIProxy(_ModifyContentOnlyProxy):
         def __set__(self, value):
             self._assertNode()
             value = _utf8(value)
-            c_text = _cstr(value)
+            c_text = _xcstr(value)
             tree.xmlNodeSetName(self._c_node, c_text)
 
+@cython.final
+@cython.internal
 cdef class _ModifyContentOnlyEntityProxy(_ModifyContentOnlyProxy):
     u"A read-only proxy for entity references (for internal use only!)"
     property name:
@@ -449,10 +463,12 @@ cdef class _ModifyContentOnlyEntityProxy(_ModifyContentOnlyProxy):
             value = _utf8(value)
             assert u'&' not in value and u';' not in value, \
                 u"Invalid entity name '%s'" % value
-            c_text = _cstr(value)
+            c_text = _xcstr(value)
             tree.xmlNodeSetName(self._c_node, c_text)
 
 
+@cython.final
+@cython.internal
 cdef class _AppendOnlyElementProxy(_ReadOnlyElementProxy):
     u"""A read-only element that allows adding children and changing the
     text content (i.e. everything that adds to the subtree).
@@ -488,8 +504,7 @@ cdef class _AppendOnlyElementProxy(_ReadOnlyElementProxy):
         def __set__(self, value):
             self._assertNode()
             if isinstance(value, QName):
-                value = python.PyUnicode_FromEncodedObject(
-                    _resolveQNameText(self, value), 'UTF-8', 'strict')
+                value = _resolveQNameText(self, value).decode('utf8')
             _setNodeText(self._c_node, value)
 
 

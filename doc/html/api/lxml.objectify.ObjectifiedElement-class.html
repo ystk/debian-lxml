@@ -381,82 +381,9 @@ name.</td>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="lxml.objectify.ObjectifiedElement-class.html#find" class="summary-sig-name">find</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">path</span>)</span><br />
-      Finds the first matching subelement, by tag name or path.</td>
-          <td align="right" valign="top">
-            
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a href="lxml.objectify.ObjectifiedElement-class.html#findall" class="summary-sig-name">findall</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">path</span>)</span><br />
-      Finds all matching subelements, by tag name or path.</td>
-          <td align="right" valign="top">
-            
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a href="lxml.objectify.ObjectifiedElement-class.html#findtext" class="summary-sig-name">findtext</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">path</span>,
-        <span class="summary-sig-arg">default</span>=<span class="summary-sig-default">None</span>)</span><br />
-      Finds text for the first matching subelement, by tag name or path.</td>
-          <td align="right" valign="top">
-            
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
           <td><span class="summary-sig"><a href="lxml.objectify.ObjectifiedElement-class.html#getchildren" class="summary-sig-name">getchildren</a>(<span class="summary-sig-arg">self</span>)</span><br />
       Returns a sequence of all direct children.  The elements are
 returned in document order.</td>
-          <td align="right" valign="top">
-            
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a href="lxml.objectify.ObjectifiedElement-class.html#iterfind" class="summary-sig-name">iterfind</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">path</span>)</span><br />
-      Iterates over all matching subelements, by tag name or path.</td>
           <td align="right" valign="top">
             
             
@@ -483,6 +410,9 @@ returned in document order.</td>
       <code><a href="lxml.etree._Element-class.html#append">append</a></code>,
       <code><a href="lxml.etree._Element-class.html#clear">clear</a></code>,
       <code><a href="lxml.etree._Element-class.html#extend">extend</a></code>,
+      <code><a href="lxml.etree._Element-class.html#find">find</a></code>,
+      <code><a href="lxml.etree._Element-class.html#findall">findall</a></code>,
+      <code><a href="lxml.etree._Element-class.html#findtext">findtext</a></code>,
       <code><a href="lxml.etree._Element-class.html#get">get</a></code>,
       <code><a href="lxml.etree._Element-class.html#getiterator">getiterator</a></code>,
       <code><a href="lxml.etree._Element-class.html#getnext">getnext</a></code>,
@@ -496,6 +426,7 @@ returned in document order.</td>
       <code><a href="lxml.etree._Element-class.html#iterancestors">iterancestors</a></code>,
       <code><a href="lxml.etree._Element-class.html#iterchildren">iterchildren</a></code>,
       <code><a href="lxml.etree._Element-class.html#iterdescendants">iterdescendants</a></code>,
+      <code><a href="lxml.etree._Element-class.html#iterfind">iterfind</a></code>,
       <code><a href="lxml.etree._Element-class.html#itersiblings">itersiblings</a></code>,
       <code><a href="lxml.etree._Element-class.html#itertext">itertext</a></code>,
       <code><a href="lxml.etree._Element-class.html#keys">keys</a></code>,
@@ -873,85 +804,6 @@ items to the siblings.</li>
   </dl>
 </td></tr></table>
 </div>
-<a name="find"></a>
-<div>
-<table class="details" border="1" cellpadding="3"
-       cellspacing="0" width="100%" bgcolor="white">
-<tr><td>
-  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-  <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">find</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">path</span>)</span>
-  </h3>
-  </td><td align="right" valign="top"
-    >&nbsp;
-    </td>
-  </tr></table>
-  
-  <p>Finds the first matching subelement, by tag name or path.</p>
-<p>The optional <tt class="rst-rst-docutils literal rst-docutils literal">namespaces</tt> argument accepts a
-prefix-to-namespace mapping that allows the usage of XPath
-prefixes in the path expression.</p>
-  <dl class="fields">
-    <dt>Overrides:
-        <a href="lxml.etree._Element-class.html#find">etree._Element.find</a>
-    </dt>
-  </dl>
-</td></tr></table>
-</div>
-<a name="findall"></a>
-<div>
-<table class="details" border="1" cellpadding="3"
-       cellspacing="0" width="100%" bgcolor="white">
-<tr><td>
-  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-  <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">findall</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">path</span>)</span>
-  </h3>
-  </td><td align="right" valign="top"
-    >&nbsp;
-    </td>
-  </tr></table>
-  
-  <p>Finds all matching subelements, by tag name or path.</p>
-<p>The optional <tt class="rst-rst-docutils literal rst-docutils literal">namespaces</tt> argument accepts a
-prefix-to-namespace mapping that allows the usage of XPath
-prefixes in the path expression.</p>
-  <dl class="fields">
-    <dt>Overrides:
-        <a href="lxml.etree._Element-class.html#findall">etree._Element.findall</a>
-    </dt>
-  </dl>
-</td></tr></table>
-</div>
-<a name="findtext"></a>
-<div>
-<table class="details" border="1" cellpadding="3"
-       cellspacing="0" width="100%" bgcolor="white">
-<tr><td>
-  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-  <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">findtext</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">path</span>,
-        <span class="sig-arg">default</span>=<span class="sig-default">None</span>)</span>
-  </h3>
-  </td><td align="right" valign="top"
-    >&nbsp;
-    </td>
-  </tr></table>
-  
-  <p>Finds text for the first matching subelement, by tag name or path.</p>
-<p>The optional <tt class="rst-rst-docutils literal rst-docutils literal">namespaces</tt> argument accepts a
-prefix-to-namespace mapping that allows the usage of XPath
-prefixes in the path expression.</p>
-  <dl class="fields">
-    <dt>Overrides:
-        <a href="lxml.etree._Element-class.html#findtext">etree._Element.findtext</a>
-    </dt>
-  </dl>
-</td></tr></table>
-</div>
 <a name="getchildren"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
@@ -971,32 +823,6 @@ returned in document order.
   <dl class="fields">
     <dt>Overrides:
         <a href="lxml.etree._Element-class.html#getchildren">etree._Element.getchildren</a>
-    </dt>
-  </dl>
-</td></tr></table>
-</div>
-<a name="iterfind"></a>
-<div>
-<table class="details" border="1" cellpadding="3"
-       cellspacing="0" width="100%" bgcolor="white">
-<tr><td>
-  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-  <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">iterfind</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">path</span>)</span>
-  </h3>
-  </td><td align="right" valign="top"
-    >&nbsp;
-    </td>
-  </tr></table>
-  
-  <p>Iterates over all matching subelements, by tag name or path.</p>
-<p>The optional <tt class="rst-rst-docutils literal rst-docutils literal">namespaces</tt> argument accepts a
-prefix-to-namespace mapping that allows the usage of XPath
-prefixes in the path expression.</p>
-  <dl class="fields">
-    <dt>Overrides:
-        <a href="lxml.etree._Element-class.html#iterfind">etree._Element.iterfind</a>
     </dt>
   </dl>
 </td></tr></table>
@@ -1033,7 +859,7 @@ prefixes in the path expression.</p>
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Fri Nov 11 18:38:27 2011
+    Generated by Epydoc 3.0.1 on Fri Apr 18 08:58:41 2014
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

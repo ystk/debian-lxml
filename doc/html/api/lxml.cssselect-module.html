@@ -64,6 +64,7 @@
 <p>CSS Selectors based on XPath.</p>
 <p>This module supports selecting XML/HTML tags based on CSS selectors.
 See the <a href="lxml.cssselect.CSSSelector-class.html" class="link">CSSSelector</a> class for details.</p>
+<p>This is a thin wrapper around cssselect 0.7 or later.</p>
 
 <!-- ==================== CLASSES ==================== -->
 <a name="section-Classes"></a>
@@ -86,14 +87,41 @@ See the <a href="lxml.cssselect.CSSSelector-class.html" class="link">CSSSelector
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="lxml.cssselect.SelectorSyntaxError-class.html" class="summary-name">SelectorSyntaxError</a>
+        <a href="cssselect.parser.SelectorSyntaxError-class.html" class="summary-name">SelectorSyntaxError</a><br />
+      Parsing a selector that does not match the grammar.
     </td>
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="lxml.cssselect.ExpressionError-class.html" class="summary-name">ExpressionError</a>
+        <a href="cssselect.xpath.ExpressionError-class.html" class="summary-name">ExpressionError</a><br />
+      Unknown or unsupported selector (eg. pseudo-class).
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="cssselect.parser.SelectorError-class.html" class="summary-name">SelectorError</a><br />
+      Common parent for :class:`SelectorSyntaxError` and
+:class:`ExpressionError`.
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="lxml.cssselect.LxmlTranslator-class.html" class="summary-name" onclick="show_private();">LxmlTranslator</a><br />
+      A custom CSS selector to XPath translator with lxml-specific extensions.
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+        <a href="lxml.cssselect.LxmlHTMLTranslator-class.html" class="summary-name" onclick="show_private();">LxmlHTMLTranslator</a><br />
+      lxml extensions + HTML support.
     </td>
   </tr>
 <tr>
@@ -102,119 +130,6 @@ See the <a href="lxml.cssselect.CSSSelector-class.html" class="link">CSSSelector
     </td><td class="summary">
         <a href="lxml.cssselect.CSSSelector-class.html" class="summary-name">CSSSelector</a><br />
       A CSS selector.
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.cssselect._UniToken-class.html" class="summary-name" onclick="show_private();">_UniToken</a>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.cssselect.Symbol-class.html" class="summary-name" onclick="show_private();">Symbol</a>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.cssselect.String-class.html" class="summary-name" onclick="show_private();">String</a>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.cssselect.Token-class.html" class="summary-name" onclick="show_private();">Token</a>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.cssselect.Class-class.html" class="summary-name" onclick="show_private();">Class</a><br />
-      Represents selector.class_name
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.cssselect.Function-class.html" class="summary-name" onclick="show_private();">Function</a><br />
-      Represents selector:name(expr)
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.cssselect.Pseudo-class.html" class="summary-name" onclick="show_private();">Pseudo</a><br />
-      Represents selector:ident
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.cssselect.Attrib-class.html" class="summary-name" onclick="show_private();">Attrib</a><br />
-      Represents selector[namespace|attrib operator value]
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.cssselect.Element-class.html" class="summary-name" onclick="show_private();">Element</a><br />
-      Represents namespace|element
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.cssselect.Hash-class.html" class="summary-name" onclick="show_private();">Hash</a><br />
-      Represents selector#id
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.cssselect.Or-class.html" class="summary-name" onclick="show_private();">Or</a>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.cssselect.CombinedSelector-class.html" class="summary-name" onclick="show_private();">CombinedSelector</a>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.cssselect.XPathExpr-class.html" class="summary-name" onclick="show_private();">XPathExpr</a>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.cssselect.XPathExprOr-class.html" class="summary-name" onclick="show_private();">XPathExprOr</a><br />
-      Represents <a href="#id1"><span class="rst-rst-problematic rst-problematic" id="rst-rst-id2">|</span></a>'d expressions.  Note that unfortunately it isn't
-the union, it's the sum, so duplicate elements will appear.
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.cssselect.TokenStream-class.html" class="summary-name" onclick="show_private();">TokenStream</a>
     </td>
   </tr>
 </table>
@@ -252,310 +167,6 @@ the union, it's the sum, so duplicate elements will appear.
       
     </td>
   </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="css_to_xpath"></a><span class="summary-sig-name">css_to_xpath</span>(<span class="summary-sig-arg">css_expr</span>,
-        <span class="summary-sig-arg">prefix</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">descendant-or-self::</code><code class="variable-quote">'</code></span>)</span></td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="lxml.cssselect-pysrc.html#css_to_xpath">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="split_at_single_quotes"></a><span class="summary-sig-name">split_at_single_quotes</span>(<span class="summary-sig-arg">...</span>)</span><br />
-      split(string[, maxsplit = 0])  --&gt; list.
-Split string by the occurrences of pattern.</td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="lxml.cssselect-pysrc.html#split_at_single_quotes">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="xpath_literal"></a><span class="summary-sig-name">xpath_literal</span>(<span class="summary-sig-arg">s</span>)</span></td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="lxml.cssselect-pysrc.html#xpath_literal">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="parse"></a><span class="summary-sig-name">parse</span>(<span class="summary-sig-arg">string</span>)</span></td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="lxml.cssselect-pysrc.html#parse">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="parse_selector_group"></a><span class="summary-sig-name">parse_selector_group</span>(<span class="summary-sig-arg">stream</span>)</span></td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="lxml.cssselect-pysrc.html#parse_selector_group">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="parse_selector"></a><span class="summary-sig-name">parse_selector</span>(<span class="summary-sig-arg">stream</span>)</span></td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="lxml.cssselect-pysrc.html#parse_selector">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="parse_simple_selector"></a><span class="summary-sig-name">parse_simple_selector</span>(<span class="summary-sig-arg">stream</span>)</span></td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="lxml.cssselect-pysrc.html#parse_simple_selector">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="is_int"></a><span class="summary-sig-name">is_int</span>(<span class="summary-sig-arg">v</span>)</span></td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="lxml.cssselect-pysrc.html#is_int">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="parse_attrib"></a><span class="summary-sig-name">parse_attrib</span>(<span class="summary-sig-arg">selector</span>,
-        <span class="summary-sig-arg">stream</span>)</span></td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="lxml.cssselect-pysrc.html#parse_attrib">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="parse_series"></a><span class="summary-sig-name">parse_series</span>(<span class="summary-sig-arg">s</span>)</span><br />
-      Parses things like '1n+2', or 'an+b' generally, returning (a, b)</td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="lxml.cssselect-pysrc.html#parse_series">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="_match_whitespace"></a><span class="summary-sig-name">_match_whitespace</span>(<span class="summary-sig-arg">...</span>)</span><br />
-      match(string[, pos[, endpos]]) --&gt; match object or None.
-Matches zero or more characters at the beginning of the string</td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="lxml.cssselect-pysrc.html#_match_whitespace">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="_replace_comments"></a><span class="summary-sig-name">_replace_comments</span>(<span class="summary-sig-arg">...</span>)</span><br />
-      sub(repl, string[, count = 0]) --&gt; newstring
-Return the string obtained by replacing the leftmost non-overlapping
-occurrences of pattern in string by the replacement repl.</td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="lxml.cssselect-pysrc.html#_replace_comments">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="_match_count_number"></a><span class="summary-sig-name">_match_count_number</span>(<span class="summary-sig-arg">...</span>)</span><br />
-      match(string[, pos[, endpos]]) --&gt; match object or None.
-Matches zero or more characters at the beginning of the string</td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="lxml.cssselect-pysrc.html#_match_count_number">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="tokenize"></a><span class="summary-sig-name">tokenize</span>(<span class="summary-sig-arg">s</span>)</span></td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="lxml.cssselect-pysrc.html#tokenize">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="split_at_string_escapes"></a><span class="summary-sig-name">split_at_string_escapes</span>(<span class="summary-sig-arg">...</span>)</span><br />
-      split(string[, maxsplit = 0])  --&gt; list.
-Split string by the occurrences of pattern.</td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="lxml.cssselect-pysrc.html#split_at_string_escapes">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="unescape_string_literal"></a><span class="summary-sig-name">unescape_string_literal</span>(<span class="summary-sig-arg">literal</span>)</span></td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="lxml.cssselect-pysrc.html#unescape_string_literal">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="tokenize_escaped_string"></a><span class="summary-sig-name">tokenize_escaped_string</span>(<span class="summary-sig-arg">s</span>,
-        <span class="summary-sig-arg">pos</span>)</span></td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="lxml.cssselect-pysrc.html#tokenize_escaped_string">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="tokenize_symbol"></a><span class="summary-sig-name">tokenize_symbol</span>(<span class="summary-sig-arg">s</span>,
-        <span class="summary-sig-arg">pos</span>)</span></td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="lxml.cssselect-pysrc.html#tokenize_symbol">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
 </table>
 <!-- ==================== VARIABLES ==================== -->
 <a name="section-Variables"></a>
@@ -579,34 +190,6 @@ Split string by the occurrences of pattern.</td>
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
         <a name="ns"></a><span class="summary-name">ns</span> = <code title="FunctionNamespace('http://codespeak.net/lxml/css/')">FunctionNamespace('http://codespeak.net/lxml/css/')</code>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a name="_el_re"></a><span class="summary-name">_el_re</span> = <code title="re.compile(r'(?u)^\w+\s*$')">re.compile(r'<code class="re-flags">(?u)</code>^\w<code class="re-op">+</code>\s<code class="re-op">*</code>$')</code>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a name="_id_re"></a><span class="summary-name">_id_re</span> = <code title="re.compile(r'(?u)^(\w*)#(\w+)\s*$')">re.compile(r'<code class="re-flags">(?u)</code>^<code class="re-group">(</code>\w<code class="re-op">*</code><code class="re-group">)</code>#<code class="re-group">(</code>\w<code class="re-op">+</code><code class="re-group">)</code>\s<code class="re-op">*</code>$')</code>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a name="_class_re"></a><span class="summary-name">_class_re</span> = <code title="re.compile(r'(?u)^(\w*)\.(\w+)\s*$')">re.compile(r'<code class="re-flags">(?u)</code>^<code class="re-group">(</code>\w<code class="re-op">*</code><code class="re-group">)</code>\.<code class="re-group">(</code>\w<code class="re-op">+</code><code class="re-group">)</code>\s<code class="re-op">*</code>$')</code>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a name="_illegal_symbol"></a><span class="summary-name">_illegal_symbol</span> = <code title="re.compile(r'(?u)[^\w\\-]')">re.compile(r'<code class="re-flags">(?u)</code><code class="re-group">[</code><code class="re-op">^</code>\w\\-<code class="re-group">]</code>')</code>
     </td>
   </tr>
 <tr class="private">
@@ -648,7 +231,7 @@ Split string by the occurrences of pattern.</td>
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Fri Nov 11 18:38:25 2011
+    Generated by Epydoc 3.0.1 on Fri Apr 18 08:58:40 2014
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

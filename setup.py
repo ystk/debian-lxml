@@ -1,35 +1,15 @@
 import os
 import re
 import sys
-import glob
 import fnmatch
 
 # for command line options and supported environment variables, please
 # see the end of 'setupinfo.py'
 
-extra_options = {}
-
 try:
-    import Cython
-    # may need to work around setuptools bug by providing a fake Pyrex
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "fake_pyrex"))
-except ImportError:
-    pass
-
-try:
-    import pkg_resources
-    try:
-        pkg_resources.require("setuptools>=0.6c5")
-    except pkg_resources.VersionConflict:
-        from ez_setup import use_setuptools
-        use_setuptools(version="0.6c5")
-    #pkg_resources.require("Cython==0.9.6.10")
     from setuptools import setup
-    extra_options["zip_safe"] = False
 except ImportError:
-    # no setuptools installed
     from distutils.core import setup
-
 
 import versioninfo
 import setupinfo
@@ -65,13 +45,36 @@ if versioninfo.is_pre_release():
     branch_link = ""
 
 
+extra_options = {}
+if 'setuptools' in sys.modules:
+    extra_options['zip_safe'] = False
+
+    try:
+        import pkg_resources
+    except ImportError:
+        pass
+    else:
+        f = open("requirements.txt", "r")
+        try:
+            deps = [str(req) for req in pkg_resources.parse_requirements(f)]
+        finally:
+            f.close()
+        extra_options['extras_require'] = {
+            'source': deps,
+            'cssselect': 'cssselect>=0.7',
+            'html5': 'html5lib',
+            'htmlsoup': 'BeautifulSoup4',
+        }
+
 extra_options.update(setupinfo.extra_setup_args())
 
 extra_options['package_data'] = {
     'lxml': [
-        'etreepublic.pxd',
-        'tree.pxd',
-        'etree_defs.h'
+        'lxml.etree.h',
+        'lxml.etree_api.h',
+    ],
+    'lxml.includes': [
+        '*.pxd', '*.h'
         ],
     'lxml.isoschematron':  [
         'resources/rng/iso-schematron.rng',
@@ -86,15 +89,7 @@ extra_options['package_dir'] = {
     }
 
 extra_options['packages'] = [
-        'lxml', 'lxml.html', 'lxml.isoschematron'
-    ]
-
-extra_options['package_dir'] = {
-        '': 'src'
-    }
-
-extra_options['packages'] = [
-        'lxml', 'lxml.html', 'lxml.isoschematron'
+        'lxml', 'lxml.includes', 'lxml.html', 'lxml.isoschematron'
     ]
 
 
@@ -161,13 +156,12 @@ def setup_extra_options():
 
         header_packages = build_packages(extract_files(include_dirs))
 
-        packages.append('lxml.include')
         for package_path, (root_path, filenames) in header_packages.items():
             if package_path:
-                package = 'lxml.include.' + package_path
+                package = 'lxml.includes.' + package_path
                 packages.append(package)
             else:
-                package = 'lxml.include'
+                package = 'lxml.includes'
             package_data[package] = filenames
             package_dir[package] = root_path
 
@@ -182,6 +176,7 @@ setup(
     maintainer_email="lxml-dev@lxml.de",
     url="http://lxml.de/",
     download_url="http://pypi.python.org/packages/source/l/lxml/lxml-%s.tar.gz" % versioninfo.version(),
+    bugtrack_url="https://bugs.launchpad.net/lxml",
 
     description="Powerful and Pythonic XML processing library combining libxml2/libxslt with the ElementTree API.",
 
@@ -220,9 +215,10 @@ an appropriate version of Cython installed.
     'Programming Language :: Python :: 2.6',
     'Programming Language :: Python :: 2.7',
     'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.0',
     'Programming Language :: Python :: 3.1',
     'Programming Language :: Python :: 3.2',
+    'Programming Language :: Python :: 3.3',
+    'Programming Language :: Python :: 3.4',
     'Programming Language :: C',
     'Operating System :: OS Independent',
     'Topic :: Text Processing :: Markup :: HTML',
