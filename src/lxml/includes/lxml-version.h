@@ -1,3 +1,3 @@
 #ifndef LXML_VERSION_STRING
-#define LXML_VERSION_STRING "3.3.5"
+#define LXML_VERSION_STRING "3.4.0"
 #endif

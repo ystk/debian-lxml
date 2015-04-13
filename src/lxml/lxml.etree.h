@@ -10,7 +10,7 @@ struct LxmlElementBase;
 struct LxmlElementClassLookup;
 struct LxmlFallbackElementClassLookup;
 
-/* "/home/stefan/source/Python/lxml/lxml-release/src/lxml/lxml.etree.pyx":335
+/* "src/lxml/lxml.etree.pyx":324
  * cdef class _BaseParser
  * cdef class QName
  * ctypedef public xmlNode* (*_node_to_node_function)(xmlNode*)             # <<<<<<<<<<<<<<
@@ -19,7 +19,7 @@ struct LxmlFallbackElementClassLookup;
  */
 typedef xmlNode *(*_node_to_node_function)(xmlNode *);
 
-/* "/home/stefan/source/Python/lxml/lxml-release/src/lxml/lxml.etree.pyx":331
+/* "src/lxml/lxml.etree.pyx":320
  * 
  * # forward declarations
  * cdef public class _Document [ type LxmlDocumentType, object LxmlDocument ]             # <<<<<<<<<<<<<<
@@ -35,7 +35,7 @@ struct LxmlDocument {
   struct __pyx_obj_4lxml_5etree__BaseParser *_parser;
 };
 
-/* "/home/stefan/source/Python/lxml/lxml-release/src/lxml/lxml.etree.pyx":332
+/* "src/lxml/lxml.etree.pyx":321
  * # forward declarations
  * cdef public class _Document [ type LxmlDocumentType, object LxmlDocument ]
  * cdef public class _Element [ type LxmlElementType, object LxmlElement ]             # <<<<<<<<<<<<<<
@@ -49,7 +49,7 @@ struct LxmlElement {
   PyObject *_tag;
 };
 
-/* "/home/stefan/source/Python/lxml/lxml-release/src/lxml/lxml.etree.pyx":1764
+/* "src/lxml/lxml.etree.pyx":1753
  * 
  * 
  * cdef public class _ElementTree [ type LxmlElementTreeType,             # <<<<<<<<<<<<<<
@@ -63,7 +63,7 @@ struct LxmlElementTree {
   struct LxmlElement *_context_node;
 };
 
-/* "/home/stefan/source/Python/lxml/lxml-release/src/lxml/lxml.etree.pyx":2415
+/* "src/lxml/lxml.etree.pyx":2475
  * 
  * 
  * cdef public class _ElementTagMatcher [ object LxmlElementTagMatcher,             # <<<<<<<<<<<<<<
@@ -79,7 +79,7 @@ struct LxmlElementTagMatcher {
   char *_name;
 };
 
-/* "/home/stefan/source/Python/lxml/lxml-release/src/lxml/lxml.etree.pyx":2446
+/* "src/lxml/lxml.etree.pyx":2506
  *                 self._name = NULL
  * 
  * cdef public class _ElementIterator(_ElementTagMatcher) [             # <<<<<<<<<<<<<<
@@ -92,7 +92,7 @@ struct LxmlElementIterator {
   _node_to_node_function _next_element;
 };
 
-/* "/home/stefan/source/Python/lxml/lxml-release/src/lxml/classlookup.pxi":6
+/* "src/lxml/classlookup.pxi":6
  * # Custom Element classes
  * 
  * cdef public class ElementBase(_Element) [ type LxmlElementBaseType,             # <<<<<<<<<<<<<<
@@ -103,7 +103,7 @@ struct LxmlElementBase {
   struct LxmlElement __pyx_base;
 };
 
-/* "/home/stefan/source/Python/lxml/lxml-release/src/lxml/classlookup.pxi":211
+/* "src/lxml/classlookup.pxi":211
  * # Element class lookup
  * 
  * ctypedef public object (*_element_class_lookup_function)(object, _Document, xmlNode*)             # <<<<<<<<<<<<<<
@@ -112,7 +112,7 @@ struct LxmlElementBase {
  */
 typedef PyObject *(*_element_class_lookup_function)(PyObject *, struct LxmlDocument *, xmlNode *);
 
-/* "/home/stefan/source/Python/lxml/lxml-release/src/lxml/classlookup.pxi":214
+/* "src/lxml/classlookup.pxi":214
  * 
  * # class to store element class lookup functions
  * cdef public class ElementClassLookup [ type LxmlElementClassLookupType,             # <<<<<<<<<<<<<<
@@ -124,7 +124,7 @@ struct LxmlElementClassLookup {
   _element_class_lookup_function _lookup_function;
 };
 
-/* "/home/stefan/source/Python/lxml/lxml-release/src/lxml/classlookup.pxi":223
+/* "src/lxml/classlookup.pxi":223
  *         self._lookup_function = NULL # use default lookup
  * 
  * cdef public class FallbackElementClassLookup(ElementClassLookup) \             # <<<<<<<<<<<<<<

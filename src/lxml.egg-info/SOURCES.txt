@@ -60,7 +60,7 @@ doc/html/FAQ.html
 doc/html/api.html
 doc/html/build.html
 doc/html/capi.html
-doc/html/changes-3.3.5.html
+doc/html/changes-3.4.0.html
 doc/html/compatibility.html
 doc/html/credits.html
 doc/html/cssselect.html
@@ -393,6 +393,7 @@ doc/html/api/lxml.tests.test_incremental_xmlfile-pysrc.html
 doc/html/api/lxml.tests.test_incremental_xmlfile.BytesIOXmlFileTestCase-class.html
 doc/html/api/lxml.tests.test_incremental_xmlfile.SimpleFileLikeXmlFileTestCase-class.html
 doc/html/api/lxml.tests.test_incremental_xmlfile.SimpleFileLikeXmlFileTestCase.SimpleFileLike-class.html
+doc/html/api/lxml.tests.test_incremental_xmlfile.TempPathXmlFileTestCase-class.html
 doc/html/api/lxml.tests.test_incremental_xmlfile.TempXmlFileTestCase-class.html
 doc/html/api/lxml.tests.test_incremental_xmlfile._XmlFileTestCaseBase-class.html
 doc/html/api/lxml.tests.test_io-module.html
@@ -436,6 +437,7 @@ doc/html/api/lxml.tests.test_threading.ThreadPipelineTestCase.Worker-class.html
 doc/html/api/lxml.tests.test_threading.ThreadingTestCase-class.html
 doc/html/api/lxml.tests.test_unicode-module.html
 doc/html/api/lxml.tests.test_unicode-pysrc.html
+doc/html/api/lxml.tests.test_unicode.EncodingsTestCase-class.html
 doc/html/api/lxml.tests.test_unicode.UnicodeTestCase-class.html
 doc/html/api/lxml.tests.test_xmlschema-module.html
 doc/html/api/lxml.tests.test_xmlschema-pysrc.html

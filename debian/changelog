@@ -1,3 +1,15 @@
+lxml (3.4.0-1) unstable; urgency=medium
+
+  * New upstream version 3.4.0.
+
+ -- Matthias Klose <doko@debian.org>  Thu, 11 Sep 2014 21:17:44 +0200
+
+lxml (3.3.6-0ubuntu1) utopic; urgency=medium
+
+  * New upstrea version 3.3.6.
+
+ -- Matthias Klose <doko@ubuntu.com>  Thu, 11 Sep 2014 21:02:59 +0200
+
 lxml (3.3.5-1) unstable; urgency=medium
 
   * New upstrea version 3.3.5.

@@ -97,13 +97,7 @@ cdef object ITER_EMPTY = iter(())
 try:
     from collections.abc import MutableMapping  # Py3.3+
 except ImportError:
-    try:
-        from collections import MutableMapping  # Py2.6+
-    except ImportError:
-        from UserDict import UserDict as MutableMapping  # Py2.[45]
-        class MutableMapping(MutableMapping):
-            def keys(self):
-                return []
+    from collections import MutableMapping  # Py2.6+
 
 class _ImmutableMapping(MutableMapping):
     def __getitem__(self, key):
@@ -212,18 +206,13 @@ class LxmlError(Error):
     this one.
     """
     def __init__(self, message, error_log=None):
-        if python.PY_VERSION_HEX >= 0x02050000:
-            # Python >= 2.5 uses new style class exceptions
-            super(_Error, self).__init__(message)
-        else:
-            error_super_init(self, message)
+        super(_Error, self).__init__(message)
         if error_log is None:
             self.error_log = __copyGlobalErrorLog()
         else:
             self.error_log = error_log.copy()
 
-cdef object _Error = Error if python.PY_VERSION_HEX >= 0x02050000 else None
-cdef object error_super_init = Error.__init__ if python.PY_VERSION_HEX < 0x02050000 else None
+cdef object _Error = Error
 
 
 # superclass for all syntax errors
@@ -1953,7 +1942,14 @@ cdef public class _ElementTree [ type LxmlElementTreeType,
     def getpath(self, _Element element not None):
         u"""getpath(self, element)
 
-        Returns a structural, absolute XPath expression to find that element.
+        Returns a structural, absolute XPath expression to find the element.
+
+        For namespaced elements, the expression uses prefixes from the
+        document, which therefore need to be provided in order to make any
+        use of the expression in XPath.
+
+        Also see the method getelementpath(self, element), which returns a
+        self-contained ElementPath expression.
         """
         cdef _Document doc
         cdef _Element root
@@ -1980,6 +1976,70 @@ cdef public class _ElementTree [ type LxmlElementTreeType,
         path = funicode(c_path)
         tree.xmlFree(c_path)
         return path
+
+    def getelementpath(self, _Element element not None):
+        u"""getelementpath(self, element)
+
+        Returns a structural, absolute ElementPath expression to find the
+        element.  This path can be used in the .find() method to look up
+        the element, provided that the elements along the path and their
+        list of immediate children were not modified in between.
+
+        ElementPath has the advantage over an XPath expression (as returned
+        by the .getpath() method) that it does not require additional prefix
+        declarations.  It is always self-contained.
+        """
+        cdef _Element root
+        cdef Py_ssize_t count
+        _assertValidNode(element)
+        if element._c_node.type != tree.XML_ELEMENT_NODE:
+            raise ValueError, u"input is not an Element"
+        if self._context_node is not None:
+            root = self._context_node
+        elif self._doc is not None:
+            root = self._doc.getroot()
+        else:
+            raise ValueError, u"Element is not in this tree"
+        _assertValidNode(root)
+        if element._doc is not root._doc:
+            raise ValueError, u"Element is not in this tree"
+
+        path = []
+        c_element = element._c_node
+        while c_element is not root._c_node:
+            c_name = c_element.name
+            c_href = _getNs(c_element)
+            tag = _namespacedNameFromNsName(c_href, c_name)
+            if c_href is NULL:
+                c_href = <const_xmlChar*>b''  # no namespace (NULL is wildcard)
+            # use tag[N] if there are preceding siblings with the same tag
+            count = 0
+            c_node = c_element.prev
+            while c_node is not NULL:
+                if c_node.type == tree.XML_ELEMENT_NODE:
+                    if _tagMatches(c_node, c_href, c_name):
+                        count += 1
+                c_node = c_node.prev
+            if count:
+                tag = '%s[%d]' % (tag, count+1)
+            else:
+                # use tag[1] if there are following siblings with the same tag
+                c_node = c_element.next
+                while c_node is not NULL:
+                    if c_node.type == tree.XML_ELEMENT_NODE:
+                        if _tagMatches(c_node, c_href, c_name):
+                            tag += '[1]'
+                            break
+                    c_node = c_node.next
+
+            path.append(tag)
+            c_element = c_element.parent
+            if c_element is NULL or c_element.type != tree.XML_ELEMENT_NODE:
+                raise ValueError, u"Element is not in this tree."
+        if not path:
+            return '.'
+        path.reverse()
+        return '/'.join(path)
 
     def getiterator(self, tag=None, *tags):
         u"""getiterator(self, *tags, tag=None)

@@ -2,7 +2,13 @@ Source: lxml
 Section: python
 Priority: optional
 Maintainer: Matthias Klose <doko@debian.org>
-Build-Depends: debhelper (>= 5.0.37.1), python-all-dev (>= 2.6.6-1~), python-all-dbg, python3-all-dev (>= 3.3.3), python3-all-dbg, python-pyrex (>= 0.9.4.1), libxml2-dev, libxslt1-dev, zlib1g-dev, python-setuptools, python3-setuptools (>= 0.6.29)
+Build-Depends: debhelper (>= 5.0.37.1),
+  python-all-dev (>= 2.6.6-1~), python-all-dbg,
+  python3-all-dev (>= 3.3.3), python3-all-dbg,
+  python-pyrex (>= 0.9.4.1),
+  libxml2-dev, libxslt1-dev, zlib1g-dev,
+  python-setuptools, python3-setuptools (>= 0.6.29)
+Build-Conflicts: cython
 X-Python-Version: all
 Standards-Version: 3.9.5
 Homepage: http://lxml.de/

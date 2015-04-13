@@ -96,8 +96,8 @@ _forms_xpath = etree.XPath("descendant-or-self::form|descendant-or-self::x:form"
 _class_xpath = etree.XPath("descendant-or-self::*[@class and contains(concat(' ', normalize-space(@class), ' '), concat(' ', $class_name, ' '))]")
 _id_xpath = etree.XPath("descendant-or-self::*[@id=$id]")
 _collect_string_content = etree.XPath("string()")
-_css_url_re = re.compile(r'url\(('+'["][^"]*["]|'+"['][^']*[']|"+r'[^)]*)\)', re.I)
-_css_import_re = re.compile(r'@import "(.*?)"')
+_iter_css_urls = re.compile(r'url\(('+'["][^"]*["]|'+"['][^']*[']|"+r'[^)]*)\)', re.I).finditer
+_iter_css_imports = re.compile(r'@import "(.*?)"').finditer
 _label_xpath = etree.XPath("//label[@for=$id]|//x:label[@for=$id]",
                            namespaces={'x':XHTML_NAMESPACE})
 _archive_re = re.compile(r'[^ ]+')
@@ -381,18 +381,14 @@ class HtmlMixin(object):
         for el in self.iter(etree.Element):
             attribs = el.attrib
             tag = _nons(el.tag)
-            if tag != 'object':
-                for attrib in link_attrs:
-                    if attrib in attribs:
-                        yield (el, attrib, attribs[attrib], 0)
-            elif tag == 'object':
+            if tag == 'object':
                 codebase = None
                 ## <object> tags have attributes that are relative to
                 ## codebase
                 if 'codebase' in attribs:
                     codebase = el.get('codebase')
                     yield (el, 'codebase', codebase, 0)
-                for attrib in 'classid', 'data':
+                for attrib in ('classid', 'data'):
                     if attrib in attribs:
                         value = el.get(attrib)
                         if codebase is not None:
@@ -404,7 +400,25 @@ class HtmlMixin(object):
                         if codebase is not None:
                             value = urljoin(codebase, value)
                         yield (el, 'archive', value, match.start())
-            if tag == 'param':
+            else:
+                for attrib in link_attrs:
+                    if attrib in attribs:
+                        yield (el, attrib, attribs[attrib], 0)
+            if tag == 'meta':
+                http_equiv = attribs.get('http-equiv', '').lower()
+                if http_equiv == 'refresh':
+                    content = attribs.get('content', '')
+                    i = content.find(';')
+                    url = content[i+1:] if i >= 0 else content
+                    if url[:4].lower() == 'url=':
+                        url = url[4:]
+                    #else:
+                    # No "url=" means the redirect won't work, but we might
+                    # as well be permissive and return the entire string.
+                    if url:
+                        url, pos = _unquote_match(url, i + 5)
+                        yield (el, 'content', url, pos)
+            elif tag == 'param':
                 valuetype = el.get('valuetype') or ''
                 if valuetype.lower() == 'ref':
                     ## FIXME: while it's fine we *find* this link,
@@ -414,25 +428,24 @@ class HtmlMixin(object):
                     ## doesn't have a valuetype="ref" (which seems to be the norm)
                     ## http://www.w3.org/TR/html401/struct/objects.html#adef-valuetype
                     yield (el, 'value', el.get('value'), 0)
-            if tag == 'style' and el.text:
+            elif tag == 'style' and el.text:
                 urls = [
-                    _unquote_match(match.group(1), match.start(1))
-                    for match in _css_url_re.finditer(el.text)
+                    # (start_pos, url)
+                    _unquote_match(match.group(1), match.start(1))[::-1]
+                    for match in _iter_css_urls(el.text)
                     ] + [
-                    (match.group(1), match.start(1))
-                    for match in _css_import_re.finditer(el.text)
+                    (match.start(1), match.group(1))
+                    for match in _iter_css_imports(el.text)
                     ]
                 if urls:
                     # sort by start pos to bring both match sets back into order
-                    urls = [ (start, url) for (url, start) in urls ]
-                    urls.sort()
-                    # reverse the list to report correct positions despite
+                    # and reverse the list to report correct positions despite
                     # modifications
-                    urls.reverse()
+                    urls.sort(reverse=True)
                     for start, url in urls:
                         yield (el, None, url, start)
             if 'style' in attribs:
-                urls = list(_css_url_re.finditer(attribs['style']))
+                urls = list(_iter_css_urls(attribs['style']))
                 if urls:
                     # return in reversed order to simplify in-place modifications
                     for match in urls[::-1]:
@@ -594,13 +607,17 @@ _looks_like_full_html_unicode = re.compile(
 _looks_like_full_html_bytes = re.compile(
     r'^\s*<(?:html|!doctype)'.encode('ascii'), re.I).match
 
-def document_fromstring(html, parser=None, **kw):
+def document_fromstring(html, parser=None, ensure_head_body=False, **kw):
     if parser is None:
         parser = html_parser
     value = etree.fromstring(html, parser, **kw)
     if value is None:
         raise etree.ParserError(
             "Document is empty")
+    if ensure_head_body and value.find('head') is None:
+        value.insert(0, Element('head'))
+    if ensure_head_body and value.find('body') is None:
+        value.append(Element('body'))
     return value
 
 def fragments_fromstring(html, no_leading_text=False, base_url=None,

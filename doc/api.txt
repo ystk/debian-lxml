@@ -43,19 +43,12 @@ lxml is extremely extensible through `XPath functions in Python`_, custom
    10  write_c14n on ElementTree
 
 ..
-  >>> try:
-  ...    from io import BytesIO
-  ...    def StringIO(s=None):
-  ...        if isinstance(s, str): s = s.encode("UTF-8")
-  ...        return BytesIO(s)
-  ... except ImportError:
-  ...    from StringIO import StringIO # Py2 <= 2.5
-  ...    BytesIO = StringIO
+  >>> from io import BytesIO
+  >>> def StringIO(s=None):
+  ...     if isinstance(s, str): s = s.encode("UTF-8")
+  ...     return BytesIO(s)
 
-  >>> try: from collections import deque
-  ... except ImportError:
-  ...    class deque(list):
-  ...        def popleft(self): return self.pop(0)
+  >>> from collections import deque
 
   >>> try: unicode = unicode
   ... except NameError: unicode = str
@@ -490,6 +483,14 @@ example::
   >>> print(f.getvalue().decode('utf-8'))
   <abc>text</abc>
 
+``xmlfile()`` accepts a file path as first argument, or a file(-like)
+object, as in the example above.  In the first case, it takes care to
+open and close the file itself, whereas file(-like) objects are not
+closed by default.  This is left to the code that opened them.  Since
+lxml 3.4, however, you can pass the argument ``close=True`` to make
+lxml call the object's ``.close()`` method when exiting the xmlfile
+context manager.
+
 To insert pre-constructed Elements and subtrees, just pass them
 into ``write()``::
 
@@ -497,6 +498,7 @@ into ``write()``::
   >>> with etree.xmlfile(f) as xf:
   ...     with xf.element('abc'):
   ...         with xf.element('in'):
+  ...
   ...             for value in '123':
   ...                 # construct a really complex XML tree
   ...                 el = etree.Element('xyz', attr=value)
@@ -511,7 +513,7 @@ into ``write()``::
 
 It is a common pattern to have one or more nested ``element()``
 blocks, and then build in-memory XML subtrees in a loop (using the
-ElementTree API, the builder API, XSLT, or whatever) to write them
+ElementTree API, the builder API, XSLT, or whatever) and write them
 out into the XML file one after the other.  That way, they can be
 removed from memory right after their construction, which can largely
 reduce the memory footprint of an application, while keeping the
@@ -529,6 +531,7 @@ like the instant messaging protocol
                       while True:
                           el = (yield)
                           xf.write(el)
+                          xf.flush()
                   except GeneratorExit:
                       pass
 
@@ -544,6 +547,18 @@ Then, whenever XML elements are available for writing, call
 And when done::
 
     w.close()
+
+Note the additional ``xf.flush()`` call in the example above, which is
+available since lxml 3.4.  Normally, the output stream is buffered to
+avoid excessive I/O calls.  Whenever the internal buffer fills up, its
+content is written out.  In the case above, however, we want to make
+sure that each message that we write (i.e. each element subtree) is
+written out immediately, so we flush the content explicitly at the
+right point.
+
+Alternatively, if buffering is not desired at all, it can be disabled
+by passing the flag ``buffered=False`` into ``xmlfile()`` (also since
+lxml 3.4).
 
 
 CDATA
