@@ -341,6 +341,46 @@ objects.
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
+          <td><span class="summary-sig"><a name="_iter_css_urls"></a><span class="summary-sig-name">_iter_css_urls</span>(<span class="summary-sig-arg">...</span>)</span><br />
+      finditer(string[, pos[, endpos]]) --&gt; iterator.
+Return an iterator over all non-overlapping matches for the
+RE pattern in string. For each match, the iterator returns a
+match object.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="lxml.html-pysrc.html#_iter_css_urls">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="_iter_css_imports"></a><span class="summary-sig-name">_iter_css_imports</span>(<span class="summary-sig-arg">...</span>)</span><br />
+      finditer(string[, pos[, endpos]]) --&gt; iterator.
+Return an iterator over all non-overlapping matches for the
+RE pattern in string. For each match, the iterator returns a
+match object.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="lxml.html-pysrc.html#_iter_css_imports">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
           <td><span class="summary-sig"><a name="_unquote_match"></a><span class="summary-sig-name">_unquote_match</span>(<span class="summary-sig-arg">s</span>,
         <span class="summary-sig-arg">pos</span>)</span></td>
           <td align="right" valign="top">
@@ -430,6 +470,7 @@ Matches zero or more characters at the beginning of the string</td>
         <tr>
           <td><span class="summary-sig"><a name="document_fromstring"></a><span class="summary-sig-name">document_fromstring</span>(<span class="summary-sig-arg">html</span>,
         <span class="summary-sig-arg">parser</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">ensure_head_body</span>=<span class="summary-sig-default">False</span>,
         <span class="summary-sig-arg">**kw</span>)</span></td>
           <td align="right" valign="top">
             <span class="codelink"><a href="lxml.html-pysrc.html#document_fromstring">source&nbsp;code</a></span>
@@ -805,20 +846,6 @@ use.  This is mainly meant for debugging.</td>
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
         <a name="_collect_string_content"></a><span class="summary-name">_collect_string_content</span> = <code title="string()">string()</code>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a href="lxml.html-module.html#_css_url_re" class="summary-name" onclick="show_private();">_css_url_re</a> = <code title="re.compile(r'(?i)url\((&quot;[^&quot;]*&quot;|\'[^\']*\'|[^\)]*)\)')">re.compile(r'<code class="re-flags">(?i)</code>url\(<code class="re-group">(</code>&quot;<code class="re-group">[^</code>&quot;<code class="re-group">]</code><code class="re-op">*</code>&quot;<code class="re-op">|</code>\'<code class="re-group">[^</code>\'<code class="re-group">]</code><code class="re-op">*</code>\'<code class="re-op">|</code><code class="re-group">[^</code>\)<code class="re-group">]</code><code class="re-op">*</code><code class="variable-ellipsis">...</code></code>
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-        <a name="_css_import_re"></a><span class="summary-name">_css_import_re</span> = <code title="re.compile(r'@import &quot;(.*?)&quot;')">re.compile(r'@import &quot;<code class="re-group">(</code>.<code class="re-op">*?</code><code class="re-group">)</code>&quot;')</code>
     </td>
   </tr>
 <tr class="private">
@@ -1257,24 +1284,6 @@ descendant-or-self::*[@class and contains(concat(' ', normalize-space(<span clas
   </dl>
 </td></tr></table>
 </div>
-<a name="_css_url_re"></a>
-<div class="private">
-<table class="details" border="1" cellpadding="3"
-       cellspacing="0" width="100%" bgcolor="white">
-<tr><td>
-  <h3 class="epydoc">_css_url_re</h3>
-  
-  <dl class="fields">
-  </dl>
-  <dl class="fields">
-    <dt>Value:</dt>
-      <dd><table><tr><td><pre class="variable">
-re.compile(r'<code class="re-flags">(?i)</code>url\(<code class="re-group">(</code>&quot;<code class="re-group">[^</code>&quot;<code class="re-group">]</code><code class="re-op">*</code>&quot;<code class="re-op">|</code>\'<code class="re-group">[^</code>\'<code class="re-group">]</code><code class="re-op">*</code>\'<code class="re-op">|</code><code class="re-group">[^</code>\)<code class="re-group">]</code><code class="re-op">*</code><code class="re-group">)</code>\)')
-</pre></td></tr></table>
-</dd>
-  </dl>
-</td></tr></table>
-</div>
 <a name="make_links_absolute"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
@@ -1325,7 +1334,7 @@ _MethodFunc('make_links_absolute', copy= True)
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Fri Apr 18 08:58:40 2014
+    Generated by Epydoc 3.0.1 on Wed Sep 10 19:04:27 2014
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

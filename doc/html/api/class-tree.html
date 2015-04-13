@@ -475,11 +475,11 @@ Element class lookup method that uses the objectify classes.</em>
 Iterates over an element and its sub-elements in document order (depth
 first pre-order).</em>
     </li>
-    <li> <strong class="uidlink"><a href="lxml.builder.ElementMaker-class.html">lxml.builder.ElementMaker</a></strong>:
-      <em class="summary">Element generator factory.</em>
-    </li>
     <li> <strong class="uidlink"><a href="lxml.objectify.ElementMaker-class.html">lxml.objectify.ElementMaker</a></strong>:
       <em class="summary">ElementMaker(self, namespace=None, nsmap=None, annotate=True, makeelement=None)</em>
+    </li>
+    <li> <strong class="uidlink"><a href="lxml.builder.ElementMaker-class.html">lxml.builder.ElementMaker</a></strong>:
+      <em class="summary">Element generator factory.</em>
     </li>
     <li> <strong class="uidlink"><a href="lxml.etree.ElementTextIterator-class.html" onclick="show_private();">lxml.etree.ElementTextIterator</a></strong>:
       <em class="summary">ElementTextIterator(self, element, tag=None, with_tail=True)
@@ -605,10 +605,10 @@ Immutable object that represents a compiled object path.</em>
       <em class="summary">PyType(self, name, type_check, type_class, stringify=None)
 User defined type.</em>
     </li>
-    <li> <strong class="uidlink"><a href="xml.etree.ElementTree.QName-class.html">xml.etree.ElementTree.QName</a></strong>
-    </li>
     <li> <strong class="uidlink"><a href="lxml.etree.QName-class.html">lxml.etree.QName</a></strong>:
       <em class="summary">QName(text_or_uri_or_element, tag=None)</em>
+    </li>
+    <li> <strong class="uidlink"><a href="xml.etree.ElementTree.QName-class.html">xml.etree.ElementTree.QName</a></strong>
     </li>
     <li> <strong class="uidlink"><a href="lxml.etree.RelaxNGErrorTypes-class.html">lxml.etree.RelaxNGErrorTypes</a></strong>:
       <em class="summary">Libxml2 RelaxNG error types</em>
@@ -715,6 +715,8 @@ key/value pairs.</em>
     <li> <strong class="uidlink"><a href="lxml.tests.test_xslt.ETreeXSLTTestCase-class.html">lxml.tests.test_xslt.ETreeXSLTTestCase</a></strong>:
       <em class="summary">XSLT tests etree</em>
     </li>
+    <li> <strong class="uidlink"><a href="lxml.tests.test_unicode.EncodingsTestCase-class.html">lxml.tests.test_unicode.EncodingsTestCase</a></strong>
+    </li>
     <li> <strong class="uidlink"><a href="lxml.tests.test_errors.ErrorTestCase-class.html">lxml.tests.test_errors.ErrorTestCase</a></strong>
     </li>
     <li> <strong class="uidlink"><a href="lxml.tests.test_htmlparser.HtmlParserTestCase-class.html">lxml.tests.test_htmlparser.HtmlParserTestCase</a></strong>:
@@ -772,6 +774,8 @@ key/value pairs.</em>
     <li> <strong class="uidlink"><a href="lxml.tests.test_incremental_xmlfile.BytesIOXmlFileTestCase-class.html">lxml.tests.test_incremental_xmlfile.BytesIOXmlFileTestCase</a></strong>
     </li>
     <li> <strong class="uidlink"><a href="lxml.tests.test_incremental_xmlfile.SimpleFileLikeXmlFileTestCase-class.html">lxml.tests.test_incremental_xmlfile.SimpleFileLikeXmlFileTestCase</a></strong>
+    </li>
+    <li> <strong class="uidlink"><a href="lxml.tests.test_incremental_xmlfile.TempPathXmlFileTestCase-class.html">lxml.tests.test_incremental_xmlfile.TempPathXmlFileTestCase</a></strong>
     </li>
     <li> <strong class="uidlink"><a href="lxml.tests.test_incremental_xmlfile.TempXmlFileTestCase-class.html">lxml.tests.test_incremental_xmlfile.TempXmlFileTestCase</a></strong>
     </li>
@@ -849,7 +853,7 @@ objects.</em>
     </ul>
     </li>
     <li> <strong class="uidlink"><a href="lxml.etree.XMLParser-class.html">lxml.etree.XMLParser</a></strong>:
-      <em class="summary">XMLParser(self, encoding=None, attribute_defaults=False, dtd_validation=False, load_dtd=False, no_network=True, ns_clean=False, recover=False, XMLSchema schema=None, remove_blank_text=False, resolve_entities=True, remove_comments=False, remove_pis=False, strip_cdata=True, target=None, compact=True)</em>
+      <em class="summary">XMLParser(self, encoding=None, attribute_defaults=False, dtd_validation=False, load_dtd=False, no_network=True, ns_clean=False, recover=False, XMLSchema schema=None, remove_blank_text=False, resolve_entities=True, remove_comments=False, remove_pis=False, strip_cdata=True, collect_ids=True, target=None, compact=True)</em>
     <ul>
     <li> <strong class="uidlink"><a href="lxml.etree.ETCompatXMLParser-class.html">lxml.etree.ETCompatXMLParser</a></strong>:
       <em class="summary">ETCompatXMLParser(self, encoding=None, attribute_defaults=False,                  dtd_validation=False, load_dtd=False, no_network=True,                  ns_clean=False, recover=False, schema=None,                  huge_tree=False, remove_blank_text=False, resolve_entities=True,                  remove_comments=True, remove_pis=True, strip_cdata=True,                  target=None, compact=True)</em>
@@ -1196,7 +1200,7 @@ type(name, bases, dict) -&gt; a new type</em>
     </ul>
     </li>
     <li> <strong class="uidlink"><a href="lxml.etree.xmlfile-class.html" onclick="show_private();">lxml.etree.xmlfile</a></strong>:
-      <em class="summary">xmlfile(self, output_file, encoding=None, compression=None)</em>
+      <em class="summary">xmlfile(self, output_file, encoding=None, compression=None, close=False, buffered=True)</em>
     </li>
     </ul>
     </li>
@@ -1232,7 +1236,7 @@ type(name, bases, dict) -&gt; a new type</em>
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Fri Apr 18 08:58:40 2014
+    Generated by Epydoc 3.0.1 on Wed Sep 10 19:04:27 2014
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

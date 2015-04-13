@@ -15,6 +15,7 @@ import re
 import gc
 import operator
 import tempfile
+import textwrap
 import zlib
 import gzip
 
@@ -865,6 +866,31 @@ class ETreeOnlyTestCase(HelperTestCase):
         # FIXME: would be nice to get some errors logged ...
         #self.assertTrue(len(parser.error_log) > 0, "error log is empty")
 
+    def test_feed_parser_recover_no_id_dict(self):
+        # test that recover mode plays nicely with the no-id-dict setup
+        parser = self.etree.XMLParser(recover=True, collect_ids=False)
+
+        parser.feed('<?xml version=')
+        parser.feed('"1.0"?><ro')
+        parser.feed('ot xml:id="123"><')
+        parser.feed('a test="works" xml:id=')
+        parser.feed('"321"><othertag/></root') # <a> not closed!
+        parser.feed('>')
+
+        root = parser.close()
+
+        self.assertEqual(root.tag, "root")
+        self.assertEqual(len(root), 1)
+        self.assertEqual(root[0].tag, "a")
+        self.assertEqual(root[0].get("test"), "works")
+        self.assertEqual(root[0].attrib, {
+            'test': 'works',
+            '{http://www.w3.org/XML/1998/namespace}id': '321'})
+        self.assertEqual(len(root[0]), 1)
+        self.assertEqual(root[0][0].tag, "othertag")
+        # FIXME: would be nice to get some errors logged ...
+        #self.assertTrue(len(parser.error_log) > 0, "error log is empty")
+
     def test_elementtree_parser_target_type_error(self):
         assertEqual = self.assertEqual
         assertFalse  = self.assertFalse
@@ -943,8 +969,34 @@ class ETreeOnlyTestCase(HelperTestCase):
             done = 'value error received as expected'
 
         self.assertEqual(["start-root", "data-A", "start-a",
-                           "data-ca", "end-a", "close"],
-                          events)
+                          "data-ca", "end-a", "close"],
+                         events)
+
+    def test_parser_target_feed_no_id_dict(self):
+        # test that target parsing works nicely with the no-id-hash setup
+        events = []
+        class Target(object):
+            def start(self, tag, attrib):
+                events.append("start-" + tag)
+            def end(self, tag):
+                events.append("end-" + tag)
+            def data(self, data):
+                events.append("data-" + data)
+            def comment(self, text):
+                events.append("comment-" + text)
+            def close(self):
+                return "DONE"
+
+        parser = self.etree.XMLParser(target=Target(), collect_ids=False)
+
+        parser.feed(_bytes('<!--a--><root xml:id="123">A<!--b-->'))
+        parser.feed(_bytes('<sub xml:id="321"/>B</root>'))
+        done = parser.close()
+
+        self.assertEqual("DONE", done)
+        self.assertEqual(["comment-a", "start-root", "data-A", "comment-b",
+                          "start-sub", "end-sub", "data-B", "end-root"],
+                         events)
 
     def test_parser_target_comment(self):
         events = []
@@ -1489,6 +1541,48 @@ class ETreeOnlyTestCase(HelperTestCase):
         root[0].addprevious(root[1])
         self.assertEqual(['b', 'a'],
                           [c.tag for c in root])
+
+    def test_addnext_cycle(self):
+        Element = self.etree.Element
+        SubElement = self.etree.SubElement
+        root = Element('root')
+        a = SubElement(root, 'a')
+        b = SubElement(a, 'b')
+        # appending parent as sibling is forbidden
+        self.assertRaises(ValueError, b.addnext, a)
+        self.assertEqual(['a'], [c.tag for c in root])
+        self.assertEqual(['b'], [c.tag for c in a])
+
+    def test_addprevious_cycle(self):
+        Element = self.etree.Element
+        SubElement = self.etree.SubElement
+        root = Element('root')
+        a = SubElement(root, 'a')
+        b = SubElement(a, 'b')
+        # appending parent as sibling is forbidden
+        self.assertRaises(ValueError, b.addprevious, a)
+        self.assertEqual(['a'], [c.tag for c in root])
+        self.assertEqual(['b'], [c.tag for c in a])
+
+    def test_addnext_cycle_long(self):
+        Element = self.etree.Element
+        SubElement = self.etree.SubElement
+        root = Element('root')
+        a = SubElement(root, 'a')
+        b = SubElement(a, 'b')
+        c = SubElement(b, 'c')
+        # appending parent as sibling is forbidden
+        self.assertRaises(ValueError, c.addnext, a)
+
+    def test_addprevious_cycle_long(self):
+        Element = self.etree.Element
+        SubElement = self.etree.SubElement
+        root = Element('root')
+        a = SubElement(root, 'a')
+        b = SubElement(a, 'b')
+        c = SubElement(b, 'c')
+        # appending parent as sibling is forbidden
+        self.assertRaises(ValueError, c.addprevious, a)
 
     def test_addprevious_noops(self):
         Element = self.etree.Element
@@ -2231,6 +2325,34 @@ class ETreeOnlyTestCase(HelperTestCase):
         expected = {}
         self._checkIDDict(dic, expected)
 
+    def test_XMLDTDID_no_id_dict(self):
+        XMLDTDID = self.etree.XMLDTDID
+        XML      = self.etree.XML
+        xml_text = _bytes('''
+        <!DOCTYPE document [
+        <!ELEMENT document (h1,p)*>
+        <!ELEMENT h1 (#PCDATA)>
+        <!ATTLIST h1 myid ID #REQUIRED>
+        <!ELEMENT p  (#PCDATA)>
+        <!ATTLIST p  someid ID #REQUIRED>
+        ]>
+        <document>
+          <h1 myid="chapter1">...</h1>
+          <p id="note1" class="note">...</p>
+          <p>Regular paragraph.</p>
+          <p xml:id="xmlid">XML:ID paragraph.</p>
+          <p someid="warn1" class="warning">...</p>
+        </document>
+        ''')
+
+        parser = etree.XMLParser(collect_ids=False)
+        root, dic = XMLDTDID(xml_text, parser=parser)
+        root2 = XML(xml_text)
+        self.assertEqual(self._writeElement(root),
+                         self._writeElement(root2))
+        self.assertFalse(dic)
+        self._checkIDDict(dic, {})
+
     def _checkIDDict(self, dic, expected):
         self.assertEqual(len(dic),
                           len(expected))
@@ -2659,6 +2781,69 @@ class ETreeOnlyTestCase(HelperTestCase):
         self.assertEqual(
             [a, b, c],
             list(a.getiterator('*')))
+
+    def test_elementtree_getelementpath(self):
+        a  = etree.Element("a")
+        b  = etree.SubElement(a, "b")
+        c  = etree.SubElement(a, "c")
+        d1 = etree.SubElement(c, "d")
+        d2 = etree.SubElement(c, "d")
+        c.text = d1.text = 'TEXT'
+
+        tree = etree.ElementTree(a)
+        self.assertEqual('.', tree.getelementpath(a))
+        self.assertEqual('c/d[1]', tree.getelementpath(d1))
+        self.assertEqual('c/d[2]', tree.getelementpath(d2))
+
+        self.assertEqual(d1, tree.find(tree.getelementpath(d1)))
+        self.assertEqual(d2, tree.find(tree.getelementpath(d2)))
+
+        tree = etree.ElementTree(c)
+        self.assertEqual('.', tree.getelementpath(c))
+        self.assertEqual('d[2]', tree.getelementpath(d2))
+        self.assertEqual(d2, tree.find(tree.getelementpath(d2)))
+
+        tree = etree.ElementTree(b)  # not a parent of a/c/d1/d2
+        self.assertEqual('.', tree.getelementpath(b))
+        self.assertRaises(ValueError, tree.getelementpath, a)
+        self.assertRaises(ValueError, tree.getelementpath, c)
+        self.assertRaises(ValueError, tree.getelementpath, d2)
+
+    def test_elementtree_getelementpath_ns(self):
+        a  = etree.Element("{http://ns1/}a")
+        b  = etree.SubElement(a, "{http://ns1/}b")
+        c  = etree.SubElement(a, "{http://ns1/}c")
+        d1 = etree.SubElement(c, "{http://ns1/}d")
+        d2 = etree.SubElement(c, "{http://ns2/}d")
+        d3 = etree.SubElement(c, "{http://ns1/}d")
+
+        tree = etree.ElementTree(a)
+        self.assertEqual('.', tree.getelementpath(a))
+        self.assertEqual('{http://ns1/}c/{http://ns1/}d[1]',
+                         tree.getelementpath(d1))
+        self.assertEqual('{http://ns1/}c/{http://ns2/}d',
+                         tree.getelementpath(d2))
+        self.assertEqual('{http://ns1/}c/{http://ns1/}d[2]',
+                         tree.getelementpath(d3))
+
+        self.assertEqual(a, tree.find(tree.getelementpath(a)))
+        self.assertEqual(b, tree.find(tree.getelementpath(b)))
+        self.assertEqual(c, tree.find(tree.getelementpath(c)))
+        self.assertEqual(d1, tree.find(tree.getelementpath(d1)))
+        self.assertEqual(d2, tree.find(tree.getelementpath(d2)))
+        self.assertEqual(d3, tree.find(tree.getelementpath(d3)))
+
+        tree = etree.ElementTree(c)
+        self.assertEqual('{http://ns1/}d[1]', tree.getelementpath(d1))
+        self.assertEqual('{http://ns2/}d', tree.getelementpath(d2))
+        self.assertEqual('{http://ns1/}d[2]', tree.getelementpath(d3))
+        self.assertEqual(d1, tree.find(tree.getelementpath(d1)))
+        self.assertEqual(d2, tree.find(tree.getelementpath(d2)))
+        self.assertEqual(d3, tree.find(tree.getelementpath(d3)))
+
+        tree = etree.ElementTree(b)  # not a parent of d1/d2
+        self.assertRaises(ValueError, tree.getelementpath, d1)
+        self.assertRaises(ValueError, tree.getelementpath, d2)
 
     def test_elementtree_find_qname(self):
         XML = self.etree.XML
@@ -3557,6 +3742,37 @@ class ETreeOnlyTestCase(HelperTestCase):
         gc.collect()
         # not really testing anything here, but it shouldn't crash
 
+    def test_proxy_collect_siblings(self):
+        root = etree.Element('parent')
+        c1 = etree.SubElement(root, 'child1')
+        c2 = etree.SubElement(root, 'child2')
+
+        root.remove(c1)
+        root.remove(c2)
+        c1.addnext(c2)
+        del c1
+        # trigger deallocation attempt of c1
+        c2.getprevious()
+        # make sure it wasn't deallocated
+        self.assertEqual('child1', c2.getprevious().tag)
+
+    def test_proxy_collect_siblings_text(self):
+        root = etree.Element('parent')
+        c1 = etree.SubElement(root, 'child1')
+        c2 = etree.SubElement(root, 'child2')
+
+        root.remove(c1)
+        root.remove(c2)
+        c1.addnext(c2)
+        c1.tail = 'abc'
+        c2.tail = 'xyz'
+        del c1
+        # trigger deallocation attempt of c1
+        c2.getprevious()
+        # make sure it wasn't deallocated
+        self.assertEqual('child1', c2.getprevious().tag)
+        self.assertEqual('abc', c2.getprevious().tail)
+
     # helper methods
 
     def _writeElement(self, element, encoding='us-ascii', compression=0):
@@ -3629,6 +3845,50 @@ class _XIncludeTestCase(HelperTestCase):
         called.sort()
         self.assertEqual(
             [("dtd", True), ("include", True), ("input", True)],
+            called)
+
+    def test_xinclude_resolver_recursive(self):
+        data = textwrap.dedent('''
+        <doc xmlns:xi="http://www.w3.org/2001/XInclude">
+        <foo/>
+        <xi:include href="./test.xml" />
+        </doc>
+        ''')
+
+        class Resolver(etree.Resolver):
+            called = {}
+
+            def resolve(self, url, id, context):
+                if url.endswith("test_xinclude.xml"):
+                    assert not self.called.get("input")
+                    self.called["input"] = True
+                    return None  # delegate to default resolver
+                elif url.endswith('/test5.xml'):
+                    assert not self.called.get("DONE")
+                    self.called["DONE"] = True
+                    return self.resolve_string('<DONE/>', context)
+                else:
+                    _, filename = url.rsplit('/', 1)
+                    assert not self.called.get(filename)
+                    self.called[filename] = True
+                    next_data = data.replace(
+                        'test.xml', 'test%d.xml' % len(self.called))
+                    return self.resolve_string(next_data, context)
+
+        res_instance = Resolver()
+        parser = etree.XMLParser(load_dtd=True)
+        parser.resolvers.add(res_instance)
+
+        tree = etree.parse(fileInTestDir('include/test_xinclude.xml'),
+                           parser=parser)
+
+        self.include(tree)
+
+        called = list(res_instance.called.items())
+        called.sort()
+        self.assertEqual(
+            [("DONE", True), ("input", True), ("test.xml", True),
+             ("test2.xml", True), ("test3.xml", True), ("test4.xml", True)],
             called)
 
 

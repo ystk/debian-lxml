@@ -135,7 +135,7 @@ static int __Pyx_ImportFunction(PyObject *module, const char *funcname, void (**
                 PyModule_GetName(module), funcname);
         goto bad;
     }
-#if PY_VERSION_HEX >= 0x02070000 && !(PY_MAJOR_VERSION==3 && PY_MINOR_VERSION==0)
+#if PY_VERSION_HEX >= 0x02070000
     if (!PyCapsule_IsValid(cobj, sig)) {
         PyErr_Format(PyExc_TypeError,
             "C function %.200s.%.200s has wrong signature (expected %.500s, got %.500s)",

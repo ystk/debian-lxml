@@ -551,7 +551,7 @@ XInclude processor.
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
         <a href="lxml.etree.XMLParser-class.html" class="summary-name">XMLParser</a><br />
-      XMLParser(self, encoding=None, attribute_defaults=False, dtd_validation=False, load_dtd=False, no_network=True, ns_clean=False, recover=False, XMLSchema schema=None, remove_blank_text=False, resolve_entities=True, remove_comments=False, remove_pis=False, strip_cdata=True, target=None, compact=True)
+      XMLParser(self, encoding=None, attribute_defaults=False, dtd_validation=False, load_dtd=False, no_network=True, ns_clean=False, recover=False, XMLSchema schema=None, remove_blank_text=False, resolve_entities=True, remove_comments=False, remove_pis=False, strip_cdata=True, collect_ids=True, target=None, compact=True)
     </td>
   </tr>
 <tr class="private">
@@ -954,7 +954,7 @@ A dictionary-like proxy class that mapps ID attributes to elements.
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
         <a href="lxml.etree.xmlfile-class.html" class="summary-name" onclick="show_private();">xmlfile</a><br />
-      xmlfile(self, output_file, encoding=None, compression=None)
+      xmlfile(self, output_file, encoding=None, compression=None, close=False, buffered=True)
     </td>
   </tr>
 </table>
@@ -1712,13 +1712,13 @@ standard Python logging package.</td>
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
         <a href="lxml.etree-module.html#__pyx_capi__" class="summary-name" onclick="show_private();">__pyx_capi__</a> = <code title="{'appendChild': &lt;capsule object &quot;void (struct LxmlElement *, struct Lx\
-mlElement *)&quot; at 0x2b5c0c0&gt;,
+mlElement *)&quot; at 0x2ac9b08d8f60&gt;,
  'appendChildToElement': &lt;capsule object &quot;int (struct LxmlElement *, s\
-truct LxmlElement *)&quot; at 0x2b5c0f0&gt;,
+truct LxmlElement *)&quot; at 0x2ac9b08d8f90&gt;,
  'attributeValue': &lt;capsule object &quot;PyObject *(xmlNode *, xmlAttr *)&quot; \
-at 0x2b58d50&gt;,
+at 0x2ac9b08d8c30&gt;,
  'attributeValueFromNsName': &lt;capsule object &quot;PyObject *(xmlNode *, co\
-nst xmlChar *, const xmlChar *)&quot; at 0x2b58d80&gt;,
+nst xmlChar *, const xmlChar *)&quot; at 0x2ac9b08d8c60&gt;,
 ..."><code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">appendChild</code><code class="variable-quote">'</code><code class="variable-op">: </code>&lt;capsule object &quot;void (struct L<code class="variable-ellipsis">...</code></code>
     </td>
   </tr>
@@ -1726,7 +1726,7 @@ nst xmlChar *, const xmlChar *)&quot; at 0x2b58d80&gt;,
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a href="lxml.etree-module.html#__test__" class="summary-name" onclick="show_private();">__test__</a> = <code title="{u'XML (line 2987)': u'''XML(text, parser=None, base_url=None)
+        <a href="lxml.etree-module.html#__test__" class="summary-name" onclick="show_private();">__test__</a> = <code title="{u'XML (line 3047)': u'''XML(text, parser=None, base_url=None)
 
     Parses an XML document or fragment from a string constant.
     Returns the root node (or the result returned by a parser target).
@@ -1734,14 +1734,14 @@ nst xmlChar *, const xmlChar *)&quot; at 0x2b58d80&gt;,
     like in
 
        &gt;&gt;&gt; root = XML(&quot;&lt;root&gt;&lt;test/&gt;&lt;/root&gt;&quot;)
-..."><code class="variable-group">{</code><code class="variable-quote">u'</code><code class="variable-string">XML (line 2987)</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">u'</code><code class="variable-string">XML(text, parser=None, base_</code><code class="variable-ellipsis">...</code></code>
+..."><code class="variable-group">{</code><code class="variable-quote">u'</code><code class="variable-string">XML (line 3047)</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">u'</code><code class="variable-string">XML(text, parser=None, base_</code><code class="variable-ellipsis">...</code></code>
     </td>
   </tr>
 <tr class="private">
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
-        <a name="memory_debugger"></a><span class="summary-name">memory_debugger</span> = <code title="&lt;lxml.etree._MemDebug object at 0x2b69f32578c0&gt;">&lt;lxml.etree._MemDebug object at 0x2b69f32578c0&gt;</code>
+        <a name="memory_debugger"></a><span class="summary-name">memory_debugger</span> = <code title="&lt;lxml.etree._MemDebug object at 0x2ac9ac5c58a0&gt;">&lt;lxml.etree._MemDebug object at 0x2ac9ac5c58a0&gt;</code>
     </td>
   </tr>
 </table>
@@ -2395,13 +2395,13 @@ function will only set the global error log of the current thread.</p>
     <dt>Value:</dt>
       <dd><table><tr><td><pre class="variable">
 <code class="variable-group">{</code><code class="variable-quote">'</code><code class="variable-string">appendChild</code><code class="variable-quote">'</code><code class="variable-op">: </code>&lt;capsule object &quot;void (struct LxmlElement *, struct Lx<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
-mlElement *)&quot; at 0x2b5c0c0&gt;<code class="variable-op">,</code>
+mlElement *)&quot; at 0x2ac9b08d8f60&gt;<code class="variable-op">,</code>
  <code class="variable-quote">'</code><code class="variable-string">appendChildToElement</code><code class="variable-quote">'</code><code class="variable-op">: </code>&lt;capsule object &quot;int (struct LxmlElement *, s<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
-truct LxmlElement *)&quot; at 0x2b5c0f0&gt;<code class="variable-op">,</code>
+truct LxmlElement *)&quot; at 0x2ac9b08d8f90&gt;<code class="variable-op">,</code>
  <code class="variable-quote">'</code><code class="variable-string">attributeValue</code><code class="variable-quote">'</code><code class="variable-op">: </code>&lt;capsule object &quot;PyObject *(xmlNode *, xmlAttr *)&quot; <span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
-at 0x2b58d50&gt;<code class="variable-op">,</code>
+at 0x2ac9b08d8c30&gt;<code class="variable-op">,</code>
  <code class="variable-quote">'</code><code class="variable-string">attributeValueFromNsName</code><code class="variable-quote">'</code><code class="variable-op">: </code>&lt;capsule object &quot;PyObject *(xmlNode *, co<span class="variable-linewrap"><img src="crarr.png" alt="\" /></span>
-nst xmlChar *, const xmlChar *)&quot; at 0x2b58d80&gt;<code class="variable-op">,</code>
+nst xmlChar *, const xmlChar *)&quot; at 0x2ac9b08d8c60&gt;<code class="variable-op">,</code>
 <code class="variable-ellipsis">...</code>
 </pre></td></tr></table>
 </dd>
@@ -2420,7 +2420,7 @@ nst xmlChar *, const xmlChar *)&quot; at 0x2b58d80&gt;<code class="variable-op">
   <dl class="fields">
     <dt>Value:</dt>
       <dd><table><tr><td><pre class="variable">
-<code class="variable-group">{</code><code class="variable-quote">u'</code><code class="variable-string">XML (line 2987)</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">u'''</code><code class="variable-string">XML(text, parser=None, base_url=None)</code>
+<code class="variable-group">{</code><code class="variable-quote">u'</code><code class="variable-string">XML (line 3047)</code><code class="variable-quote">'</code><code class="variable-op">: </code><code class="variable-quote">u'''</code><code class="variable-string">XML(text, parser=None, base_url=None)</code>
 <code class="variable-string"></code>
 <code class="variable-string">    Parses an XML document or fragment from a string constant.</code>
 <code class="variable-string">    Returns the root node (or the result returned by a parser target).</code>
@@ -2466,7 +2466,7 @@ nst xmlChar *, const xmlChar *)&quot; at 0x2b58d80&gt;<code class="variable-op">
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Fri Apr 18 08:58:40 2014
+    Generated by Epydoc 3.0.1 on Wed Sep 10 19:04:27 2014
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"
