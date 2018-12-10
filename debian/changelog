@@ -1,3 +1,10 @@
+lxml (3.4.0-1+deb8u1) jessie-security; urgency=high
+
+  * CVE-2018-19787: Prevent an XSS injection vulnerability where LXML did not
+    remove "javascript:" URLs that used escaping.
+
+ -- Chris Lamb <lamby@debian.org>  Mon, 10 Dec 2018 09:39:10 +0100
+
 lxml (3.4.0-1) unstable; urgency=medium
 
   * New upstream version 3.4.0.
