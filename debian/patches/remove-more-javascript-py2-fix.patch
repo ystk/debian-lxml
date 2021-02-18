@@ -1,0 +1,32 @@
+From 4cb57362deb23bca0f70f41ab1efa13390fcdbb1 Mon Sep 17 00:00:00 2001
+From: Stefan Behnel <stefan_ml@behnel.de>
+Date: Thu, 26 Nov 2020 11:31:44 +0100
+Subject: [PATCH] Work around Py2's lack of "re.ASCII".
+
+---
+ src/lxml/html/clean.py | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+--- a/src/lxml/html/clean.py
++++ b/src/lxml/html/clean.py
+@@ -4,8 +4,9 @@ Removes unwanted tags and content.  See
+ details.
+ """
+ 
+-import re
+ import copy
++import re
++import sys
+ try:
+     from urlparse import urlsplit
+     from urllib import unquote_plus
+@@ -70,7 +71,8 @@ _replace_css_import = re.compile(
+     r'@\s*import', re.I).sub
+ 
+ _looks_like_tag_content = re.compile(
+-    r'</?[a-zA-Z]+|\son[a-zA-Z]+\s*=', re.ASCII).search
++    r'</?[a-zA-Z]+|\son[a-zA-Z]+\s*=',
++    *((re.ASCII,) if sys.version_info[0] >= 3 else ())).search
+ 
+ # All kinds of schemes besides just javascript: that can cause
+ # execution:

@@ -1,0 +1,118 @@
+From a105ab8dc262ec6735977c25c13f0bdfcdec72a7 Mon Sep 17 00:00:00 2001
+From: Stefan Behnel <stefan_ml@behnel.de>
+Date: Thu, 26 Nov 2020 09:20:52 +0100
+Subject: [PATCH] Prevent combinations of <math/svg> and <style> to sneak
+ JavaScript through the HTML cleaner.
+
+* A vulnerability (CVE-2020-27783) was discovered in the HTML Cleaner by Yaniv Nizry,
+  which allowed JavaScript to pass through.  The cleaner now removes more sneaky
+  "style" content.
+---
+ CHANGES.txt                        | 11 +++++++++++
+ src/lxml/html/clean.py             | 22 ++++++++++++++--------
+ src/lxml/html/tests/test_clean.py  | 10 ++++++++++
+ src/lxml/html/tests/test_clean.txt | 18 +++++++++++++++---
+ 4 files changed, 50 insertions(+), 11 deletions(-)
+
+--- a/src/lxml/html/clean.py
++++ b/src/lxml/html/clean.py
+@@ -62,12 +62,15 @@ __all__ = ['clean_html', 'clean', 'Clean
+ 
+ # This is an IE-specific construct you can have in a stylesheet to
+ # run some Javascript:
+-_css_javascript_re = re.compile(
+-    r'expression\s*\(.*?\)', re.S|re.I)
++_replace_css_javascript = re.compile(
++    r'expression\s*\(.*?\)', re.S|re.I).sub
+ 
+ # Do I have to worry about @\nimport?
+-_css_import_re = re.compile(
+-    r'@\s*import', re.I)
++_replace_css_import = re.compile(
++    r'@\s*import', re.I).sub
++
++_looks_like_tag_content = re.compile(
++    r'</?[a-zA-Z]+|\son[a-zA-Z]+\s*=', re.ASCII).search
+ 
+ # All kinds of schemes besides just javascript: that can cause
+ # execution:
+@@ -279,8 +282,8 @@ class Cleaner(object):
+                 # from styles, otherwise...
+                 for el in _find_styled_elements(doc):
+                     old = el.get('style')
+-                    new = _css_javascript_re.sub('', old)
+-                    new = _css_import_re.sub('', new)
++                    new = _replace_css_javascript('', old)
++                    new = _replace_css_import('', new)
+                     if self._has_sneaky_javascript(new):
+                         # Something tricky is going on...
+                         del el.attrib['style']
+@@ -291,9 +294,9 @@ class Cleaner(object):
+                         el.drop_tree()
+                         continue
+                     old = el.text or ''
+-                    new = _css_javascript_re.sub('', old)
++                    new = _replace_css_javascript('', old)
+                     # The imported CSS can do anything; we just can't allow:
+-                    new = _css_import_re.sub('', old)
++                    new = _replace_css_import('', new)
+                     if self._has_sneaky_javascript(new):
+                         # Something tricky is going on...
+                         el.text = '/* deleted */'
+@@ -497,6 +500,9 @@ class Cleaner(object):
+         if '</noscript' in style:
+             # e.g. '<noscript><style><a title="</noscript><img src=x onerror=alert(1)>">'
+             return True
++        if _looks_like_tag_content(style):
++            # e.g. '<math><style><img src=x onerror=alert(1)></style></math>'
++            return True
+         return False
+ 
+     def clean_html(self, html):
+--- a/src/lxml/html/tests/test_clean.py
++++ b/src/lxml/html/tests/test_clean.py
+@@ -79,6 +79,16 @@ class CleanerTest(unittest.TestCase):
+             b'<noscript><style>/* deleted */</style></noscript>',
+             lxml.html.tostring(clean_html(s)))
+ 
++    def test_sneaky_js_in_math_style(self):
++        # This gets parsed as <math> -> <style>"..."</style>
++        # thus passing any tag/script/whatever content through into the output.
++        html = '<math><style><img src=x onerror=alert(1)></style></math>'
++        s = lxml.html.fragment_fromstring(html)
++
++        self.assertEqual(
++            b'<math><style>/* deleted */</style></math>',
++            lxml.html.tostring(clean_html(s)))
++
+ 
+ def test_suite():
+     suite = unittest.TestSuite()
+--- a/src/lxml/html/tests/test_clean.txt
++++ b/src/lxml/html/tests/test_clean.txt
+@@ -104,7 +104,11 @@
+ >>> print(Cleaner(page_structure=False, safe_attrs_only=False).clean_html(doc))
+ <html>
+   <head>
+-    <style>/* deleted */</style>
++    <style>
++      body {background-image: url()};
++      div {background-image: url()};
++      div {color: };
++    </style>
+   </head>
+   <body>
+     <a href="">a link</a>
+@@ -148,7 +152,11 @@
+     <link rel="alternate" type="text/rss" src="evil-rss">
+     <link rel="alternate" type="text/rss" href="http://example.com">
+     <link rel="stylesheet" type="text/rss" href="http://example.com">
+-    <style>/* deleted */</style>
++    <style>
++      body {background-image: url()};
++      div {background-image: url()};
++      div {color: };
++    </style>
+   </head>
+   <body>
+     <a href="">a link</a>

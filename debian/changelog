@@ -1,3 +1,25 @@
+lxml (3.4.0-1+deb8u3) jessie-security; urgency=medium
+
+  * Remove more sneaky JavaScript inside <math><style> tags.
+
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Tue, 15 Dec 2020 10:25:33 +0100
+
+lxml (3.4.0-1+deb8u2) jessie-security; urgency=high
+
+  [ Utkarsh Gupta ]
+   * Non-maintainer upload by the Debian ELTS Team.
+   * CVE-2020-27783: Prevent combinations of <noscript> and <style> to
+     sneak JavaScript through the HTML cleaner.
+
+  [ Emilio Pozuelo Monfort ]
+  * Switch to source format 3.0 so both the above patch and the previous
+    one for CVE-2018-19787 get applied, which weren't before as there was
+    no patch system. Thus this change additionally fixes CVE-2018-19787,
+    which was shipped but wasn't applied in the previous update.
+  * Run the test suite, but ignore failures for now.
+
+ -- Emilio Pozuelo Monfort <pochu@debian.org>  Mon, 30 Nov 2020 13:23:00 +0100
+
 lxml (3.4.0-1+deb8u1) jessie-security; urgency=high
 
   * CVE-2018-19787: Prevent an XSS injection vulnerability where LXML did not
