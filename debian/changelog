@@ -1,3 +1,12 @@
+lxml (3.4.0-1+deb8u4) jessie-security; urgency=medium
+
+  * Non-maintainer upload by the ELTS Team.
+  * CVE-2021-28957
+    Due to missing input sanitization, XSS is possible for the HTML5
+    formatcion attribute.
+
+ -- Thorsten Alteholz <debian@alteholz.de>  Tue, 23 Mar 2021 19:03:02 +0100
+
 lxml (3.4.0-1+deb8u3) jessie-security; urgency=medium
 
   * Remove more sneaky JavaScript inside <math><style> tags.

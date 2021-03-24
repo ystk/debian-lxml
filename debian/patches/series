@@ -2,3 +2,5 @@ CVE-2018-19787.patch
 CVE-2020-27783.patch
 remove-more-javascript.patch
 remove-more-javascript-py2-fix.patch
+
+CVE-2021-28957.patch
