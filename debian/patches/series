@@ -4,3 +4,6 @@ remove-more-javascript.patch
 remove-more-javascript-py2-fix.patch
 
 CVE-2021-28957.patch
+CVE-2021-43818-part1.patch
+CVE-2021-43818-part1.5.patch
+CVE-2021-43818-part2.patch

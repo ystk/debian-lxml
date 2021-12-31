@@ -1,3 +1,13 @@
+lxml (3.4.0-1+deb8u5) jessie-security; urgency=high
+
+  * Non-maintainer upload by the LTS Team.
+  * Add patch to prevent "@import" from re-occurring in the
+    CSS after replacements, e.g. "@@importimport" and remove
+    SVG image data URLs since they can embed script content.
+    (Fixes: CVE-2021-43818) (Closes: #1001885)
+
+ -- Utkarsh Gupta <utkarsh@debian.org>  Fri, 31 Dec 2021 22:41:30 +0530
+
 lxml (3.4.0-1+deb8u4) jessie-security; urgency=medium
 
   * Non-maintainer upload by the ELTS Team.
